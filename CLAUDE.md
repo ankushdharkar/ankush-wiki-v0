@@ -1,0 +1,1 @@
+- Always use the  new Tailwind v4 that uses a different approach, unless mentioned otherwise
