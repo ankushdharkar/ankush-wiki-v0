@@ -1,4 +1,6 @@
 import Navigation from '../components/layout/Navigation'
+import RevealAnimation from '../components/ui/RevealAnimation'
+import { motion } from 'motion/react'
 import { 
   RiRouterLine,
   RiDatabase2Line, 
@@ -36,12 +38,14 @@ export default function RealDevSquad() {
         <div className="container mx-auto px-6">
           {/* Main Real Dev Squad section */}
           <div className="mb-16">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold mb-4">Real Dev Squad</h2>
-            </div>
+            <RevealAnimation delay={0.2}>
+              <div className="text-center mb-12">
+                <h2 className="text-4xl font-bold mb-4">Real Dev Squad</h2>
+              </div>
+            </RevealAnimation>
 
             <div className="flex flex-col lg:flex-row items-center gap-12">
-              <div className="lg:w-1/3">
+              <RevealAnimation delay={0.4} direction="left" className="lg:w-1/3">
                 <div className="w-full max-w-sm mx-auto aspect-square">
                   <img 
                     src="/images/Real-Dev-Squad-logo.png" 
@@ -50,9 +54,9 @@ export default function RealDevSquad() {
                     loading="lazy"
                   />
                 </div>
-              </div>
+              </RevealAnimation>
               
-              <div className="lg:w-2/3">
+              <RevealAnimation delay={0.6} direction="right" className="lg:w-2/3">
                 <p className="text-xl mb-8">What is it</p>
                 <div className="grid md:grid-cols-2 gap-8">
                   <div>
@@ -92,22 +96,31 @@ export default function RealDevSquad() {
                     </ul>
                   </div>
                 </div>
-              </div>
+              </RevealAnimation>
             </div>
           </div>
 
           {/* What does it teach section */}
           <div>
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold">What does it teach</h2>
-            </div>
+            <RevealAnimation delay={0.8}>
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold">What does it teach</h2>
+              </div>
+            </RevealAnimation>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {teachings.map((item, index) => {
                 const IconComponent = item.icon
                 return (
-                  <div 
+                  <motion.div 
                     key={index}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ 
+                      duration: 0.6,
+                      delay: 1 + index * 0.1,
+                      ease: [0.25, 0.8, 0.25, 1]
+                    }}
                     className="bg-gray-800 p-6 rounded-lg hover:bg-gray-700 transition-colors duration-300 text-center"
                   >
                     <IconComponent 
@@ -115,7 +128,7 @@ export default function RealDevSquad() {
                       style={{ color: item.color }}
                     />
                     <h3 className="text-lg font-medium">{item.title}</h3>
-                  </div>
+                  </motion.div>
                 )
               })}
             </div>

@@ -1,1 +1,2 @@
 - Always use the  new Tailwind v4 that uses a different approach, unless mentioned otherwise
+- if you are going to do something different than official ways, please ask me first

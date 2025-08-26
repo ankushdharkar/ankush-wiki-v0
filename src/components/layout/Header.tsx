@@ -1,20 +1,23 @@
 import { Link } from 'react-router-dom'
 import { BsLinkedin, BsGithub } from 'react-icons/bs'
 import TypingAnimation from '../ui/TypingAnimation'
+import { TextHoverEffect } from '../ui/TextHoverEffect'
+import { Boxes } from '../ui/BackgroundBoxes'
 
 export default function Header() {
   return (
-    <header id="header" className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex flex-col justify-center items-center relative overflow-hidden">
-      {/* Background pattern or animation could go here */}
-      <div className="absolute inset-0 bg-[url('/images/background/bg.jpg')] bg-cover bg-center opacity-10"></div>
+    <header id="header" className="min-h-screen bg-slate-900 text-white flex flex-col justify-center items-center relative overflow-hidden">
+      {/* Background Boxes Animation */}
+      <div className="absolute inset-0 w-full h-full bg-slate-900 z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
+      <Boxes />
       
-      <div className="container mx-auto px-6 text-center relative z-10">
+      <div className="container mx-auto px-6 text-center relative z-20">
         {/* Main heading */}
-        <h1 className="text-5xl md:text-7xl font-bold mb-6">
-          <Link to="/" className="hover:text-green-400 transition-colors duration-300">
-            Ankush Dharkar
+        <div className="mb-8 h-24 flex items-center justify-center">
+          <Link to="/" className="block w-full max-w-2xl">
+            <TextHoverEffect text="Ankush Dharkar" duration={0} />
           </Link>
-        </h1>
+        </div>
         
         {/* Typing animation */}
         <h2 className="text-xl md:text-2xl mb-8 text-gray-300">

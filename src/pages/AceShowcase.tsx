@@ -194,6 +194,7 @@ export default function AceShowcase() {
             </div>
           </section>
 
+
           {/* Hero Section */}
           <section>
             <h2 className="text-3xl font-bold mb-8">Hero Section Example</h2>

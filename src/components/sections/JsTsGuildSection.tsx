@@ -1,19 +1,18 @@
-import Navigation from '../components/layout/Navigation'
-import RevealAnimation from '../components/ui/RevealAnimation'
+import RevealAnimation from '../ui/RevealAnimation'
 
-export default function JsTsGuild() {
+export default function JsTsGuildSection() {
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <Navigation />
-      
-      <section id="js-ts-guild" className="py-20">
-        <div className="container mx-auto px-6">
-          <RevealAnimation delay={0.2}>
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold mb-4">Guild Details</h2>
-            </div>
-          </RevealAnimation>
+    <section id="js-ts-guild" className="py-20 bg-gray-800">
+      <div className="container mx-auto px-6">
+        {/* Section Title */}
+        <RevealAnimation delay={0.2}>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">JS TS Guild</h2>
+          </div>
+        </RevealAnimation>
 
+        {/* What is it section */}
+        <div className="mb-16">
           <div className="flex flex-col lg:flex-row items-center gap-12">
             <RevealAnimation delay={0.4} direction="left" className="lg:w-1/3">
               <div className="w-full max-w-sm mx-auto aspect-square">
@@ -71,7 +70,7 @@ export default function JsTsGuild() {
             </RevealAnimation>
           </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   )
 }
