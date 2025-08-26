@@ -3,6 +3,7 @@ import { BsLinkedin, BsGithub } from 'react-icons/bs'
 import TypingAnimation from '../ui/TypingAnimation'
 import { TextHoverEffect } from '../ui/TextHoverEffect'
 import { Boxes } from '../ui/BackgroundBoxes'
+import { HoverBorderGradient } from '../ui/hover-border-gradient'
 
 export default function Header() {
   return (
@@ -11,9 +12,9 @@ export default function Header() {
       <div className="absolute inset-0 w-full h-full bg-slate-900 z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
       <Boxes />
       
-      <div className="container mx-auto px-6 text-center relative z-20">
+      <div className="container mx-auto px-6 text-center relative z-20 pointer-events-none">
         {/* Main heading */}
-        <div className="mb-8 h-24 flex items-center justify-center">
+        <div className="mb-8 h-24 flex items-center justify-center pointer-events-auto">
           <Link to="/" className="block w-full max-w-2xl">
             <TextHoverEffect text="Ankush Dharkar" duration={0} />
           </Link>
@@ -25,17 +26,24 @@ export default function Header() {
         </h2>
         
         {/* Navigation */}
-        <nav className="mb-8">
+        <nav className="mb-8 pointer-events-auto">
           <ul className="flex flex-wrap justify-center gap-6 md:gap-8 text-lg">
             <li>
-              <Link to="/" className="text-green-400 font-semibold hover:text-green-300 transition-colors">
+              <HoverBorderGradient
+                as={Link}
+                to="/"
+                containerClassName="rounded-full"
+                className="bg-slate-900 text-green-400 font-semibold"
+              >
                 Home
-              </Link>
+              </HoverBorderGradient>
             </li>
             <li>
-              <Link 
-                to="/real-dev-squad" 
-                className="hover:text-green-400 transition-colors duration-300 flex items-center gap-2"
+              <HoverBorderGradient
+                as={Link}
+                to="/real-dev-squad"
+                containerClassName="rounded-full"
+                className="bg-slate-900 text-white hover:text-green-400 flex items-center gap-2"
               >
                 Real Dev Squad
                 <img 
@@ -44,23 +52,33 @@ export default function Header() {
                   alt="RDS Logo"
                   loading="lazy"
                 />
-              </Link>
+              </HoverBorderGradient>
             </li>
             <li>
-              <Link to="/chillouts" className="hover:text-green-400 transition-colors duration-300">
+              <HoverBorderGradient
+                as={Link}
+                to="/chillouts"
+                containerClassName="rounded-full"
+                className="bg-slate-900 text-white hover:text-green-400"
+              >
                 Chillouts
-              </Link>
+              </HoverBorderGradient>
             </li>
             <li>
-              <Link to="/js-ts-guild" className="hover:text-green-400 transition-colors duration-300">
+              <HoverBorderGradient
+                as={Link}
+                to="/js-ts-guild"
+                containerClassName="rounded-full"
+                className="bg-slate-900 text-white hover:text-green-400"
+              >
                 JS TS Guild
-              </Link>
+              </HoverBorderGradient>
             </li>
           </ul>
         </nav>
         
         {/* Social links */}
-        <div className="flex justify-center gap-6">
+        <div className="flex justify-center gap-6 pointer-events-auto">
           <a 
             href="https://www.linkedin.com/in/ankushdharkar" 
             target="_blank" 

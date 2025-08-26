@@ -3,9 +3,11 @@ import RealDevSquadSection from '../components/sections/RealDevSquadSection'
 import JsTsGuildSection from '../components/sections/JsTsGuildSection'
 import ChilloutsSection from '../components/sections/ChilloutsSection'
 import { HomePageCanvasReveal } from '../components/ui/HomePageCanvasReveal'
+import { useRubberBandScroll } from '../hooks/useRubberBandScroll'
 // import AboutSection from '../components/sections/AboutSection'
 
 export default function Portfolio() {
+  useRubberBandScroll(2000)
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Header />
