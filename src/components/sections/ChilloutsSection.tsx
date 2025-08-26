@@ -1,8 +1,16 @@
 import RevealAnimation from '../ui/RevealAnimation'
 
-export default function ChilloutsSection() {
+interface ChilloutsSectionProps {
+  isStandalone?: boolean;
+}
+
+export default function ChilloutsSection({ isStandalone = false }: ChilloutsSectionProps) {
+  const containerClass = isStandalone 
+    ? "min-h-screen bg-gray-900 text-white pt-20" 
+    : "py-20 bg-gray-900";
+  
   return (
-    <section id="chillouts" className="py-20 bg-gray-900">
+    <section id="chillouts" className={containerClass}>
       <div className="container mx-auto px-6">
         {/* Section Title */}
         <RevealAnimation delay={0.2}>

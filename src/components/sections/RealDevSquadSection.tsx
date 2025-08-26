@@ -11,8 +11,14 @@ import {
   RiCloudLine,
   RiTerminalLine
 } from 'react-icons/ri'
+import RevealAnimation from '../ui/RevealAnimation'
+import { motion } from 'motion/react'
 
-export default function RealDevSquadSection() {
+interface RealDevSquadSectionProps {
+  isStandalone?: boolean;
+}
+
+export default function RealDevSquadSection({ isStandalone = false }: RealDevSquadSectionProps) {
   const teachings = [
     { icon: RiRouterLine, title: "Software Engineering", color: "#ffbb2c" },
     { icon: RiDatabase2Line, title: "Communication", color: "#5578ff" },
@@ -27,18 +33,24 @@ export default function RealDevSquadSection() {
     { icon: RiTerminalLine, title: "Life Skills", color: "#ffc107" }
   ]
 
+  const containerClass = isStandalone 
+    ? "min-h-screen bg-gray-900 text-white pt-20" 
+    : "py-20 bg-gray-800";
+
   return (
-    <section id="real-dev-squad" className="py-20 bg-gray-800">
+    <section id="real-dev-squad" className={containerClass}>
       <div className="container mx-auto px-6">
         {/* Section Title */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4">Real Dev Squad</h2>
-        </div>
+        <RevealAnimation delay={0.2}>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">Real Dev Squad</h2>
+          </div>
+        </RevealAnimation>
 
         {/* What is it section */}
         <div className="mb-16">
           <div className="flex flex-col lg:flex-row items-center gap-12">
-            <div className="lg:w-1/3">
+            <RevealAnimation delay={0.4} direction="left" className="lg:w-1/3">
               <div className="w-full max-w-sm mx-auto aspect-square">
                 <img 
                   src="/images/Real-Dev-Squad-logo.png" 
@@ -47,8 +59,9 @@ export default function RealDevSquadSection() {
                   loading="lazy"
                 />
               </div>
-            </div>
-            <div className="lg:w-2/3">
+            </RevealAnimation>
+            
+            <RevealAnimation delay={0.6} direction="right" className="lg:w-2/3">
               <p className="text-xl mb-8">What is it</p>
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
@@ -88,30 +101,39 @@ export default function RealDevSquadSection() {
                   </ul>
                 </div>
               </div>
-            </div>
+            </RevealAnimation>
           </div>
         </div>
 
         {/* What does it teach section */}
         <div>
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold">What does it teach</h2>
-          </div>
+          <RevealAnimation delay={0.8}>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold">What does it teach</h2>
+            </div>
+          </RevealAnimation>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {teachings.map((item, index) => {
               const IconComponent = item.icon
               return (
-                <div 
+                <motion.div 
                   key={index}
-                  className="bg-gray-700 p-6 rounded-lg hover:bg-gray-600 transition-colors duration-300 text-center"
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ 
+                    duration: 0.6,
+                    delay: 1 + index * 0.1,
+                    ease: [0.25, 0.8, 0.25, 1]
+                  }}
+                  className="bg-gray-800 p-6 rounded-lg hover:bg-gray-700 transition-colors duration-300 text-center"
                 >
                   <IconComponent 
                     className="text-4xl mx-auto mb-4" 
                     style={{ color: item.color }}
                   />
                   <h3 className="text-lg font-medium">{item.title}</h3>
-                </div>
+                </motion.div>
               )
             })}
           </div>

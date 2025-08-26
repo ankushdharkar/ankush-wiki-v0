@@ -1,8 +1,16 @@
 import RevealAnimation from '../ui/RevealAnimation'
 
-export default function JsTsGuildSection() {
+interface JsTsGuildSectionProps {
+  isStandalone?: boolean;
+}
+
+export default function JsTsGuildSection({ isStandalone = false }: JsTsGuildSectionProps) {
+  const containerClass = isStandalone 
+    ? "min-h-screen bg-gray-900 text-white pt-20" 
+    : "py-20 bg-gray-800";
+  
   return (
-    <section id="js-ts-guild" className="py-20 bg-gray-800">
+    <section id="js-ts-guild" className={containerClass}>
       <div className="container mx-auto px-6">
         {/* Section Title */}
         <RevealAnimation delay={0.2}>
