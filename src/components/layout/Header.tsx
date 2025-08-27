@@ -77,6 +77,20 @@ export default function Header() {
             <li>
               <HoverBorderGradient
                 as={Link}
+                to="/important-links"
+                containerClassName="rounded-full"
+                className={`bg-slate-900 ${
+                  location.pathname === '/important-links' 
+                    ? 'text-green-400' 
+                    : 'text-white hover:text-green-400'
+                }`}
+              >
+                Important Links
+              </HoverBorderGradient>
+            </li>
+            <li>
+              <HoverBorderGradient
+                as={Link}
                 to="/real-dev-squad"
                 containerClassName="rounded-full"
                 className={`bg-slate-900 flex items-center gap-2 ${

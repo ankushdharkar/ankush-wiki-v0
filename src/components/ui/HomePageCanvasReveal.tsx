@@ -7,12 +7,30 @@ export function HomePageCanvasReveal() {
   const navigate = useNavigate();
 
   return (
-    <div className="py-20 flex flex-col lg:flex-row items-center justify-center bg-black w-full gap-4 mx-auto px-8">
+    <div className="py-20 flex flex-wrap items-center justify-center bg-black w-full gap-x-4 gap-y-12 mx-auto px-8">
+      <Card 
+        title="Important Links" 
+        icon={<ImportantLinksIcon />} 
+        bgColor="bg-purple-950/50"
+        onClick={() => navigate("/important-links")}
+        order="order-1"
+      >
+        <CanvasRevealEffect
+          animationSpeed={2.5}
+          containerClassName="bg-purple-900"
+          colors={[
+            [147, 51, 234],
+            [168, 85, 247],
+          ]}
+          dotSize={8}
+        />
+      </Card>
       <Card 
         title="Real Dev Squad" 
         icon={<RDSIcon />} 
         bgColor="bg-blue-950/50"
         onClick={() => navigate("/real-dev-squad")}
+        order="order-2"
       >
         <CanvasRevealEffect
           animationSpeed={3.5}
@@ -29,6 +47,7 @@ export function HomePageCanvasReveal() {
         icon={<JSTSIcon />} 
         bgColor="bg-yellow-950/50"
         onClick={() => navigate("/js-ts-guild")}
+        order="order-3"
       >
         <CanvasRevealEffect
           animationSpeed={4}
@@ -46,6 +65,7 @@ export function HomePageCanvasReveal() {
         icon={<ChilloutsIcon />} 
         bgColor="bg-pink-950/50"
         onClick={() => navigate("/chillouts")}
+        order="order-4"
       >
         <CanvasRevealEffect
           animationSpeed={3}
@@ -67,12 +87,14 @@ const Card = ({
   children,
   bgColor = "",
   onClick,
+  order = "",
 }: {
   title: string;
   icon: React.ReactNode;
   children?: React.ReactNode;
   bgColor?: string;
   onClick?: () => void;
+  order?: string;
 }) => {
   const [hovered, setHovered] = React.useState(false);
   
@@ -81,12 +103,12 @@ const Card = ({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={onClick}
-      className={`border border-white/[0.2] group/canvas-card flex items-center justify-center max-w-sm w-full mx-auto p-4 relative h-[30rem] cursor-pointer ${bgColor}`}
+      className={`border border-white/[0.2] group/canvas-card flex items-center justify-center max-w-[180px] md:max-w-sm w-full mx-auto p-2 md:p-4 relative aspect-[1/1.414] cursor-pointer ${bgColor} ${order}`}
     >
-      <Icon className="absolute h-6 w-6 -top-3 -left-3 text-white" />
-      <Icon className="absolute h-6 w-6 -bottom-3 -left-3 text-white" />
-      <Icon className="absolute h-6 w-6 -top-3 -right-3 text-white" />
-      <Icon className="absolute h-6 w-6 -bottom-3 -right-3 text-white" />
+      <Icon className="absolute h-4 w-4 md:h-6 md:w-6 -top-2 -left-2 md:-top-3 md:-left-3 text-white" />
+      <Icon className="absolute h-4 w-4 md:h-6 md:w-6 -bottom-2 -left-2 md:-bottom-3 md:-left-3 text-white" />
+      <Icon className="absolute h-4 w-4 md:h-6 md:w-6 -top-2 -right-2 md:-top-3 md:-right-3 text-white" />
+      <Icon className="absolute h-4 w-4 md:h-6 md:w-6 -bottom-2 -right-2 md:-bottom-3 md:-right-3 text-white" />
 
       {hovered && (
         <div className="h-full w-full absolute inset-0">
@@ -98,7 +120,7 @@ const Card = ({
         <div className="text-center group-hover/canvas-card:translate-y-2 transition duration-200 w-full mx-auto flex items-center justify-center">
           {icon}
         </div>
-        <h2 className="dark:text-white text-xl opacity-0 group-hover/canvas-card:opacity-100 relative z-10 text-white mt-4 font-bold group-hover/canvas-card:-translate-y-2 transition duration-200">
+        <h2 className="dark:text-white text-sm md:text-xl opacity-0 group-hover/canvas-card:opacity-100 relative z-10 text-white mt-2 md:mt-4 font-bold group-hover/canvas-card:-translate-y-2 transition duration-200">
           {title}
         </h2>
       </div>
@@ -148,5 +170,11 @@ const JSTSIcon = () => {
 const ChilloutsIcon = () => {
   return (
     <div className="text-4xl">💝</div>
+  );
+};
+
+const ImportantLinksIcon = () => {
+  return (
+    <div className="text-4xl">🔗</div>
   );
 };

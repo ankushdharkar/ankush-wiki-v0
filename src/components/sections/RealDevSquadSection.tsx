@@ -106,7 +106,7 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
         </div>
 
         {/* What does it teach section */}
-        <div>
+        <div className="mb-16">
           <RevealAnimation delay={0.8}>
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold">What does it teach</h2>
@@ -138,6 +138,25 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
             })}
           </div>
         </div>
+
+        {/* How to Join section */}
+        <RevealAnimation delay={1.4}>
+          <div className="text-center">
+            <h3 className="text-2xl font-bold mb-4">Interested in Joining?</h3>
+            <p className="text-gray-400 mb-6 max-w-2xl mx-auto">
+              Please read this document for queries on how to join Real Dev Squad
+            </p>
+            <a 
+              href="https://docs.google.com/document/d/1-Bkfj9T6SKvVU8DfuwasHSt_bI-flCX5K9wieblk-7Q/edit?tab=t.0#heading=h.jg8i8nmyqp56" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 inline-flex items-center gap-2"
+            >
+              <RiFileList3Line className="text-lg" />
+              How to Join - FAQ Document
+            </a>
+          </div>
+        </RevealAnimation>
       </div>
     </section>
   )

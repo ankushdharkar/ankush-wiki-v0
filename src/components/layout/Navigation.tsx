@@ -38,6 +38,18 @@ export default function Navigation() {
               </li>
               <li>
                 <Link 
+                  to="/important-links" 
+                  className={`transition-colors duration-300 ${
+                    location.pathname === '/important-links'
+                      ? 'text-green-400 underline underline-offset-4'
+                      : 'hover:text-green-400'
+                  }`}
+                >
+                  Important Links
+                </Link>
+              </li>
+              <li>
+                <Link 
                   to="/real-dev-squad" 
                   className={`transition-colors duration-300 flex items-center gap-2 ${
                     location.pathname === '/real-dev-squad'

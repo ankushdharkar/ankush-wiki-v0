@@ -41,6 +41,8 @@ const getRouteColor = (pathname: string): string => {
       return 'bg-blue-900'; // Navy blue for RDS
     case '/js-ts-guild':
       return 'bg-yellow-500'; // Slightly darker yellow for JS/TS
+    case '/important-links':
+      return 'bg-purple-900'; // Purple for important links
     default:
       return 'bg-black'; // Black for others
   }

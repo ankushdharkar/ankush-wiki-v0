@@ -6,13 +6,15 @@ interface RevealAnimationProps {
   delay?: number;
   direction?: "up" | "down" | "left" | "right";
   className?: string;
+  onAnimationComplete?: () => void;
 }
 
 export default function RevealAnimation({ 
   children, 
   delay = 0, 
   direction = "up",
-  className = ""
+  className = "",
+  onAnimationComplete
 }: RevealAnimationProps) {
   const directionVariants = {
     up: { y: 60, opacity: 0 },
@@ -35,6 +37,7 @@ export default function RevealAnimation({
         ease: [0.25, 0.8, 0.25, 1],
       }}
       className={className}
+      onAnimationComplete={onAnimationComplete}
     >
       {children}
     </motion.div>

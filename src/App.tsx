@@ -7,6 +7,8 @@ const AceShowcase = lazy(() => import('./pages/AceShowcase'))
 const Chillouts = lazy(() => import('./pages/Chillouts'))
 const JsTsGuild = lazy(() => import('./pages/JsTsGuild'))
 const RealDevSquad = lazy(() => import('./pages/RealDevSquad'))
+const ImportantLinks = lazy(() => import('./pages/ImportantLinks'))
+const Dev = lazy(() => import('./pages/Dev'))
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
           <Route path="/chillouts" element={<Chillouts />} />
           <Route path="/js-ts-guild" element={<JsTsGuild />} />
           <Route path="/real-dev-squad" element={<RealDevSquad />} />
+          <Route path="/important-links" element={<ImportantLinks />} />
+          <Route path="/dev" element={<Dev />} />
         </Routes>
       </Suspense>
     </PageTransition>
