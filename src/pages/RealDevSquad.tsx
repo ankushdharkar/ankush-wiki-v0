@@ -1,7 +1,12 @@
+import { useEffect } from 'react'
 import Navigation from '../components/layout/Navigation'
 import RealDevSquadSection from '../components/sections/RealDevSquadSection'
 
 export default function RealDevSquad() {
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   return (
     <div>
       <Navigation />

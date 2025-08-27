@@ -1,9 +1,13 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Meteors } from '../components/ui/MeteoursAceternity'
 import { ExpandableCards } from '../components/ui/ExpandableCards'
 import { FollowerPointerCard, TitleComponent } from '../components/ui/FollowingPointer'
 
 export default function AceShowcase() {
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
