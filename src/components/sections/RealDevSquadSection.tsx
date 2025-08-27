@@ -98,6 +98,15 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
                         @ankushdharkar on Twitter
                       </div>
                     </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-green-400 text-xl">▶</span>
+                      <div>
+                        <strong>Read this to get a better sense on how to join:</strong><br />
+                        <a href="https://docs.google.com/document/d/1-Bkfj9T6SKvVU8DfuwasHSt_bI-flCX5K9wieblk-7Q/edit?tab=t.0#heading=h.jg8i8nmyqp56" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
+                          How to Join - FAQ Document
+                        </a>
+                      </div>
+                    </li>
                   </ul>
                 </div>
               </div>
