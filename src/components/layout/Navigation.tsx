@@ -29,7 +29,7 @@ export default function Navigation() {
                   to="/" 
                   className={`font-semibold transition-colors ${
                     location.pathname === '/' 
-                      ? 'text-green-400' 
+                      ? 'text-green-400 underline underline-offset-4' 
                       : 'hover:text-green-400'
                   }`}
                 >
@@ -41,7 +41,7 @@ export default function Navigation() {
                   to="/real-dev-squad" 
                   className={`transition-colors duration-300 flex items-center gap-2 ${
                     location.pathname === '/real-dev-squad'
-                      ? 'text-green-400'
+                      ? 'text-green-400 underline underline-offset-4'
                       : 'hover:text-green-400'
                   }`}
                 >
@@ -59,7 +59,7 @@ export default function Navigation() {
                   to="/chillouts" 
                   className={`transition-colors duration-300 ${
                     location.pathname === '/chillouts'
-                      ? 'text-green-400'
+                      ? 'text-green-400 underline underline-offset-4'
                       : 'hover:text-green-400'
                   }`}
                 >
@@ -69,13 +69,19 @@ export default function Navigation() {
               <li>
                 <Link 
                   to="/js-ts-guild" 
-                  className={`transition-colors duration-300 ${
+                  className={`transition-colors duration-300 flex items-center gap-2 ${
                     location.pathname === '/js-ts-guild'
-                      ? 'text-green-400'
+                      ? 'text-green-400 underline underline-offset-4'
                       : 'hover:text-green-400'
                   }`}
                 >
                   JS TS Guild
+                  <img 
+                    src="/images/JS-TS-Guild-logo.jpeg" 
+                    className="w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0" 
+                    alt="JS TS Guild Logo"
+                    loading="lazy"
+                  />
                 </Link>
               </li>
             </ul>

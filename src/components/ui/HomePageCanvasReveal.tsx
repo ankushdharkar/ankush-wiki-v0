@@ -13,7 +13,7 @@ export function HomePageCanvasReveal() {
             [102, 126, 234],
             [118, 75, 162],
           ]}
-          dotSize={5}
+          dotSize={8}
         />
       </Card>
       <Card title="JS TS Guild" icon={<AceternityIcon />}>
@@ -24,7 +24,7 @@ export function HomePageCanvasReveal() {
             [236, 72, 153],
             [232, 121, 222],
           ]}
-          dotSize={5}
+          dotSize={8}
         />
         <div className="absolute inset-0 [mask-image:radial-gradient(400px_at_center,white,transparent)] bg-black/50 dark:bg-black/90" />
       </Card>
@@ -36,7 +36,7 @@ export function HomePageCanvasReveal() {
             [34, 197, 246],
             [0, 242, 254],
           ]}
-          dotSize={5}
+          dotSize={8}
         />
       </Card>
     </div>
