@@ -1,0 +1,76 @@
+{
+  "hash": "2435129a",
+  "configHash": "bb74c0dd",
+  "lockfileHash": "ef415123",
+  "browserHash": "84c30dd2",
+  "optimized": {
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/.pnpm/react@19.1.1/node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "d5a41615",
+      "needsInterop": true
+    },
+    "react": {
+      "src": "../../node_modules/.pnpm/react@19.1.1/node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "7ca1554d",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/.pnpm/react-dom@19.1.1_react@19.1.1/node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "4be318ce",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/.pnpm/react-router-dom@7.8.2_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "127a88c4",
+      "needsInterop": false
+    },
+    "motion/react": {
+      "src": "../../node_modules/.pnpm/motion@12.23.12_react-dom@19.1.1_react@19.1.1__react@19.1.1/node_modules/motion/dist/es/react.mjs",
+      "file": "motion_react.js",
+      "fileHash": "23a6497b",
+      "needsInterop": false
+    },
+    "react-icons/bs": {
+      "src": "../../node_modules/.pnpm/react-icons@5.5.0_react@19.1.1/node_modules/react-icons/bs/index.mjs",
+      "file": "react-icons_bs.js",
+      "fileHash": "4fc498aa",
+      "needsInterop": false
+    },
+    "react-icons/ri": {
+      "src": "../../node_modules/.pnpm/react-icons@5.5.0_react@19.1.1/node_modules/react-icons/ri/index.mjs",
+      "file": "react-icons_ri.js",
+      "fileHash": "0ed367ae",
+      "needsInterop": false
+    },
+    "clsx": {
+      "src": "../../node_modules/.pnpm/clsx@2.1.1/node_modules/clsx/dist/clsx.mjs",
+      "file": "clsx.js",
+      "fileHash": "07081f09",
+      "needsInterop": false
+    },
+    "tailwind-merge": {
+      "src": "../../node_modules/.pnpm/tailwind-merge@3.3.1/node_modules/tailwind-merge/dist/bundle-mjs.mjs",
+      "file": "tailwind-merge.js",
+      "fileHash": "1eeffce1",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-KPTLCCW4": {
+      "file": "chunk-KPTLCCW4.js"
+    },
+    "chunk-35OGIGHX": {
+      "file": "chunk-35OGIGHX.js"
+    },
+    "chunk-FADBDFBI": {
+      "file": "chunk-FADBDFBI.js"
+    },
+    "chunk-G3PMV62Z": {
+      "file": "chunk-G3PMV62Z.js"
+    }
+  }
+}
