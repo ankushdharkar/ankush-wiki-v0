@@ -14,6 +14,25 @@ export default function Header() {
       <Boxes />
       
       <div className="container mx-auto px-6 text-center relative z-20 pointer-events-none">
+        {/* Profile Photo */}
+        <div className="mb-6 flex justify-center pointer-events-auto">
+          <a 
+            href="https://twitter.com/ankushdharkar" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="block"
+          >
+            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl">
+              <img 
+                src="/images/ankush-at-event.JPG" 
+                alt="Ankush Dharkar"
+                className="w-full h-full object-cover"
+                loading="eager"
+              />
+            </div>
+          </a>
+        </div>
+        
         {/* Main heading */}
         <div className="mb-8 h-24 flex items-center justify-center pointer-events-auto">
           <Link to="/" className="block w-full max-w-2xl">

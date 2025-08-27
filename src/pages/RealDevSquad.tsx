@@ -4,6 +4,7 @@ import RealDevSquadSection from '../components/sections/RealDevSquadSection'
 
 export default function RealDevSquad() {
   useEffect(() => {
+    document.title = 'Real Dev Squad'
     window.scrollTo(0, 0)
   }, [])
 

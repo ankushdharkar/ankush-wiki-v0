@@ -6,6 +6,7 @@ import { FollowerPointerCard, TitleComponent } from '../components/ui/FollowingP
 
 export default function AceShowcase() {
   useEffect(() => {
+    document.title = 'Aceternity UI Showcase'
     window.scrollTo(0, 0)
   }, [])
   return (

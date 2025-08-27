@@ -43,8 +43,9 @@ export const BoxesCore = ({ className, ...rest }: { className?: string }) => {
                 backgroundColor: `${getRandomColor()}`,
                 transition: { duration: 0 },
               }}
-              animate={{
-                transition: { duration: 2 },
+              transition={{
+                duration: 1.5,
+                ease: "easeOut"
               }}
               key={`col` + j}
               className="relative h-8 w-16 border-t border-r border-slate-700"
