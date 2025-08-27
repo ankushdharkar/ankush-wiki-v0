@@ -34,7 +34,7 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
   ]
 
   const containerClass = isStandalone 
-    ? "min-h-screen bg-gray-900 text-white pt-20" 
+    ? "min-h-screen bg-gray-900 text-white pt-20 pb-8 md:pb-20" 
     : "py-20 bg-gray-800";
 
   return (

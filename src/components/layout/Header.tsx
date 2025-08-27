@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useState } from 'react'
 import { BsLinkedin, BsGithub } from 'react-icons/bs'
 import TypingAnimation from '../ui/TypingAnimation'
 import { TextHoverEffect } from '../ui/TextHoverEffect'
@@ -7,6 +8,8 @@ import { HoverBorderGradient } from '../ui/hover-border-gradient'
 
 export default function Header() {
   const location = useLocation()
+  const [imageLoaded, setImageLoaded] = useState(false)
+  
   return (
     <header id="header" className="h-[90vh] bg-slate-900 text-white flex flex-col justify-center items-center relative overflow-hidden">
       {/* Background Boxes Animation */}
@@ -22,12 +25,23 @@ export default function Header() {
             rel="noopener noreferrer"
             className="block"
           >
-            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl">
+            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl relative" 
+                 style={{ backgroundColor: !imageLoaded ? '#4f46e5' : 'transparent' }}>
+              {/* Loading placeholder */}
+              {!imageLoaded && (
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 animate-pulse flex items-center justify-center">
+                  <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+                </div>
+              )}
               <img 
                 src="/images/ankush-at-event.JPG" 
                 alt="Ankush Dharkar"
-                className="w-full h-full object-cover"
+                className={`w-full h-full object-cover transition-opacity duration-700 ${
+                  imageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
                 loading="eager"
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageLoaded(true)}
               />
             </div>
           </a>

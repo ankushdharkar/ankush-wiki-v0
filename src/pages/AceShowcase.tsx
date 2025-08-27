@@ -10,7 +10,7 @@ export default function AceShowcase() {
     window.scrollTo(0, 0)
   }, [])
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white pb-8 md:pb-20">
       {/* Navigation */}
       <nav className="p-6">
         <Link 
