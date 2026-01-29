@@ -1,9 +1,25 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    visualizer({
+      open: false,
+      filename: 'dist/stats.html',
+    }),
+    {
+      name: 'bundle-stats-link',
+      writeBundle() {
+        const statsPath = `${process.cwd()}/dist/stats.html`
+        process.stdout.write(`\n📊 Bundle stats available at:\n   file://${statsPath}\n\n`)
+      },
+    },
+  ],
   build: {
     rollupOptions: {
       output: {
@@ -32,10 +48,6 @@ export default defineConfig({
           }
           if (id.includes('clsx') || id.includes('tailwind-merge')) {
             return 'ui-utils';
-          }
-          // Aceternity UI
-          if (id.includes('aceternity-ui')) {
-            return 'aceternity-vendor';
           }
           // Node modules catch-all for other vendors
           if (id.includes('node_modules')) {

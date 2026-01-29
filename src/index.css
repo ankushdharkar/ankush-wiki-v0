@@ -1,6 +1,60 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Custom design tokens - Tailwind v4 CSS-based configuration */
+@theme {
+  /* Text color hierarchy */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #d1d5db; /* gray-300 */
+  --color-text-tertiary: #6b7280; /* gray-500 */
+
+  /* Tinted text colors for colored backgrounds */
+  --color-tinted-purple: #ddd6fe; /* purple-200 */
+  --color-tinted-pink: #fbcfe8; /* pink-200 */
+  --color-tinted-blue: #bfdbfe; /* blue-200 */
+
+  /* Focus ring */
+  --color-focus-ring: #4ade80; /* green-400 */
+
+  /* Custom animation for meteor effect */
+  --animate-meteor: meteor 5s linear infinite;
+}
+
+/* Base typography defaults */
+@layer base {
+  body {
+    @apply text-gray-300 leading-relaxed;
+  }
+}
+
+/* Focus utility for consistent focus states */
+@layer components {
+  .focus-ring {
+    @apply outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-gray-900;
+  }
+
+  .focus-ring-inset {
+    @apply outline-none focus:ring-2 focus:ring-green-400 focus:ring-inset;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-meteor,
+  .animate-meteor-effect,
+  .animate-pulse,
+  .animate-spin {
+    animation: none !important;
+  }
+}
 
 @keyframes meteor {
   0% {
