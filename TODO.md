@@ -41,120 +41,56 @@ This document outlines planned improvements and tasks for the Ankush Wiki v0 pro
 
 ## 📊 Analytics Implementation
 
--   **[ANALYTICS] Select Analytics Tools:** Research and evaluate analytics solutions for tracking user behavior and site performance.
-    -   **Action:** Compare features, pricing, and implementation complexity of different analytics tools
-    -   **Primary Tools to Consider:** Mixpanel, PostHog, Amplitude, Google Analytics 4, Plausible, Fathom
-    -   **Real-Time & Heatmap Analytics:** Microsoft Clarity, Smartlook, Mouseflow, Inspectlet, Hotjar, FullStory, Crazy Egg
-    -   **Open Source/Self-Hosted:** Ackee, Shynet, Offen, Koko Analytics, GoatCounter, Umami, Matomo
-    -   **Developer-Focused:** Pirsch Analytics, Counter.dev, Splitbee/Vercel Analytics, Panelbear
-    -   **Enterprise/Advanced:** Quantum Metric, Contentsquare, Glassbox, Dynatrace, DataDog RUM, Adobe Analytics
-    -   **Error Tracking + Analytics:** Sentry, Bugsnag, Rollbar, LogRocket
-    -   **A/B Testing Focused:** Optimizely, VWO, Google Optimize, AB Tasty
-    -   **Customer Journey:** Kissmetrics, Woopra, Heap
-    -   **Modern/Emerging:** June, Baremetrics, ChartMogul, Retool, Grafana
-    -   **All-in-One Platforms:** HubSpot, Intercom, Customer.io, Segment
-    -   **Decision Criteria:** Real-time data, event tracking capabilities, user privacy, cost, ease of integration, cohort analysis, session recording, heatmaps, error tracking
+**Decision (Jan 2026):** Start with PostHog, add Mixpanel later for advanced funnel analysis.
 
--   **[ANALYTICS] Implement Mixpanel:** Add Mixpanel for detailed user behavior tracking and funnel analysis.
-    -   **Action:** Set up Mixpanel account and obtain API keys
-    -   **Action:** Install Mixpanel SDK (`npm install mixpanel-browser`)
-    -   **Action:** Create analytics wrapper service in `src/services/analytics.ts`
-    -   **Action:** Initialize Mixpanel in main App component with proper configuration
-    -   **Action:** Set up user identification and properties tracking
+### Phase 1: PostHog (Current Priority) ✅ CHOSEN
 
--   **[ANALYTICS] Alternative: Implement Amplitude:** Consider Amplitude as alternative to Mixpanel for product analytics.
-    -   **Action:** Set up Amplitude account and obtain API keys
-    -   **Action:** Install Amplitude SDK (`npm install @amplitude/analytics-browser`)
-    -   **Action:** Compare Amplitude vs Mixpanel features (cohort analysis, retention tracking, funnel analysis)
-    -   **Action:** Evaluate pricing differences and feature sets
-    -   **Action:** Initialize Amplitude if chosen over Mixpanel
-    -   **Pros:** Strong cohort analysis, excellent retention tracking, robust free tier
-    -   **Cons:** More complex setup, enterprise-focused features
+-   [ ] **[ANALYTICS] Set Up PostHog Account**
+    -   Create PostHog account at https://posthog.com
+    -   Obtain project API key
+    -   Note: Free tier includes 1M events/month + 5K session recordings
 
--   **[ANALYTICS] Implement PostHog:** Add PostHog for comprehensive product analytics and feature flags.
-    -   **Action:** Set up PostHog account and obtain project API key
-    -   **Action:** Install PostHog SDK (`npm install posthog-js`)
-    -   **Action:** Initialize PostHog in main App component
-    -   **Action:** Configure PostHog for session recording and heatmaps (optional)
-    -   **Action:** Set up PostHog feature flags for A/B testing capabilities
+-   [ ] **[ANALYTICS] Install & Initialize PostHog**
+    -   Install SDK: `pnpm add posthog-js`
+    -   Create `src/services/analytics.ts` wrapper
+    -   Initialize in `main.tsx` with PostHogProvider
+    -   Configure for SPA route tracking with React Router
 
--   **[ANALYTICS] Track Key Events:** Define and implement tracking for important user interactions.
-    -   **Page Views:**
-        - Homepage visits
-        - Section page visits (/real-dev-squad, /js-ts-guild, /chillouts, /important-links)
-        - Dev page visits (/dev)
-    -   **Navigation Events:**
-        - Canvas card clicks (Important Links, Real Dev Squad, JS TS Guild, Chillouts)
-        - Header navigation clicks
-        - Social link clicks (LinkedIn, GitHub, Twitter)
-    -   **Content Engagement:**
-        - YouTube video play/pause events
-        - External link clicks (Real Dev Squad FAQ, YouTube podcast)
-        - Hover events on canvas reveal cards
-        - Coming Soon card interactions
-    -   **Technical Events:**
-        - Page load times
-        - Error occurrences
-        - Mobile vs desktop usage
-    -   **Action:** Implement event tracking in components using the analytics service
-    -   **Action:** Create custom hooks for consistent event tracking (`useAnalytics`)
+-   [ ] **[ANALYTICS] Configure PostHog Features**
+    -   Enable automatic pageview capture
+    -   Enable session recording (optional - for UX insights)
+    -   Set up autocapture for clicks/inputs
+    -   Configure privacy settings (mask sensitive inputs)
 
--   **[ANALYTICS] Create Analytics Dashboard:** Set up monitoring and reporting for tracked events.
-    -   **Action:** Configure Mixpanel dashboards for user behavior analysis
-    -   **Action:** Set up PostHog insights for conversion tracking
-    -   **Action:** Create alerts for unusual traffic patterns or errors
-    -   **Action:** Document tracked events and their purposes for future reference
+-   [ ] **[ANALYTICS] Track Key Events**
+    -   **Page Views:** Auto-captured with SPA integration
+    -   **Navigation:** Canvas card clicks, header nav, social links
+    -   **Engagement:** External link clicks, video interactions
+    -   **Technical:** Page load times, errors, device type
 
--   **[ANALYTICS] Privacy & Compliance:** Ensure analytics implementation respects user privacy.
-    -   **Action:** Add privacy policy page explaining data collection
-    -   **Action:** Implement cookie consent banner if required
-    -   **Action:** Configure analytics tools to be GDPR compliant
-    -   **Action:** Add opt-out mechanisms for users who don't want to be tracked
+-   [ ] **[ANALYTICS] Create PostHog Dashboard**
+    -   Set up insights for page popularity
+    -   Create funnel for navigation flow
+    -   Configure retention analysis
+    -   Add alerts for traffic anomalies
 
--   **[ANALYTICS] Recommended Tool Combinations:** Evaluate different analytics stack combinations based on use case and budget.
-    -   **Personal Portfolio Stack (Current Project):**
-        - **Option A:** PostHog + Plausible (comprehensive + privacy-first)
-        - **Option B:** Amplitude + Microsoft Clarity (advanced analytics + free heatmaps)
-        - **Option C:** Mixpanel + Vercel Analytics (if using Vercel hosting)
-        - **Option D:** Umami or Plausible only (simple, privacy-focused)
-    -   **Budget-Conscious Stack:**
-        - Microsoft Clarity (free heatmaps and session recordings)
-        - Plausible (affordable privacy-first analytics)
-        - Sentry (error tracking with generous free tier)
-    -   **Enterprise/Advanced Stack:**
-        - PostHog + Hotjar + Sentry (complete user experience monitoring)
-        - Amplitude + FullStory + Optimizely (advanced product analytics)
-        - Adobe Analytics + Quantum Metric (enterprise-grade)
-    -   **Developer-Focused Stack:**
-        - Vercel Analytics + Microsoft Clarity + Sentry
-        - Pirsch Analytics + Counter.dev
-        - Self-hosted: Umami + Grafana + Sentry
-    -   **Content/Blog Stack:**
-        - Plausible + Microsoft Clarity
-        - Fathom + Hotjar
-        - GoatCounter + Simple Analytics
-    -   **Future B2B SaaS Stack:**
-        - PostHog + June + Sentry + Intercom
-        - Amplitude + Mixpanel + Customer.io
-    -   **E-commerce Stack:**
-        - Mixpanel + Hotjar + Google Analytics 4
-        - PostHog + Microsoft Clarity + Segment
+### Phase 2: Mixpanel (Future)
 
--   **[ANALYTICS] Tool Evaluation Matrix:** Create comparison matrix for final tool selection.
-    -   **Action:** Create spreadsheet comparing top 5-7 tools across criteria:
-        - Pricing (free tier, paid plans)
-        - Privacy compliance (GDPR, CCPA)
-        - Implementation complexity
-        - Real-time capabilities
-        - Event tracking flexibility
-        - Session recording availability
-        - Heatmap functionality
-        - Cohort analysis features
-        - A/B testing capabilities
-        - Integration ecosystem
-        - Data export options
-        - Support quality
-    -   **Action:** Score each tool and create final recommendation
+-   [ ] **[ANALYTICS] Add Mixpanel for Advanced Analytics**
+    -   Install SDK: `pnpm add mixpanel-browser`
+    -   Integrate with existing analytics wrapper
+    -   Set up detailed funnel analysis
+    -   Configure cohort tracking
+    -   Use for deeper user journey analysis
+    -   **Note:** Requires cookie consent banner (GDPR)
+
+### Privacy & Compliance
+
+-   [ ] **[ANALYTICS] Privacy Implementation**
+    -   PostHog: Cookie-less mode available (no consent needed)
+    -   Mixpanel: Will need consent banner when added
+    -   Add privacy policy page
+    -   Implement opt-out mechanism
 
 ## ✨ New Features
 

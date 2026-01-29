@@ -17,24 +17,22 @@ export default function Header() {
       <Boxes />
       
       <div className="container mx-auto px-6 text-center relative z-20 pointer-events-none">
-        {/* Profile Photo */}
+        {/* Profile Photo - Responsive sizing */}
         <div className="mb-6 flex justify-center pointer-events-auto">
-          <a 
-            href="https://twitter.com/ankushdharkar" 
-            target="_blank" 
+          <a
+            href="https://twitter.com/ankushdharkar"
+            target="_blank"
             rel="noopener noreferrer"
-            className="block"
+            className="block focus-ring rounded-full"
           >
-            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl relative" 
+            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl relative"
                  style={{ backgroundColor: !imageLoaded ? '#4f46e5' : 'transparent' }}>
-              {/* Loading placeholder */}
+              {/* Simple skeleton loading placeholder */}
               {!imageLoaded && (
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 animate-pulse flex items-center justify-center">
-                  <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-                </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600" />
               )}
-              <img 
-                src="/images/ankush-at-event.JPG" 
+              <img
+                src="/images/ankush-at-event.JPG"
                 alt="Ankush Dharkar"
                 className={`w-full h-full object-cover transition-opacity duration-700 ${
                   imageLoaded ? 'opacity-100' : 'opacity-0'
@@ -49,7 +47,7 @@ export default function Header() {
         
         {/* Main heading */}
         <div className="mb-8 h-24 flex items-center justify-center pointer-events-auto">
-          <Link to="/" className="block w-full max-w-2xl">
+          <Link to="/" className="block w-full max-w-2xl focus-ring rounded-lg">
             <TextHoverEffect text="Ankush Dharkar" duration={0} />
           </Link>
         </div>
@@ -59,107 +57,107 @@ export default function Header() {
           I am a <TypingAnimation />
         </h2>
         
-        {/* Navigation */}
+        {/* Navigation - Primary CTA uses gradient, secondary nav uses simple styling */}
         <nav className="mb-8 pointer-events-auto">
-          <ul className="flex flex-wrap justify-center gap-6 md:gap-8 text-lg">
+          <ul className="flex flex-wrap justify-center gap-4 md:gap-6 text-lg">
             {location.pathname !== '/' && (
               <li>
-                <HoverBorderGradient
-                  as={Link}
+                <Link
                   to="/"
-                  containerClassName="rounded-full"
-                  className="bg-slate-900 text-white hover:text-green-400"
+                  className={`px-4 py-2 rounded-full border border-gray-600 transition-all duration-300 focus-ring ${
+                    location.pathname === '/'
+                      ? 'text-green-400 border-green-400'
+                      : 'text-white hover:text-green-400 hover:border-green-400'
+                  }`}
                 >
                   Home
-                </HoverBorderGradient>
+                </Link>
               </li>
             )}
+            {/* Primary CTA - Gradient button */}
             <li>
               <HoverBorderGradient
                 as={Link}
                 to="/important-links"
                 containerClassName="rounded-full"
-                className={`bg-slate-900 ${
-                  location.pathname === '/important-links' 
-                    ? 'text-green-400' 
+                className={`bg-slate-900 focus-ring ${
+                  location.pathname === '/important-links'
+                    ? 'text-green-400'
                     : 'text-white hover:text-green-400'
                 }`}
               >
                 Important Links
               </HoverBorderGradient>
             </li>
+            {/* Secondary nav - Simple styling */}
             <li>
-              <HoverBorderGradient
-                as={Link}
+              <Link
                 to="/real-dev-squad"
-                containerClassName="rounded-full"
-                className={`bg-slate-900 flex items-center gap-2 ${
-                  location.pathname === '/real-dev-squad' 
-                    ? 'text-green-400' 
-                    : 'text-white hover:text-green-400'
+                className={`px-4 py-2 rounded-full border border-gray-600 transition-all duration-300 flex items-center gap-2 focus-ring ${
+                  location.pathname === '/real-dev-squad'
+                    ? 'text-green-400 border-green-400'
+                    : 'text-white hover:text-green-400 hover:border-green-400'
                 }`}
               >
                 Real Dev Squad
-                <img 
-                  src="/images/Real-Dev-Squad-logo.png" 
-                  className="w-6 h-6 flex-shrink-0" 
+                <img
+                  src="/images/Real-Dev-Squad-logo.png"
+                  className="w-5 h-5 flex-shrink-0"
                   alt="RDS Logo"
                   loading="lazy"
                 />
-              </HoverBorderGradient>
+              </Link>
             </li>
             <li>
-              <HoverBorderGradient
-                as={Link}
+              <Link
                 to="/chillouts"
-                containerClassName="rounded-full"
-                className={`bg-slate-900 ${
-                  location.pathname === '/chillouts' 
-                    ? 'text-green-400' 
-                    : 'text-white hover:text-green-400'
+                className={`px-4 py-2 rounded-full border border-gray-600 transition-all duration-300 focus-ring ${
+                  location.pathname === '/chillouts'
+                    ? 'text-green-400 border-green-400'
+                    : 'text-white hover:text-green-400 hover:border-green-400'
                 }`}
               >
                 Chillouts
-              </HoverBorderGradient>
+              </Link>
             </li>
             <li>
-              <HoverBorderGradient
-                as={Link}
+              <Link
                 to="/js-ts-guild"
-                containerClassName="rounded-full"
-                className={`bg-slate-900 flex items-center gap-2 ${
-                  location.pathname === '/js-ts-guild' 
-                    ? 'text-green-400' 
-                    : 'text-white hover:text-green-400'
+                className={`px-4 py-2 rounded-full border border-gray-600 transition-all duration-300 flex items-center gap-2 focus-ring ${
+                  location.pathname === '/js-ts-guild'
+                    ? 'text-green-400 border-green-400'
+                    : 'text-white hover:text-green-400 hover:border-green-400'
                 }`}
               >
                 JS TS Guild
-                <img 
-                  src="/images/JS-TS-Guild-logo.jpeg" 
-                  className="w-6 h-6 flex-shrink-0" 
+                <img
+                  src="/images/JS-TS-Guild-logo.jpeg"
+                  className="w-5 h-5 flex-shrink-0"
                   alt="JS TS Guild Logo"
                   loading="lazy"
                 />
-              </HoverBorderGradient>
+              </Link>
             </li>
           </ul>
         </nav>
         
         {/* Social links */}
         <div className="flex justify-center gap-6 pointer-events-auto">
-          <a 
-            href="https://www.linkedin.com/in/ankushdharkar" 
-            target="_blank" 
+          <a
+            href="https://www.linkedin.com/in/ankushdharkar"
+            target="_blank"
             rel="noopener noreferrer"
-            className="text-2xl hover:text-blue-400 transition-colors duration-300"
+            className="text-2xl hover:text-blue-400 transition-colors duration-300 focus-ring rounded-md p-1"
+            aria-label="LinkedIn Profile"
           >
             <BsLinkedin />
           </a>
-          <a 
-            href="https://github.com/ankushdharkar" 
-            target="_blank" 
+          <a
+            href="https://github.com/ankushdharkar"
+            target="_blank"
             rel="noopener noreferrer"
-            className="text-2xl hover:text-green-400 transition-colors duration-300"
+            className="text-2xl hover:text-green-400 transition-colors duration-300 focus-ring rounded-md p-1"
+            aria-label="GitHub Profile"
           >
             <BsGithub />
           </a>
