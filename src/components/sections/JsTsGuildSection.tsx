@@ -1,4 +1,5 @@
 import RevealAnimation from '../ui/RevealAnimation'
+import { trackExternalLink } from '../../services/analytics'
 
 interface JsTsGuildSectionProps {
   isStandalone?: boolean;
@@ -15,7 +16,7 @@ export default function JsTsGuildSection({ isStandalone = false }: JsTsGuildSect
         {/* Section Title */}
         <RevealAnimation delay={0.2}>
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">JS TS Guild</h2>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-white">JS TS Guild</h2>
           </div>
         </RevealAnimation>
 
@@ -34,7 +35,7 @@ export default function JsTsGuildSection({ isStandalone = false }: JsTsGuildSect
             </RevealAnimation>
             
             <RevealAnimation delay={0.6} direction="right" className="lg:w-2/3">
-              <p className="text-xl mb-8">What is it</p>
+              <p className="text-lg md:text-xl mb-8 font-semibold text-white">What is it</p>
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
                   <ul className="space-y-4">
@@ -67,7 +68,7 @@ export default function JsTsGuildSection({ isStandalone = false }: JsTsGuildSect
                       <span className="text-green-400 text-xl">▶</span>
                       <div>
                         <strong>Discord Link:</strong><br />
-                        <a href="https://discord.gg/Vm2dugCsC8" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
+                        <a href="https://discord.gg/Vm2dugCsC8" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 focus-ring rounded-md" onClick={() => trackExternalLink('https://discord.gg/Vm2dugCsC8', 'JS TS Guild Discord')}>
                           Join Here
                         </a>
                       </div>

@@ -1,4 +1,5 @@
 import RevealAnimation from '../ui/RevealAnimation'
+import { trackExternalLink } from '../../services/analytics'
 
 interface ChilloutsSectionProps {
   isStandalone?: boolean;
@@ -15,8 +16,8 @@ export default function ChilloutsSection({ isStandalone = false }: ChilloutsSect
         {/* Section Title */}
         <RevealAnimation delay={0.2}>
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Chillouts</h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-white">Chillouts</h2>
+            <p className="text-gray-300 text-lg max-w-2xl mx-auto">
               A community focused on friends, relationships, high quality connections, dating, life, partnerships, and fun.
             </p>
           </div>
@@ -28,12 +29,12 @@ export default function ChilloutsSection({ isStandalone = false }: ChilloutsSect
             <RevealAnimation delay={0.4} direction="left" className="lg:w-1/3">
               <div className="w-full max-w-sm mx-auto text-center">
                 <div className="text-8xl mb-6">💝</div>
-                <h3 className="text-2xl font-bold text-pink-400">Community & Connection</h3>
+                <h3 className="text-xl md:text-2xl font-semibold text-pink-300">Community & Connection</h3>
               </div>
             </RevealAnimation>
             
             <RevealAnimation delay={0.6} direction="right" className="lg:w-2/3">
-              <p className="text-xl mb-8">What we focus on</p>
+              <p className="text-lg md:text-xl mb-8 font-semibold text-white">What we focus on</p>
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
                   <ul className="space-y-4">
@@ -75,11 +76,12 @@ export default function ChilloutsSection({ isStandalone = false }: ChilloutsSect
               
               <div className="mt-8">
                 <RevealAnimation delay={0.8}>
-                  <a 
+                  <a
                     href="https://docs.google.com/document/d/1Pn37IDyVp3yQV9PZduFwWMZa8yHP7FCitvRwo7Zdv5Y/edit?usp=sharing"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300"
+                    className="inline-block bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 focus-ring"
+                    onClick={() => trackExternalLink('https://docs.google.com/document/d/1Pn37IDyVp3yQV9PZduFwWMZa8yHP7FCitvRwo7Zdv5Y', 'Chillouts Join')}
                   >
                     Join Our Community
                   </a>

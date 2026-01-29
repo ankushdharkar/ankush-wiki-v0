@@ -1,6 +1,6 @@
-import { 
+import {
   RiRouterLine,
-  RiDatabase2Line, 
+  RiDatabase2Line,
   RiCamera3Line,
   RiEnglishInput,
   RiCodeSSlashFill,
@@ -13,6 +13,7 @@ import {
 } from 'react-icons/ri'
 import RevealAnimation from '../ui/RevealAnimation'
 import { motion } from 'motion/react'
+import { trackExternalLink } from '../../services/analytics'
 
 interface RealDevSquadSectionProps {
   isStandalone?: boolean;
@@ -43,7 +44,7 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
         {/* Section Title */}
         <RevealAnimation delay={0.2}>
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Real Dev Squad</h2>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-white">Real Dev Squad</h2>
           </div>
         </RevealAnimation>
 
@@ -62,7 +63,7 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
             </RevealAnimation>
             
             <RevealAnimation delay={0.6} direction="right" className="lg:w-2/3">
-              <p className="text-xl mb-8">What is it</p>
+              <p className="text-lg md:text-xl mb-8 font-semibold text-white">What is it</p>
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
                   <ul className="space-y-4">
@@ -102,7 +103,7 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
                       <span className="text-green-400 text-xl">▶</span>
                       <div>
                         <strong>Read this to get a better sense on how to join:</strong><br />
-                        <a href="https://docs.google.com/document/d/1-Bkfj9T6SKvVU8DfuwasHSt_bI-flCX5K9wieblk-7Q/edit?tab=t.0#heading=h.jg8i8nmyqp56" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
+                        <a href="https://docs.google.com/document/d/1-Bkfj9T6SKvVU8DfuwasHSt_bI-flCX5K9wieblk-7Q/edit?tab=t.0#heading=h.jg8i8nmyqp56" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 focus-ring rounded-md" onClick={() => trackExternalLink('https://docs.google.com/document/d/1-Bkfj9T6SKvVU8DfuwasHSt_bI-flCX5K9wieblk-7Q', 'RDS FAQ Inline')}>
                           How to Join - FAQ Document
                         </a>
                       </div>
@@ -118,7 +119,7 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
         <div className="mb-16">
           <RevealAnimation delay={0.8}>
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold">What does it teach</h2>
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-white">What does it teach</h2>
             </div>
           </RevealAnimation>
           
@@ -151,15 +152,16 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
         {/* How to Join section */}
         <RevealAnimation delay={1.4}>
           <div className="text-center">
-            <h3 className="text-2xl font-bold mb-4">Interested in Joining?</h3>
-            <p className="text-gray-400 mb-6 max-w-2xl mx-auto">
+            <h3 className="text-xl md:text-2xl font-semibold mb-4 text-white">Interested in Joining?</h3>
+            <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
               Please read this document for queries on how to join Real Dev Squad
             </p>
-            <a 
-              href="https://docs.google.com/document/d/1-Bkfj9T6SKvVU8DfuwasHSt_bI-flCX5K9wieblk-7Q/edit?tab=t.0#heading=h.jg8i8nmyqp56" 
-              target="_blank" 
+            <a
+              href="https://docs.google.com/document/d/1-Bkfj9T6SKvVU8DfuwasHSt_bI-flCX5K9wieblk-7Q/edit?tab=t.0#heading=h.jg8i8nmyqp56"
+              target="_blank"
               rel="noopener noreferrer"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 inline-flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 inline-flex items-center gap-2 focus-ring"
+              onClick={() => trackExternalLink('https://docs.google.com/document/d/1-Bkfj9T6SKvVU8DfuwasHSt_bI-flCX5K9wieblk-7Q', 'RDS FAQ Button')}
             >
               <RiFileList3Line className="text-lg" />
               How to Join - FAQ Document
