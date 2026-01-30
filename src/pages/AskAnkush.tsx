@@ -15,6 +15,15 @@ function getVisitorId(): string {
   return id
 }
 
+// Get/set persistent username
+function getStoredUsername(): string {
+  return localStorage.getItem('askAnkush_username') || 'Ankush'
+}
+
+function setStoredUsername(name: string): void {
+  localStorage.setItem('askAnkush_username', name)
+}
+
 const VISITOR_ID = getVisitorId()
 
 export default function AskAnkush() {
@@ -27,6 +36,12 @@ export default function AskAnkush() {
   const [sortBy, setSortBy] = useState<'upvotes' | 'recent'>('upvotes')
   const [showSuccess, setShowSuccess] = useState(false)
   const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null)
+  const [username, setUsername] = useState(getStoredUsername)
+
+  const handleUsernameChange = (name: string) => {
+    setUsername(name)
+    setStoredUsername(name)
+  }
 
   useEffect(() => {
     document.title = 'Ask Ankush'
@@ -57,7 +72,7 @@ export default function AskAnkush() {
       const question = await questionsApi.create({
         content: newQuestion.trim(),
         isAnonymous,
-        authorName: 'Visitor',
+        authorName: username || 'Visitor',
       })
 
       setQuestions((prev) => [question, ...prev])
@@ -120,10 +135,24 @@ export default function AskAnkush() {
       {/* Header */}
       <header className="border-b border-gray-800 bg-gray-900/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold">Ask Ankush</h1>
-          <p className="text-gray-400 text-sm mt-1">
-            Got a question? Ask away and upvote what you want answered first.
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">Ask Ankush</h1>
+              <p className="text-gray-400 text-sm mt-1">
+                Got a question? Ask away and upvote what you want answered first.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-400">Your name:</span>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => handleUsernameChange(e.target.value)}
+                className="w-32 bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-gray-500"
+                placeholder="Your name"
+              />
+            </div>
+          </div>
         </div>
       </header>
 
