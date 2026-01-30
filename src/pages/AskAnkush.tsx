@@ -1,141 +1,110 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { trackEvent } from '../services/analytics'
+import { questionsApi } from '../services/api'
+import type { Question } from '../services/api'
 
-interface Question {
-  id: string
-  content: string
-  isAnonymous: boolean
-  authorName: string
-  upvotes: number
-  upvotedBy: string[]
-  aiAnswer: string | null
-  ankushAnswer: string | null
-  createdAt: number
-  status: 'pending' | 'approved' | 'hidden'
-}
-
-// Simulated current user (replace with real auth later)
-const CURRENT_USER = {
-  id: 'user-' + Math.random().toString(36).substr(2, 9),
-  name: 'Visitor',
-  isAuthenticated: false,
-}
-
-const STORAGE_KEY = 'askAnkush_questions'
-
-// Load questions from localStorage
-function loadQuestions(): Question[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    return stored ? JSON.parse(stored) : []
-  } catch {
-    return []
+// Generate a persistent visitor ID
+function getVisitorId(): string {
+  const key = 'askAnkush_visitorId'
+  let id = localStorage.getItem(key)
+  if (!id) {
+    id = 'visitor-' + Math.random().toString(36).substr(2, 9)
+    localStorage.setItem(key, id)
   }
+  return id
 }
 
-// Save questions to localStorage
-function saveQuestions(questions: Question[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(questions))
-}
-
-// Generate a mock AI answer
-function generateMockAIAnswer(question: string): string {
-  const responses = [
-    `Based on my understanding, ${question.toLowerCase().includes('how') ? 'the approach would involve' : 'I think'} focusing on fundamentals first. Ankush typically emphasizes practical experience over theoretical knowledge.`,
-    `This is a great question! From what I know about Ankush's perspective, he values learning by doing. The best way to understand this would be through hands-on practice.`,
-    `Interesting question. While I can offer a general perspective, Ankush's personal take on this would likely include insights from his experience with Real Dev Squad and mentoring developers.`,
-  ]
-  return responses[Math.floor(Math.random() * responses.length)]
-}
+const VISITOR_ID = getVisitorId()
 
 export default function AskAnkush() {
   const [questions, setQuestions] = useState<Question[]>([])
   const [newQuestion, setNewQuestion] = useState('')
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<'upvotes' | 'recent'>('upvotes')
   const [showSuccess, setShowSuccess] = useState(false)
-  const [expandedQuestion, setExpandedQuestion] = useState<string | null>(null)
+  const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null)
 
   useEffect(() => {
     document.title = 'Ask Ankush'
-    setQuestions(loadQuestions())
+    loadQuestions()
   }, [])
+
+  const loadQuestions = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      const data = await questionsApi.getAll()
+      setQuestions(data)
+    } catch {
+      setError('Failed to load questions')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (newQuestion.trim().length < 10) return
 
     setIsSubmitting(true)
+    setError(null)
 
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 800))
+    try {
+      const question = await questionsApi.create({
+        content: newQuestion.trim(),
+        isAnonymous,
+        authorName: 'Visitor',
+      })
 
-    const question: Question = {
-      id: 'q-' + Date.now(),
-      content: newQuestion.trim(),
-      isAnonymous,
-      authorName: isAnonymous ? 'Anonymous' : CURRENT_USER.name,
-      upvotes: 0,
-      upvotedBy: [],
-      aiAnswer: generateMockAIAnswer(newQuestion),
-      ankushAnswer: null,
-      createdAt: Date.now(),
-      status: 'approved', // Auto-approve for demo
+      setQuestions((prev) => [question, ...prev])
+      setNewQuestion('')
+      setIsAnonymous(false)
+      setShowSuccess(true)
+      setTimeout(() => setShowSuccess(false), 3000)
+
+      trackEvent('question_submitted', {
+        isAnonymous,
+        questionLength: question.content.length,
+      })
+    } catch {
+      setError('Failed to submit question')
+    } finally {
+      setIsSubmitting(false)
     }
-
-    const updated = [question, ...questions]
-    setQuestions(updated)
-    saveQuestions(updated)
-    setNewQuestion('')
-    setIsAnonymous(false)
-    setIsSubmitting(false)
-    setShowSuccess(true)
-    setTimeout(() => setShowSuccess(false), 3000)
-
-    trackEvent('question_submitted', {
-      isAnonymous,
-      questionLength: question.content.length,
-    })
   }
 
-  const handleUpvote = (questionId: string) => {
+  const handleUpvote = async (questionId: number) => {
     const question = questions.find((q) => q.id === questionId)
-    const hasUpvoted = question?.upvotedBy.includes(CURRENT_USER.id)
+    const hasUpvoted = question?.upvotedBy.includes(VISITOR_ID)
 
     trackEvent('question_upvote', {
       questionId,
       action: hasUpvoted ? 'remove' : 'add',
     })
 
-    setQuestions((prev) => {
-      const updated = prev.map((q) => {
-        if (q.id !== questionId) return q
-
-        const hasUpvoted = q.upvotedBy.includes(CURRENT_USER.id)
-        return {
-          ...q,
-          upvotes: hasUpvoted ? q.upvotes - 1 : q.upvotes + 1,
-          upvotedBy: hasUpvoted
-            ? q.upvotedBy.filter((id) => id !== CURRENT_USER.id)
-            : [...q.upvotedBy, CURRENT_USER.id],
-        }
-      })
-      saveQuestions(updated)
-      return updated
-    })
+    try {
+      const updated = await questionsApi.upvote(questionId, VISITOR_ID)
+      setQuestions((prev) =>
+        prev.map((q) => (q.id === questionId ? updated : q))
+      )
+    } catch {
+      setError('Failed to upvote')
+    }
   }
 
   const sortedQuestions = [...questions]
     .filter((q) => q.status === 'approved')
     .sort((a, b) => {
       if (sortBy === 'upvotes') return b.upvotes - a.upvotes
-      return b.createdAt - a.createdAt
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     })
 
-  const formatTime = (timestamp: number) => {
-    const diff = Date.now() - timestamp
+  const formatTime = (timestamp: string) => {
+    const diff = Date.now() - new Date(timestamp).getTime()
     const minutes = Math.floor(diff / 60000)
     const hours = Math.floor(diff / 3600000)
     const days = Math.floor(diff / 86400000)
@@ -159,6 +128,19 @@ export default function AskAnkush() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8">
+        {/* Error Banner */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-900/30 border border-red-700/50 rounded-lg text-red-400">
+            {error}
+            <button
+              onClick={() => setError(null)}
+              className="ml-4 underline hover:no-underline"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
         {/* Question Form */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
@@ -237,7 +219,7 @@ export default function AskAnkush() {
                 exit={{ opacity: 0 }}
                 className="mt-4 p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-green-400 text-sm"
               >
-                Question submitted! AI has provided an initial response.
+                Question submitted successfully!
               </motion.div>
             )}
           </AnimatePresence>
@@ -276,8 +258,34 @@ export default function AskAnkush() {
             </div>
           </div>
 
+          {/* Loading State */}
+          {isLoading && (
+            <div className="text-center py-16">
+              <svg
+                className="animate-spin h-8 w-8 mx-auto text-gray-400"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  fill="none"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
+              </svg>
+              <p className="mt-4 text-gray-400">Loading questions...</p>
+            </div>
+          )}
+
           {/* Empty State */}
-          {sortedQuestions.length === 0 && (
+          {!isLoading && sortedQuestions.length === 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -296,7 +304,7 @@ export default function AskAnkush() {
           <div className="space-y-4">
             <AnimatePresence mode="popLayout">
               {sortedQuestions.map((question, index) => {
-                const hasUpvoted = question.upvotedBy.includes(CURRENT_USER.id)
+                const hasUpvoted = question.upvotedBy.includes(VISITOR_ID)
                 const isExpanded = expandedQuestion === question.id
 
                 return (
@@ -480,7 +488,7 @@ export default function AskAnkush() {
           <p>
             Questions are reviewed before appearing publicly.
             <br />
-            AI provides instant responses; Ankush answers when available.
+            Ankush answers when available.
           </p>
         </footer>
       </main>
