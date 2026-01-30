@@ -134,21 +134,21 @@ export default function AskAnkush() {
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
       <header className="border-b border-gray-800 bg-gray-900/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-4 py-5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <h1 className="text-2xl font-bold">Ask Ankush</h1>
               <p className="text-gray-400 text-sm mt-1">
                 Got a question? Ask away and upvote what you want answered first.
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-400">Your name:</span>
+            <div className="flex items-center gap-2 bg-gray-800/50 rounded-full px-3 py-1.5">
+              <span className="text-xs text-gray-500">Posting as</span>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => handleUsernameChange(e.target.value)}
-                className="w-32 bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-gray-500"
+                className="w-24 bg-transparent text-sm text-white focus:outline-none"
                 placeholder="Your name"
               />
             </div>
@@ -174,7 +174,7 @@ export default function AskAnkush() {
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gray-800/50 rounded-xl p-6 mb-8 border border-gray-700/50"
+          className="bg-gray-800/50 rounded-xl p-6 mb-8 border-t-4 border-t-blue-500 border border-gray-700/50 shadow-lg"
         >
           <form onSubmit={handleSubmit}>
             <label htmlFor="question" className="block text-lg font-medium mb-3">
@@ -206,7 +206,7 @@ export default function AskAnkush() {
                 <button
                   type="submit"
                   disabled={newQuestion.trim().length < 10 || isSubmitting}
-                  className="px-5 py-2 bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-500 rounded-lg font-medium transition-colors focus-ring"
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
@@ -263,23 +263,25 @@ export default function AskAnkush() {
                 ({sortedQuestions.length})
               </span>
             </h2>
-            <div className="flex gap-2">
+            <div className="flex border border-gray-700 rounded-lg overflow-hidden">
               <button
                 onClick={() => setSortBy('upvotes')}
-                className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                aria-pressed={sortBy === 'upvotes'}
+                className={`px-4 py-1.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-inset ${
                   sortBy === 'upvotes'
                     ? 'bg-gray-700 text-white'
-                    : 'text-gray-400 hover:text-white'
+                    : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-750'
                 }`}
               >
                 Top
               </button>
               <button
                 onClick={() => setSortBy('recent')}
-                className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                aria-pressed={sortBy === 'recent'}
+                className={`px-4 py-1.5 text-sm border-l border-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-inset ${
                   sortBy === 'recent'
                     ? 'bg-gray-700 text-white'
-                    : 'text-gray-400 hover:text-white'
+                    : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-750'
                 }`}
               >
                 Recent
@@ -318,14 +320,20 @@ export default function AskAnkush() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-16 px-4"
+              className="text-center py-20 px-6 bg-gray-800/20 rounded-2xl"
             >
-              <div className="text-6xl mb-4">💭</div>
-              <h3 className="text-xl font-medium mb-2">No questions yet</h3>
-              <p className="text-gray-400 max-w-md mx-auto">
+              <div className="text-8xl mb-6">💭</div>
+              <h3 className="text-2xl font-semibold mb-3">No questions yet</h3>
+              <p className="text-gray-400 max-w-md mx-auto mb-6">
                 Be the first to ask! Whether it's about tech, career, or anything
                 else - Ankush is here to help.
               </p>
+              <button
+                onClick={() => document.getElementById('question')?.focus()}
+                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900"
+              >
+                Ask the first question
+              </button>
             </motion.div>
           )}
 
@@ -344,17 +352,20 @@ export default function AskAnkush() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-gray-800/30 border border-gray-700/50 rounded-xl overflow-hidden"
+                    className="bg-gray-800/30 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow"
                   >
                     <div className="p-5">
                       {/* Question Header */}
                       <div className="flex items-start gap-4">
                         {/* Upvote Button */}
-                        <button
+                        <motion.button
                           onClick={() => handleUpvote(question.id)}
-                          className={`flex flex-col items-center gap-1 px-2 py-1 rounded-lg transition-colors ${
+                          whileTap={{ scale: 0.9 }}
+                          aria-label={`${hasUpvoted ? 'Remove upvote from' : 'Upvote'} question by ${question.isAnonymous ? 'anonymous user' : question.authorName}`}
+                          aria-pressed={hasUpvoted}
+                          className={`flex flex-col items-center gap-1 px-2 py-1 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 ${
                             hasUpvoted
-                              ? 'bg-green-900/30 text-green-400'
+                              ? 'bg-orange-900/30 text-orange-400'
                               : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
                           }`}
                         >
@@ -374,7 +385,7 @@ export default function AskAnkush() {
                           <span className="text-sm font-medium">
                             {question.upvotes}
                           </span>
-                        </button>
+                        </motion.button>
 
                         {/* Question Content */}
                         <div className="flex-1 min-w-0">
@@ -422,7 +433,9 @@ export default function AskAnkush() {
                           onClick={() =>
                             setExpandedQuestion(isExpanded ? null : question.id)
                           }
-                          className="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-700/50 transition-colors"
+                          aria-label={isExpanded ? 'Hide answers' : 'Show answers'}
+                          aria-expanded={isExpanded}
+                          className="text-gray-400 hover:text-white p-3 rounded-lg hover:bg-gray-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
                         >
                           <svg
                             className={`w-5 h-5 transition-transform ${
