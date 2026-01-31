@@ -37,7 +37,7 @@ export function HomePageCanvasReveal() {
       <Card
         title="Get Shortlisted"
         icon={<ResumeIcon />}
-        bgColor="bg-rose-950/50"
+        bgColor="bg-orange-950/50"
         onClick={() => handleExternalClick('https://myresumeisnotgettingshortlisted.com/', 'Get Shortlisted Hero Card')}
         order="order-2"
         badge="New"
@@ -45,10 +45,10 @@ export function HomePageCanvasReveal() {
       >
         <CanvasRevealEffect
           animationSpeed={2.5}
-          containerClassName="bg-rose-900"
+          containerClassName="bg-orange-900"
           colors={[
-            [244, 63, 94],
-            [236, 72, 153],
+            [251, 146, 60],
+            [245, 158, 11],
           ]}
           dotSize={8}
         />
@@ -249,6 +249,6 @@ const RealDSAIcon = () => {
 
 const ResumeIcon = () => {
   return (
-    <div className="text-4xl">📄</div>
+    <div className="text-4xl">🔥</div>
   );
 };

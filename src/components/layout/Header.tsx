@@ -81,9 +81,9 @@ export default function Header() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackExternalLink('https://myresumeisnotgettingshortlisted.com/', 'Header Get Shortlisted')}
-                className="group relative px-5 py-2.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold transition-all duration-300 flex items-center gap-2 focus-ring hover:shadow-lg hover:shadow-rose-500/30 hover:scale-105"
+                className="group relative px-5 py-2.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold transition-all duration-300 flex items-center gap-2 focus-ring hover:shadow-lg hover:shadow-orange-500/30 hover:scale-105"
               >
-                <span className="text-lg">📄</span>
+                <span className="text-lg">🔥</span>
                 Get Shortlisted
                 <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-yellow-400 text-yellow-900 text-[10px] font-bold rounded-full shadow animate-pulse">New</span>
               </a>

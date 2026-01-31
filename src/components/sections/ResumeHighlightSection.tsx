@@ -3,7 +3,7 @@ import { trackExternalLink } from '../../services/analytics'
 
 export default function ResumeHighlightSection() {
   return (
-    <section className="py-8 md:py-12 bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 relative overflow-hidden">
+    <section className="py-8 md:py-12 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -76,13 +76,13 @@ export default function ResumeHighlightSection() {
               href="https://myresumeisnotgettingshortlisted.com/"
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => trackExternalLink('https://myresumeisnotgettingshortlisted.com/', 'Resume Highlight CTA')}
+              onClick={() => trackExternalLink('https://myresumeisnotgettingshortlisted.com/', 'Get Shortlisted Highlight CTA')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
-              className="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-purple-700 font-bold text-lg rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden"
+              className="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-orange-700 font-bold text-lg rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden"
             >
               {/* Shine effect */}
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-100 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-orange-100 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
               <span className="relative flex items-center gap-2">
                 Read Now
                 <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
