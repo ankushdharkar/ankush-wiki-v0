@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { trackEvent } from '../services/analytics'
 import { questionsApi } from '../services/api'
-import type { Question } from '../services/api'
+import type { Question, Topic } from '../services/api'
+import { TopicBadge } from '../components/ui/TopicBadge'
+
+// Feature flag for AI features (disabled by default for security)
+const AI_FEATURES_ENABLED = import.meta.env.VITE_PUBLIC_FEATURE_AI_ENABLED === 'true'
 
 // Generate a persistent visitor ID
 function getVisitorId(): string {
@@ -33,10 +37,12 @@ export default function AskAnkush() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [sortBy, setSortBy] = useState<'upvotes' | 'recent'>('upvotes')
+  const [sortBy, setSortBy] = useState<'upvotes' | 'recent' | 'trending'>('upvotes')
   const [showSuccess, setShowSuccess] = useState(false)
   const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null)
   const [username, setUsername] = useState(getStoredUsername)
+  const [topics, setTopics] = useState<Topic[]>([])
+  const [activeTopic, setActiveTopic] = useState<string | null>(null)
 
   const handleUsernameChange = (name: string) => {
     setUsername(name)
@@ -45,14 +51,32 @@ export default function AskAnkush() {
 
   useEffect(() => {
     document.title = 'Ask Ankush'
+    loadTopics()
     loadQuestions()
   }, [])
+
+  // Reload questions when filter changes
+  useEffect(() => {
+    loadQuestions()
+  }, [activeTopic, sortBy])
+
+  const loadTopics = async () => {
+    try {
+      const data = await questionsApi.getTopics()
+      setTopics(data)
+    } catch {
+      // Topics are optional, don't show error
+    }
+  }
 
   const loadQuestions = async () => {
     try {
       setIsLoading(true)
       setError(null)
-      const data = await questionsApi.getAll()
+      const data = await questionsApi.getAll({
+        topic: activeTopic ?? undefined,
+        sort: sortBy,
+      })
       setQuestions(data)
     } catch {
       setError('Failed to load questions')
@@ -111,12 +135,10 @@ export default function AskAnkush() {
     }
   }
 
-  const sortedQuestions = [...questions]
-    .filter((q) => q.status === 'approved')
-    .sort((a, b) => {
-      if (sortBy === 'upvotes') return b.upvotes - a.upvotes
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    })
+  // Questions are already filtered and sorted by the API
+  const sortedQuestions = questions
+
+  const totalQuestions = topics.reduce((sum, t) => sum + t.count, 0)
 
   const formatTime = (timestamp: string) => {
     const diff = Date.now() - new Date(timestamp).getTime()
@@ -133,22 +155,22 @@ export default function AskAnkush() {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-gray-900/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-5">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <header className="border-b border-gray-800 bg-gray-900/95 backdrop-blur-md sticky top-0 z-10">
+        <div className="max-w-3xl mx-auto px-4 py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold">Ask Ankush</h1>
-              <p className="text-gray-400 text-sm mt-1">
+              <p className="text-gray-500 text-sm mt-1.5">
                 Got a question? Ask away and upvote what you want answered first.
               </p>
             </div>
-            <div className="flex items-center gap-2 bg-gray-800/50 rounded-full px-3 py-1.5">
-              <span className="text-xs text-gray-500">Posting as</span>
+            <div className="flex items-center gap-2 bg-gray-800/60 rounded-lg px-3.5 py-2 border border-gray-700/50">
+              <span className="text-xs text-gray-500 font-medium">Posting as</span>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => handleUsernameChange(e.target.value)}
-                className="w-24 bg-transparent text-sm text-white focus:outline-none"
+                className="w-28 bg-transparent text-sm text-white focus:outline-none placeholder:text-gray-600"
                 placeholder="Your name"
               />
             </div>
@@ -159,13 +181,31 @@ export default function AskAnkush() {
       <main className="max-w-3xl mx-auto px-4 py-8">
         {/* Error Banner */}
         {error && (
-          <div className="mb-6 p-4 bg-red-900/30 border border-red-700/50 rounded-lg text-red-400">
-            {error}
+          <div className="mb-8 p-4 bg-red-900/20 border-l-4 border-red-500 rounded-r-lg flex items-start gap-3">
+            <svg
+              className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <div className="flex-1">
+              <p className="text-red-300 font-medium">{error}</p>
+            </div>
             <button
               onClick={() => setError(null)}
-              className="ml-4 underline hover:no-underline"
+              className="text-red-400 hover:text-red-300 transition-colors"
+              aria-label="Dismiss error"
             >
-              Dismiss
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
         )}
@@ -174,10 +214,13 @@ export default function AskAnkush() {
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gray-800/50 rounded-xl p-6 mb-8 border-t-4 border-t-blue-500 border border-gray-700/50 shadow-lg"
+          className="relative bg-gray-800/40 rounded-2xl p-8 mb-10 border border-gray-700/50 shadow-[0_8px_16px_rgba(0,0,0,0.2)]"
         >
+          {/* Accent border */}
+          <div className="absolute top-0 left-8 right-8 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
+
           <form onSubmit={handleSubmit}>
-            <label htmlFor="question" className="block text-lg font-medium mb-3">
+            <label htmlFor="question" className="block text-lg font-semibold mb-4 text-white">
               What would you like to know?
             </label>
             <textarea
@@ -185,28 +228,45 @@ export default function AskAnkush() {
               value={newQuestion}
               onChange={(e) => setNewQuestion(e.target.value)}
               placeholder="Ask about tech, career advice, Real Dev Squad, or anything else..."
-              className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus-ring-inset resize-none transition-colors"
+              className="w-full bg-gray-900/60 border border-gray-700/70 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 resize-none transition-all"
               rows={3}
               maxLength={500}
             />
-            <div className="flex items-center justify-between mt-4">
-              <label className="flex items-center gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={isAnonymous}
-                  onChange={(e) => setIsAnonymous(e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-600 bg-gray-900 text-green-500 focus:ring-green-400 focus:ring-offset-gray-900"
-                />
-                <span className="text-sm text-gray-400">Ask anonymously</span>
+            <div className="flex items-center justify-between mt-5">
+              <label className="flex items-center gap-2.5 cursor-pointer select-none group">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={isAnonymous}
+                    onChange={(e) => setIsAnonymous(e.target.checked)}
+                    className="peer w-5 h-5 rounded border-2 border-gray-600 bg-gray-900/50 checked:bg-green-500 checked:border-green-500 cursor-pointer appearance-none transition-all focus:ring-2 focus:ring-green-500/30 focus:ring-offset-2 focus:ring-offset-gray-800"
+                  />
+                  <svg
+                    className="absolute top-0.5 left-0.5 w-4 h-4 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                  Ask anonymously
+                </span>
               </label>
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-500">
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-gray-600 font-mono tabular-nums">
                   {newQuestion.length}/500
                 </span>
                 <button
                   type="submit"
                   disabled={newQuestion.trim().length < 10 || isSubmitting}
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900"
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-800 disabled:text-gray-600 rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20 disabled:shadow-none"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
@@ -246,9 +306,22 @@ export default function AskAnkush() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="mt-4 p-3 bg-green-900/30 border border-green-700/50 rounded-lg text-green-400 text-sm"
+                className="mt-5 p-4 bg-green-900/20 border-l-4 border-green-500 rounded-r-lg text-green-300 text-sm flex items-center gap-3"
               >
-                Question submitted successfully!
+                <svg
+                  className="w-5 h-5 text-green-400 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span className="font-medium">Question submitted successfully!</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -256,21 +329,49 @@ export default function AskAnkush() {
 
         {/* Questions List */}
         <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold">
+          {/* Topic Filters */}
+          {topics.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">
+                Filter by topic
+              </h3>
+              <div className="flex flex-wrap gap-2.5">
+                <TopicBadge
+                  name="All"
+                  color={activeTopic === null ? 'blue' : 'gray'}
+                  count={totalQuestions}
+                  isActive={activeTopic === null}
+                  onClick={() => setActiveTopic(null)}
+                />
+                {topics.map((topic) => (
+                  <TopicBadge
+                    key={topic.slug}
+                    name={topic.name}
+                    color={topic.color}
+                    count={topic.count}
+                    isActive={activeTopic === topic.slug}
+                    onClick={() => setActiveTopic(topic.slug)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-xl font-bold text-white">
               Questions{' '}
-              <span className="text-gray-500 font-normal">
+              <span className="text-gray-600 font-normal text-base">
                 ({sortedQuestions.length})
               </span>
             </h2>
-            <div className="flex border border-gray-700 rounded-lg overflow-hidden">
+            <div className="flex bg-gray-800/40 rounded-lg p-1 gap-1 border border-gray-700/50">
               <button
                 onClick={() => setSortBy('upvotes')}
                 aria-pressed={sortBy === 'upvotes'}
-                className={`px-4 py-1.5 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-inset ${
+                className={`px-4 py-2 text-sm font-medium rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 ${
                   sortBy === 'upvotes'
-                    ? 'bg-gray-700 text-white'
-                    : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-750'
+                    ? 'bg-gray-700 text-white shadow-md'
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
                 }`}
               >
                 Top
@@ -278,13 +379,24 @@ export default function AskAnkush() {
               <button
                 onClick={() => setSortBy('recent')}
                 aria-pressed={sortBy === 'recent'}
-                className={`px-4 py-1.5 text-sm border-l border-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-inset ${
+                className={`px-4 py-2 text-sm font-medium rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 ${
                   sortBy === 'recent'
-                    ? 'bg-gray-700 text-white'
-                    : 'bg-gray-800 text-gray-400 hover:text-white hover:bg-gray-750'
+                    ? 'bg-gray-700 text-white shadow-md'
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
                 }`}
               >
                 Recent
+              </button>
+              <button
+                onClick={() => setSortBy('trending')}
+                aria-pressed={sortBy === 'trending'}
+                className={`px-4 py-2 text-sm font-medium rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                  sortBy === 'trending'
+                    ? 'bg-gray-700 text-white shadow-md'
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                }`}
+              >
+                Trending
               </button>
             </div>
           </div>
@@ -320,25 +432,49 @@ export default function AskAnkush() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-20 px-6 bg-gray-800/20 rounded-2xl"
+              className="text-center py-24 px-6 bg-gray-800/20 rounded-2xl border border-gray-700/30"
             >
-              <div className="text-8xl mb-6">💭</div>
-              <h3 className="text-2xl font-semibold mb-3">No questions yet</h3>
-              <p className="text-gray-400 max-w-md mx-auto mb-6">
-                Be the first to ask! Whether it's about tech, career, or anything
-                else - Ankush is here to help.
-              </p>
-              <button
-                onClick={() => document.getElementById('question')?.focus()}
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900"
-              >
-                Ask the first question
-              </button>
+              {activeTopic ? (
+                <>
+                  <div className="text-7xl mb-6">🏷️</div>
+                  <h3 className="text-2xl font-bold mb-3 text-white">
+                    No questions in this topic yet
+                  </h3>
+                  <p className="text-gray-500 max-w-md mx-auto mb-8 text-[15px] leading-relaxed">
+                    Be the first to ask a question about{' '}
+                    <span className="text-white font-semibold">
+                      {topics.find((t) => t.slug === activeTopic)?.name || activeTopic}
+                    </span>
+                    !
+                  </p>
+                  <button
+                    onClick={() => setActiveTopic(null)}
+                    className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
+                  >
+                    View all questions →
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="text-8xl mb-8">💭</div>
+                  <h3 className="text-3xl font-bold mb-4 text-white">No questions yet</h3>
+                  <p className="text-gray-500 max-w-md mx-auto mb-8 text-[15px] leading-relaxed">
+                    Be the first to ask! Whether it's about tech, career, or anything
+                    else — Ankush is here to help.
+                  </p>
+                  <button
+                    onClick={() => document.getElementById('question')?.focus()}
+                    className="px-7 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 shadow-lg shadow-blue-600/20"
+                  >
+                    Ask the first question
+                  </button>
+                </>
+              )}
             </motion.div>
           )}
 
           {/* Question Cards */}
-          <div className="space-y-4">
+          <div className="space-y-5">
             <AnimatePresence mode="popLayout">
               {sortedQuestions.map((question, index) => {
                 const hasUpvoted = question.upvotedBy.includes(VISITOR_ID)
@@ -352,48 +488,55 @@ export default function AskAnkush() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-gray-800/30 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow"
+                    className="bg-gray-800/30 rounded-2xl overflow-hidden border border-gray-700/40 shadow-[0_2px_8px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.25)] hover:border-gray-700/60 transition-all"
                   >
-                    <div className="p-5">
+                    <div className="p-6">
                       {/* Question Header */}
-                      <div className="flex items-start gap-4">
+                      <div className="flex items-start gap-5">
                         {/* Upvote Button */}
                         <motion.button
                           onClick={() => handleUpvote(question.id)}
                           whileTap={{ scale: 0.9 }}
                           aria-label={`${hasUpvoted ? 'Remove upvote from' : 'Upvote'} question by ${question.isAnonymous ? 'anonymous user' : question.authorName}`}
                           aria-pressed={hasUpvoted}
-                          className={`flex flex-col items-center gap-1 px-2 py-1 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                          className={`flex flex-col items-center gap-1.5 px-3 py-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 ${
                             hasUpvoted
-                              ? 'bg-orange-900/30 text-orange-400'
-                              : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
+                              ? 'bg-orange-900/40 text-orange-400 ring-2 ring-orange-500/50 shadow-lg shadow-orange-500/10'
+                              : 'text-gray-500 hover:bg-gray-700/50 hover:text-gray-300 focus:ring-blue-400'
                           }`}
                         >
                           <svg
-                            className="w-5 h-5"
+                            className="w-6 h-6"
                             fill={hasUpvoted ? 'currentColor' : 'none'}
                             stroke="currentColor"
+                            strokeWidth={2}
                             viewBox="0 0 24 24"
                           >
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              strokeWidth={2}
                               d="M5 15l7-7 7 7"
                             />
                           </svg>
-                          <span className="text-sm font-medium">
+                          <span className="text-sm font-bold tabular-nums">
                             {question.upvotes}
                           </span>
                         </motion.button>
 
                         {/* Question Content */}
                         <div className="flex-1 min-w-0">
-                          <p className="text-white leading-relaxed">
+                          <p className="text-white leading-relaxed text-[15px]">
                             {question.content}
                           </p>
-                          <div className="flex items-center gap-3 mt-3 text-sm text-gray-500">
-                            <span className="flex items-center gap-1">
+                          <div className="flex flex-wrap items-center gap-3 mt-4 text-sm">
+                            {question.topicName && question.topicColor && (
+                              <TopicBadge
+                                name={question.topicName}
+                                color={question.topicColor}
+                                size="sm"
+                              />
+                            )}
+                            <span className="flex items-center gap-1.5 text-gray-500">
                               {question.isAnonymous ? (
                                 <>
                                   <svg
@@ -409,19 +552,22 @@ export default function AskAnkush() {
                                       d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                                     />
                                   </svg>
-                                  Anonymous
+                                  <span>Anonymous</span>
                                 </>
                               ) : (
-                                question.authorName
+                                <span className="font-medium">{question.authorName}</span>
                               )}
                             </span>
-                            <span>·</span>
-                            <span>{formatTime(question.createdAt)}</span>
+                            <span className="text-gray-600">·</span>
+                            <span className="text-gray-500">{formatTime(question.createdAt)}</span>
                             {question.ankushAnswer && (
                               <>
-                                <span>·</span>
-                                <span className="text-green-400 font-medium">
-                                  Answered by Ankush
+                                <span className="text-gray-600">·</span>
+                                <span className="flex items-center gap-1.5 text-green-400 font-semibold">
+                                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  </svg>
+                                  Answered
                                 </span>
                               </>
                             )}
@@ -435,7 +581,7 @@ export default function AskAnkush() {
                           }
                           aria-label={isExpanded ? 'Hide answers' : 'Show answers'}
                           aria-expanded={isExpanded}
-                          className="text-gray-400 hover:text-white p-3 rounded-lg hover:bg-gray-700/50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          className="text-gray-500 hover:text-gray-300 p-2 rounded-lg hover:bg-gray-700/30 transition-all focus:outline-none focus:ring-2 focus:ring-blue-400"
                         >
                           <svg
                             className={`w-5 h-5 transition-transform ${
@@ -443,12 +589,12 @@ export default function AskAnkush() {
                             }`}
                             fill="none"
                             stroke="currentColor"
+                            strokeWidth={2}
                             viewBox="0 0 24 24"
                           >
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              strokeWidth={2}
                               d="M19 9l-7 7-7-7"
                             />
                           </svg>
@@ -464,17 +610,17 @@ export default function AskAnkush() {
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="border-t border-gray-700/50 bg-gray-900/30"
+                          className="border-t border-gray-700/50 bg-gray-900/40"
                         >
-                          <div className="p-5 space-y-4">
-                            {/* AI Answer */}
-                            {question.aiAnswer && (
-                              <div className="pl-4 border-l-2 border-blue-500/50">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="text-xs font-medium px-2 py-0.5 bg-blue-900/30 text-blue-400 rounded">
+                          <div className="p-6 space-y-5">
+                            {/* AI Answer - only shown when AI features are enabled */}
+                            {AI_FEATURES_ENABLED && question.aiAnswer && (
+                              <div className="pl-5 border-l-4 border-blue-500/50">
+                                <div className="flex items-center gap-2.5 mb-3">
+                                  <span className="text-xs font-bold px-2.5 py-1 bg-blue-900/30 text-blue-300 rounded-md uppercase tracking-wide">
                                     AI Response
                                   </span>
-                                  <span className="text-xs text-gray-500">
+                                  <span className="text-xs text-gray-600">
                                     Based on Ankush's public content
                                   </span>
                                 </div>
@@ -486,20 +632,20 @@ export default function AskAnkush() {
 
                             {/* Ankush's Answer */}
                             {question.ankushAnswer ? (
-                              <div className="pl-4 border-l-2 border-green-500">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="text-xs font-medium px-2 py-0.5 bg-green-900/30 text-green-400 rounded">
+                              <div className="pl-5 border-l-4 border-green-500">
+                                <div className="flex items-center gap-2.5 mb-3">
+                                  <span className="text-xs font-bold px-2.5 py-1 bg-green-900/30 text-green-300 rounded-md uppercase tracking-wide">
                                     Ankush's Answer
                                   </span>
                                 </div>
-                                <p className="text-gray-200 leading-relaxed">
+                                <p className="text-gray-100 leading-relaxed">
                                   {question.ankushAnswer}
                                 </p>
                               </div>
                             ) : (
-                              <div className="flex items-center gap-2 text-sm text-gray-500 italic">
+                              <div className="flex items-center gap-3 text-sm text-gray-600 italic bg-gray-800/30 rounded-lg p-4">
                                 <svg
-                                  className="w-4 h-4"
+                                  className="w-5 h-5 flex-shrink-0"
                                   fill="none"
                                   stroke="currentColor"
                                   viewBox="0 0 24 24"
@@ -511,7 +657,7 @@ export default function AskAnkush() {
                                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                                   />
                                 </svg>
-                                Waiting for Ankush's response...
+                                <span>Waiting for Ankush's response...</span>
                               </div>
                             )}
                           </div>
@@ -526,8 +672,8 @@ export default function AskAnkush() {
         </section>
 
         {/* Footer Note */}
-        <footer className="mt-12 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
-          <p>
+        <footer className="mt-16 pt-8 border-t border-gray-800 text-center">
+          <p className="text-sm text-gray-600 leading-relaxed">
             Questions are reviewed before appearing publicly.
             <br />
             Ankush answers when available.
