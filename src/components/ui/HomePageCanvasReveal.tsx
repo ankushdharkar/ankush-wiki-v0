@@ -13,7 +13,7 @@ export function HomePageCanvasReveal() {
   };
 
   return (
-    <div className="py-20 flex flex-wrap items-center justify-center bg-black w-full gap-x-4 gap-y-12 mx-auto px-8">
+    <div className="py-20 flex flex-wrap items-center justify-center bg-black w-full gap-x-4 gap-y-8 mx-auto px-4 md:px-8">
       {/* Premium Products - First Row */}
       <Card
         title="RealDSA"
@@ -153,7 +153,7 @@ const Card = ({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={onClick}
-      className={`border border-white/[0.2] group/canvas-card flex items-center justify-center max-w-[180px] md:max-w-sm w-full mx-auto p-2 md:p-4 relative aspect-[1/1.414] cursor-pointer ${bgColor} ${order}`}
+      className={`border border-white/[0.2] group/canvas-card flex items-center justify-center max-w-[280px] md:max-w-sm w-full mx-auto p-2 md:p-4 relative aspect-[1/1.414] cursor-pointer ${bgColor} ${order}`}
     >
       {/* Badge */}
       {badge && (
