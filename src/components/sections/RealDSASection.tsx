@@ -1,5 +1,4 @@
 import { motion } from 'motion/react'
-import { Link } from 'react-router-dom'
 import RevealAnimation from '../ui/RevealAnimation'
 import { trackExternalLink } from '../../services/analytics'
 
@@ -10,13 +9,13 @@ interface RealDSASectionProps {
 const benefits = [
   {
     icon: '🎯',
-    title: 'Interview-Ready',
-    description: 'Real FAANG-level problems with structured practice paths'
+    title: 'DSA Mastery',
+    description: 'Build deep, expert-level understanding of algorithms and data structures'
   },
   {
     icon: '📚',
     title: 'Structured Learning',
-    description: 'No overwhelm - clear progression from basics to advanced'
+    description: 'No overwhelm - clear progression through carefully designed modules'
   },
   {
     icon: '💻',
@@ -24,9 +23,9 @@ const benefits = [
     description: 'Code, test, and master with real coding challenges'
   },
   {
-    icon: '🚀',
-    title: 'Premium Support',
-    description: 'Direct help when you\'re stuck on tough problems'
+    icon: '👥',
+    title: 'Community & Friends',
+    description: 'Learn alongside like-minded peers who share your passion for DSA'
   }
 ]
 
@@ -91,32 +90,23 @@ export default function RealDSASection({ isStandalone = false }: RealDSASectionP
         {/* CTA Section */}
         <RevealAnimation delay={0.8}>
           <div className="text-center">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <motion.a
-                href="https://realdsa.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackExternalLink('https://realdsa.com', 'RealDSA CTA')}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-lg rounded-xl shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transition-all duration-300 flex items-center gap-2"
-              >
-                Start Learning Today
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </motion.a>
+            <motion.a
+              href="https://realdsa.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackExternalLink('https://realdsa.com', 'RealDSA CTA')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-flex px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-lg rounded-xl shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transition-all duration-300 items-center gap-2"
+            >
+              Start Learning Today
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </motion.a>
 
-              <Link
-                to="/real-dsa"
-                className="px-6 py-3.5 border-2 border-pink-500 dark:border-pink-400 text-pink-700 dark:text-pink-300 hover:bg-pink-500 hover:text-white dark:hover:bg-pink-500 dark:hover:text-white font-semibold rounded-xl transition-all duration-300"
-              >
-                Learn More
-              </Link>
-            </div>
-
-            <p className="mt-6 text-sm text-gray-500 dark:text-gray-400">
-              Join hundreds of developers mastering DSA for their dream jobs
+            <p className="mt-6 text-base text-gray-600 dark:text-gray-400 max-w-lg mx-auto">
+              Tried learning DSA on your own and didn't manage? Want something with a sure outcome? This is the group for you.
             </p>
           </div>
         </RevealAnimation>
