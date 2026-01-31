@@ -14,6 +14,7 @@ import {
 import RevealAnimation from '../ui/RevealAnimation'
 import { motion } from 'motion/react'
 import { trackExternalLink } from '../../services/analytics'
+import { COMMUNITY_LINKS } from '../../config/links'
 
 interface RealDevSquadSectionProps {
   isStandalone?: boolean;
@@ -96,14 +97,14 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
                       <span className="text-green-600 dark:text-green-400 text-xl">▶</span>
                       <div>
                         <strong>Contact:</strong><br />
-                        @ankushdharkar on Twitter
+                        @RealAnkush on Twitter
                       </div>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-green-600 dark:text-green-400 text-xl">▶</span>
                       <div>
                         <strong>Read this to get a better sense on how to join:</strong><br />
-                        <a href="https://docs.google.com/document/d/1-Bkfj9T6SKvVU8DfuwasHSt_bI-flCX5K9wieblk-7Q/edit?tab=t.0#heading=h.jg8i8nmyqp56" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 focus-ring rounded-md" onClick={() => trackExternalLink('https://docs.google.com/document/d/1-Bkfj9T6SKvVU8DfuwasHSt_bI-flCX5K9wieblk-7Q', 'RDS FAQ Inline')}>
+                        <a href={COMMUNITY_LINKS.realDevSquadFaq} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 focus-ring rounded-md" onClick={() => trackExternalLink(COMMUNITY_LINKS.realDevSquadFaq, 'RDS FAQ Inline')}>
                           How to Join - FAQ Document
                         </a>
                       </div>
@@ -157,11 +158,11 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
               Please read this document for queries on how to join Real Dev Squad
             </p>
             <a
-              href="https://docs.google.com/document/d/1-Bkfj9T6SKvVU8DfuwasHSt_bI-flCX5K9wieblk-7Q/edit?tab=t.0#heading=h.jg8i8nmyqp56"
+              href={COMMUNITY_LINKS.realDevSquadFaq}
               target="_blank"
               rel="noopener noreferrer"
               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 inline-flex items-center gap-2 focus-ring"
-              onClick={() => trackExternalLink('https://docs.google.com/document/d/1-Bkfj9T6SKvVU8DfuwasHSt_bI-flCX5K9wieblk-7Q', 'RDS FAQ Button')}
+              onClick={() => trackExternalLink(COMMUNITY_LINKS.realDevSquadFaq, 'RDS FAQ Button')}
             >
               <RiFileList3Line className="text-lg" />
               How to Join - FAQ Document
