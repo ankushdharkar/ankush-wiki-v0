@@ -61,7 +61,7 @@ export default function ResumeHighlightSection() {
               transition={{ delay: 0.3 }}
               className="text-white/90 text-base md:text-lg max-w-xl mx-auto lg:mx-0"
             >
-              The ultimate guide to fixing your resume and landing interviews at top tech companies
+              18 reasons why your resume keeps getting filtered out. If you're applying and hearing nothing back, read this.
             </motion.p>
           </div>
 
