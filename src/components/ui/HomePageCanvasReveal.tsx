@@ -204,9 +204,9 @@ export const Icon = ({ className, ...rest }: any) => {
 
 const RDSIcon = () => {
   return (
-    <img 
-      src="/images/Real-Dev-Squad-logo.png" 
-      className="h-10 w-10 text-white group-hover/canvas-card:text-white"
+    <img
+      src="/images/Real-Dev-Squad-logo.png"
+      className="h-16 w-16 md:h-24 md:w-24 text-white group-hover/canvas-card:text-white"
       alt="Real Dev Squad Logo"
       loading="lazy"
     />
@@ -215,9 +215,9 @@ const RDSIcon = () => {
 
 const JSTSIcon = () => {
   return (
-    <img 
-      src="/images/JS-TS-Guild-logo.jpeg" 
-      className="h-10 w-10 text-white group-hover/canvas-card:text-white rounded-lg"
+    <img
+      src="/images/JS-TS-Guild-logo.jpeg"
+      className="h-16 w-16 md:h-24 md:w-24 text-white group-hover/canvas-card:text-white rounded-lg"
       alt="JS TS Guild Logo"
       loading="lazy"
     />
@@ -226,13 +226,13 @@ const JSTSIcon = () => {
 
 const ChilloutsIcon = () => {
   return (
-    <div className="text-4xl">💝</div>
+    <div className="text-6xl md:text-8xl leading-none">💝</div>
   );
 };
 
 const ImportantLinksIcon = () => {
   return (
-    <div className="text-4xl">🔗</div>
+    <div className="text-6xl md:text-8xl leading-none">🔗</div>
   );
 };
 
@@ -240,7 +240,7 @@ const RealDSAIcon = () => {
   return (
     <img
       src="/images/Real DSA.png"
-      className="h-10 w-10 text-white group-hover/canvas-card:text-white"
+      className="h-16 w-16 md:h-24 md:w-24 text-white group-hover/canvas-card:text-white"
       alt="RealDSA Logo"
       loading="lazy"
     />
@@ -249,6 +249,6 @@ const RealDSAIcon = () => {
 
 const ResumeIcon = () => {
   return (
-    <div className="text-4xl">🔥</div>
+    <div className="text-6xl md:text-8xl leading-none">🔥</div>
   );
 };
