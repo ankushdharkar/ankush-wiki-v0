@@ -52,6 +52,18 @@ export default function Navigation() {
               </li>
               <li>
                 <Link
+                  to="/real-dsa"
+                  className={`transition-colors duration-300 flex items-center gap-2 focus-ring rounded-md px-1 font-semibold ${
+                    location.pathname === '/real-dsa'
+                      ? 'text-orange-600 dark:text-orange-400 underline underline-offset-4'
+                      : 'text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300'
+                  }`}
+                >
+                  🔥 RealDSA
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/real-dev-squad"
                   className={`transition-colors duration-300 flex items-center gap-2 focus-ring rounded-md px-1 ${
                     location.pathname === '/real-dev-squad'
