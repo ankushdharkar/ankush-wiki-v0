@@ -18,18 +18,18 @@ export function HomePageCanvasReveal() {
       <Card
         title="RealDSA"
         icon={<RealDSAIcon />}
-        bgColor="bg-orange-950/50"
+        bgColor="bg-pink-950/50"
         onClick={() => handleExternalClick('https://realdsa.com', 'RealDSA Hero Card')}
         order="order-1"
         badge="Premium"
-        badgeColor="bg-orange-500"
+        badgeColor="bg-pink-500"
       >
         <CanvasRevealEffect
           animationSpeed={3}
-          containerClassName="bg-orange-900"
+          containerClassName="bg-pink-900"
           colors={[
-            [251, 146, 60],
-            [245, 158, 11],
+            [236, 72, 153],
+            [168, 85, 247],
           ]}
           dotSize={8}
         />
@@ -238,7 +238,12 @@ const ImportantLinksIcon = () => {
 
 const RealDSAIcon = () => {
   return (
-    <div className="text-4xl">🔥</div>
+    <img
+      src="/images/Real DSA.png"
+      className="h-10 w-10 text-white group-hover/canvas-card:text-white"
+      alt="RealDSA Logo"
+      loading="lazy"
+    />
   );
 };
 

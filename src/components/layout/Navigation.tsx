@@ -55,11 +55,17 @@ export default function Navigation() {
                   to="/real-dsa"
                   className={`transition-colors duration-300 flex items-center gap-2 focus-ring rounded-md px-1 font-semibold ${
                     location.pathname === '/real-dsa'
-                      ? 'text-orange-600 dark:text-orange-400 underline underline-offset-4'
-                      : 'text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300'
+                      ? 'text-pink-600 dark:text-pink-400 underline underline-offset-4'
+                      : 'text-pink-600 dark:text-pink-400 hover:text-purple-600 dark:hover:text-purple-400'
                   }`}
                 >
-                  🔥 RealDSA
+                  RealDSA
+                  <img
+                    src="/images/Real DSA.png"
+                    className="w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0"
+                    alt="RealDSA Logo"
+                    loading="lazy"
+                  />
                 </Link>
               </li>
               <li>

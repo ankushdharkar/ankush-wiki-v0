@@ -33,7 +33,7 @@ const benefits = [
 export default function RealDSASection({ isStandalone = false }: RealDSASectionProps) {
   const containerClass = isStandalone
     ? "min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white pt-20 pb-8 md:pb-20 transition-colors"
-    : "py-20 bg-gradient-to-b from-orange-50 to-gray-50 dark:from-gray-800 dark:to-gray-900 transition-colors";
+    : "py-20 bg-gradient-to-b from-pink-50 to-gray-50 dark:from-gray-800 dark:to-gray-900 transition-colors";
 
   return (
     <section id="real-dsa" className={containerClass}>
@@ -46,20 +46,23 @@ export default function RealDSASection({ isStandalone = false }: RealDSASectionP
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-sm font-semibold mb-6 border border-orange-200 dark:border-orange-700/50"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 text-sm font-semibold mb-6 border border-pink-200 dark:border-pink-700/50"
             >
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-pink-500"></span>
               </span>
               Premium Learning Platform
             </motion.div>
 
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
-                RealDSA
-              </span>
-            </h2>
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <img src="/images/Real DSA.png" alt="RealDSA Logo" className="w-12 h-12 md:w-16 md:h-16" />
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
+                <span className="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+                  RealDSA
+                </span>
+              </h2>
+            </div>
             <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
               Master Data Structures & Algorithms with structured, practical, and premium learning
             </p>
@@ -76,7 +79,7 @@ export default function RealDSASection({ isStandalone = false }: RealDSASectionP
               viewport={{ once: true }}
               transition={{ delay: 0.4 + index * 0.1, duration: 0.5 }}
               whileHover={{ y: -5, scale: 1.02 }}
-              className="bg-white dark:bg-gray-800/60 rounded-xl p-6 border border-orange-100 dark:border-orange-900/30 shadow-sm hover:shadow-lg hover:shadow-orange-500/10 transition-all duration-300"
+              className="bg-white dark:bg-gray-800/60 rounded-xl p-6 border border-pink-100 dark:border-pink-900/30 shadow-sm hover:shadow-lg hover:shadow-pink-500/10 transition-all duration-300"
             >
               <div className="text-4xl mb-4">{benefit.icon}</div>
               <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-white">{benefit.title}</h3>
@@ -96,7 +99,7 @@ export default function RealDSASection({ isStandalone = false }: RealDSASectionP
                 onClick={() => trackExternalLink('https://realdsa.com', 'RealDSA CTA')}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-lg rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-300 flex items-center gap-2"
+                className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-lg rounded-xl shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transition-all duration-300 flex items-center gap-2"
               >
                 Start Learning Today
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,7 +109,7 @@ export default function RealDSASection({ isStandalone = false }: RealDSASectionP
 
               <Link
                 to="/real-dsa"
-                className="px-6 py-3.5 border-2 border-orange-500 dark:border-orange-400 text-orange-700 dark:text-orange-300 hover:bg-orange-500 hover:text-white dark:hover:bg-orange-500 dark:hover:text-white font-semibold rounded-xl transition-all duration-300"
+                className="px-6 py-3.5 border-2 border-pink-500 dark:border-pink-400 text-pink-700 dark:text-pink-300 hover:bg-pink-500 hover:text-white dark:hover:bg-pink-500 dark:hover:text-white font-semibold rounded-xl transition-all duration-300"
               >
                 Learn More
               </Link>

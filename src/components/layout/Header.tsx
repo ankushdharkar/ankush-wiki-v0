@@ -67,11 +67,11 @@ export default function Header() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackExternalLink('https://realdsa.com', 'Header RealDSA')}
-                className="group relative px-5 py-2.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold transition-all duration-300 flex items-center gap-2 focus-ring hover:shadow-lg hover:shadow-orange-500/30 hover:scale-105"
+                className="group relative px-5 py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold transition-all duration-300 flex items-center gap-2 focus-ring hover:shadow-lg hover:shadow-pink-500/30 hover:scale-105"
               >
-                <span className="text-lg">🔥</span>
+                <img src="/images/Real DSA.png" alt="RealDSA" className="w-5 h-5" />
                 RealDSA
-                <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-white text-orange-600 text-[10px] font-bold rounded-full shadow">Premium</span>
+                <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-white text-pink-600 text-[10px] font-bold rounded-full shadow">Premium</span>
               </a>
             </li>
             {/* Resume Guide - New */}
