@@ -74,17 +74,17 @@ export default function Header() {
                 <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-white text-pink-600 text-[10px] font-bold rounded-full shadow">Premium</span>
               </a>
             </li>
-            {/* Resume Guide - New */}
+            {/* Get Shortlisted - New */}
             <li>
               <a
                 href="https://myresumeisnotgettingshortlisted.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => trackExternalLink('https://myresumeisnotgettingshortlisted.com/', 'Header Resume Guide')}
+                onClick={() => trackExternalLink('https://myresumeisnotgettingshortlisted.com/', 'Header Get Shortlisted')}
                 className="group relative px-5 py-2.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold transition-all duration-300 flex items-center gap-2 focus-ring hover:shadow-lg hover:shadow-rose-500/30 hover:scale-105"
               >
                 <span className="text-lg">📄</span>
-                Resume Guide
+                Get Shortlisted
                 <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-yellow-400 text-yellow-900 text-[10px] font-bold rounded-full shadow animate-pulse">New</span>
               </a>
             </li>

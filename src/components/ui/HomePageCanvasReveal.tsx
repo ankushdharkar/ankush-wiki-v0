@@ -35,10 +35,10 @@ export function HomePageCanvasReveal() {
         />
       </Card>
       <Card
-        title="Resume Guide"
+        title="Get Shortlisted"
         icon={<ResumeIcon />}
         bgColor="bg-rose-950/50"
-        onClick={() => handleExternalClick('https://myresumeisnotgettingshortlisted.com/', 'Resume Guide Hero Card')}
+        onClick={() => handleExternalClick('https://myresumeisnotgettingshortlisted.com/', 'Get Shortlisted Hero Card')}
         order="order-2"
         badge="New"
         badgeColor="bg-yellow-400 text-yellow-900"
