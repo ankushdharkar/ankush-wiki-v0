@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { BsLinkedin, BsGithub } from 'react-icons/bs'
+import { BsLinkedin, BsGithub, BsTwitterX } from 'react-icons/bs'
 import TypingAnimation from '../ui/TypingAnimation'
 import { trackExternalLink } from '../../services/analytics'
 import { ThemeToggle } from '../ThemeToggle'
@@ -122,6 +122,16 @@ export default function Navigation() {
 
           {/* Social links and theme toggle */}
           <div className="flex justify-center items-center gap-4">
+            <a
+              href={SOCIAL_LINKS.twitter}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xl hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300 focus-ring rounded-md p-1"
+              aria-label="X (Twitter) Profile"
+              onClick={() => trackExternalLink(SOCIAL_LINKS.twitter, 'Twitter')}
+            >
+              <BsTwitterX />
+            </a>
             <a
               href={SOCIAL_LINKS.linkedin}
               target="_blank"

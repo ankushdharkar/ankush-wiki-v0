@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import { BsLinkedin, BsGithub } from 'react-icons/bs'
+import { BsLinkedin, BsGithub, BsTwitterX } from 'react-icons/bs'
 import TypingAnimation from '../ui/TypingAnimation'
 import { TextHoverEffect } from '../ui/TextHoverEffect'
 import { Boxes } from '../ui/BackgroundBoxes'
@@ -173,24 +173,36 @@ export default function Header() {
         </nav>
         
         {/* Social links */}
-        <div className="flex justify-center gap-6 pointer-events-auto">
+        <div className="flex justify-center gap-8 pointer-events-auto">
+          <a
+            href={SOCIAL_LINKS.twitter}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative text-4xl text-white/80 hover:text-white transition-colors duration-300 focus-ring rounded-md p-2"
+            aria-label="X (Twitter) Profile"
+          >
+            <span className="absolute inset-0 rounded-full bg-gray-400/20 animate-pulse group-hover:bg-gray-400/40 transition-colors" />
+            <BsTwitterX className="relative z-10" />
+          </a>
           <a
             href={SOCIAL_LINKS.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-2xl hover:text-blue-400 transition-colors duration-300 focus-ring rounded-md p-1"
+            className="group relative text-4xl text-white/80 hover:text-blue-400 transition-colors duration-300 focus-ring rounded-md p-2"
             aria-label="LinkedIn Profile"
           >
-            <BsLinkedin />
+            <span className="absolute inset-0 rounded-full bg-blue-500/20 animate-pulse group-hover:bg-blue-500/40 transition-colors" />
+            <BsLinkedin className="relative z-10" />
           </a>
           <a
             href={SOCIAL_LINKS.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-2xl hover:text-green-400 transition-colors duration-300 focus-ring rounded-md p-1"
+            className="group relative text-4xl text-white/80 hover:text-green-400 transition-colors duration-300 focus-ring rounded-md p-2"
             aria-label="GitHub Profile"
           >
-            <BsGithub />
+            <span className="absolute inset-0 rounded-full bg-green-500/20 animate-pulse group-hover:bg-green-500/40 transition-colors" />
+            <BsGithub className="relative z-10" />
           </a>
         </div>
       </div>
