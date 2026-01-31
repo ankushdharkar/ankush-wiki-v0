@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import Header from '../components/layout/Header'
+import ResumeHighlightSection from '../components/sections/ResumeHighlightSection'
 import RealDSASection from '../components/sections/RealDSASection'
 import RealDevSquadSection from '../components/sections/RealDevSquadSection'
 import JsTsGuildSection from '../components/sections/JsTsGuildSection'
@@ -16,6 +17,7 @@ export default function Portfolio() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors">
       <Header />
       <HomePageCanvasReveal />
+      <ResumeHighlightSection />
       <RealDSASection />
       <ImportantLinksSection />
       <RealDevSquadSection />
