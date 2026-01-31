@@ -9,7 +9,7 @@ export default function JsTsGuild() {
   }, [])
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors">
       <Navigation />
       <JsTsGuildSection isStandalone={true} />
     </div>

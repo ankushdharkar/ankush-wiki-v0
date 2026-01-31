@@ -12,7 +12,7 @@ export default function Portfolio() {
     document.title = 'Ankush Dharkar'
   }, [])
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors">
       <Header />
       <HomePageCanvasReveal />
       <ImportantLinksSection />

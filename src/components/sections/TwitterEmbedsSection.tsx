@@ -35,7 +35,7 @@ export default function TwitterEmbedsSection({ isStandalone = false }: TwitterEm
     },
     {
       type: 'twitter',
-      title: 'Featured Tweet #2', 
+      title: 'Featured Tweet #2',
       description: 'Important thoughts and updates',
       url: 'https://x.com/ankushdharkar/status/1911666308778774958',
       embedId: '1911666308778774958',
@@ -55,11 +55,11 @@ export default function TwitterEmbedsSection({ isStandalone = false }: TwitterEm
 
   const renderTweetEmbed = (link: TweetType) => {
     return (
-      <div className="bg-gray-800 rounded-lg border border-gray-700 p-1 min-h-[200px]">
-        <blockquote 
-          className="twitter-tweet" 
-          data-theme="dark" 
-          data-conversation="none" 
+      <div className="bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-1 min-h-[200px]">
+        <blockquote
+          className="twitter-tweet"
+          data-theme="dark"
+          data-conversation="none"
           data-dnt="true"
           data-width="auto"
           data-align="center"
@@ -71,9 +71,9 @@ export default function TwitterEmbedsSection({ isStandalone = false }: TwitterEm
     )
   }
 
-  const containerClass = isStandalone 
-    ? "min-h-screen bg-gray-900 text-white pt-20 pb-8 md:pb-20" 
-    : "py-20 bg-gray-900";
+  const containerClass = isStandalone
+    ? "min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white pt-20 pb-8 md:pb-20 transition-colors"
+    : "py-20 bg-gray-50 dark:bg-gray-900 transition-colors";
 
   useEffect(() => {
     // Function to load Twitter widgets
@@ -94,7 +94,7 @@ export default function TwitterEmbedsSection({ isStandalone = false }: TwitterEm
     script.src = 'https://platform.twitter.com/widgets.js';
     script.async = true;
     script.charset = 'utf-8';
-    
+
     script.onload = () => {
       // Add delay to ensure widgets can process the DOM
       setTimeout(loadTwitterWidgets, 300);
@@ -119,7 +119,7 @@ export default function TwitterEmbedsSection({ isStandalone = false }: TwitterEm
         <RevealAnimation delay={0.2}>
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Twitter Embeds Development</h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto">
               Testing Twitter embeds functionality and auto-height behavior
             </p>
           </div>
@@ -130,12 +130,12 @@ export default function TwitterEmbedsSection({ isStandalone = false }: TwitterEm
           <RevealAnimation delay={0.4}>
             <div className="text-center mb-8">
               <h3 className="text-2xl font-bold mb-4 flex items-center justify-center gap-2">
-                <BsTwitter className="text-blue-400" />
+                <BsTwitter className="text-blue-500 dark:text-blue-400" />
                 Featured Tweets
               </h3>
             </div>
           </RevealAnimation>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {tweetLinks.map((tweet, index) => (
               <RevealAnimation key={index} delay={0.6 + index * 0.2}>

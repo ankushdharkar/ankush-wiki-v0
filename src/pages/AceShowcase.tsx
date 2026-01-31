@@ -10,12 +10,12 @@ export default function AceShowcase() {
     window.scrollTo(0, 0)
   }, [])
   return (
-    <div className="min-h-screen bg-black text-white pb-8 md:pb-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-black text-gray-900 dark:text-white pb-8 md:pb-20 transition-colors">
       {/* Navigation */}
       <nav className="p-6">
-        <Link 
-          to="/" 
-          className="text-blue-400 hover:text-blue-300 transition-colors"
+        <Link
+          to="/"
+          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
         >
           ← Back to Home
         </Link>
@@ -26,27 +26,27 @@ export default function AceShowcase() {
         <h1 className="text-5xl font-bold text-center mb-4">
           Aceternity UI Components
         </h1>
-        <p className="text-xl text-center text-gray-400 mb-16">
+        <p className="text-xl text-center text-gray-600 dark:text-gray-400 mb-16">
           Showcasing beautiful Aceternity UI components with Tailwind CSS and React
         </p>
 
         {/* Components Showcase */}
         <div className="space-y-20">
-          
+
           {/* Official Aceternity Meteors */}
           <section>
             <h2 className="text-3xl font-bold mb-8">Aceternity Meteors Component</h2>
-            <div className="relative h-96 bg-gradient-to-b from-gray-900 via-gray-800 to-black rounded-lg overflow-hidden border border-gray-700">
-              <Meteors number={25} className="bg-white" />
+            <div className="relative h-96 bg-gradient-to-b from-gray-200 via-gray-100 to-white dark:from-gray-900 dark:via-gray-800 dark:to-black rounded-lg overflow-hidden border border-gray-300 dark:border-gray-700">
+              <Meteors number={25} className="bg-gray-800 dark:bg-white" />
               <div className="relative z-10 flex flex-col items-center justify-center h-full px-8">
-                <h3 className="text-5xl font-bold mb-6 text-white text-center">
+                <h3 className="text-5xl font-bold mb-6 text-center">
                   Official Meteors
                 </h3>
-                <p className="text-xl text-gray-300 max-w-lg text-center leading-relaxed">
+                <p className="text-xl text-gray-600 dark:text-gray-300 max-w-lg text-center leading-relaxed">
                   The authentic Aceternity UI Meteors component with beautiful animated meteor trails and random timing effects
                 </p>
                 <div className="mt-8">
-                  <button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 px-8 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg">
+                  <button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg">
                     Experience the Magic
                   </button>
                 </div>
@@ -57,17 +57,17 @@ export default function AceShowcase() {
           {/* Expandable Cards with Pokemon */}
           <section>
             <h2 className="text-3xl font-bold mb-8">Expandable Cards - Friendly Pokemon</h2>
-            <p className="text-center text-gray-400 mb-8">Click on any Pokemon card to expand and learn more!</p>
+            <p className="text-center text-gray-600 dark:text-gray-400 mb-8">Click on any Pokemon card to expand and learn more!</p>
             <ExpandableCards />
           </section>
 
           {/* Following Pointer Demo */}
           <section>
             <h2 className="text-3xl font-bold mb-8">Following Pointer</h2>
-            <p className="text-center text-gray-400 mb-8">Move your mouse over the cards below to see the pointer follow your cursor!</p>
-            
+            <p className="text-center text-gray-600 dark:text-gray-400 mb-8">Move your mouse over the cards below to see the pointer follow your cursor!</p>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-              
+
               <FollowerPointerCard
                 title={
                   <TitleComponent
@@ -157,18 +157,18 @@ export default function AceShowcase() {
 
             </div>
           </section>
-          
+
           {/* Sample Card with Tailwind Styling */}
           <section>
             <h2 className="text-3xl font-bold mb-8">Sample Card Component</h2>
             <div className="max-w-sm mx-auto">
               <div className="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 rounded-lg p-1">
-                <div className="bg-black rounded-lg p-6">
+                <div className="bg-white dark:bg-black rounded-lg p-6">
                   <h3 className="text-xl font-semibold mb-4">Beautiful Card</h3>
-                  <p className="text-gray-300 mb-4">
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">
                     This is a sample card with gradient border using Tailwind CSS.
                   </p>
-                  <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors">
+                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
                     Learn More
                   </button>
                 </div>
@@ -191,9 +191,9 @@ export default function AceShowcase() {
             <h2 className="text-3xl font-bold mb-8">Grid Layout</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((item) => (
-                <div key={item} className="bg-gray-800 p-6 rounded-lg hover:bg-gray-700 transition-colors">
+                <div key={item} className="bg-gray-100 dark:bg-gray-800 p-6 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                   <h3 className="text-lg font-semibold mb-2">Card {item}</h3>
-                  <p className="text-gray-400">Sample content for card {item}</p>
+                  <p className="text-gray-600 dark:text-gray-400">Sample content for card {item}</p>
                 </div>
               ))}
             </div>
@@ -203,11 +203,11 @@ export default function AceShowcase() {
           {/* Hero Section */}
           <section>
             <h2 className="text-3xl font-bold mb-8">Hero Section Example</h2>
-            <div className="text-center py-20 bg-gradient-to-b from-gray-900 to-black rounded-lg">
+            <div className="text-center py-20 bg-gradient-to-b from-gray-100 to-white dark:from-gray-900 dark:to-black rounded-lg">
               <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
                 Welcome
               </h1>
-              <p className="text-xl text-gray-300 mb-8">
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
                 Beautiful typography with gradient text effects
               </p>
               <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-8 py-3 rounded-full text-white font-semibold transition-all transform hover:scale-105">
