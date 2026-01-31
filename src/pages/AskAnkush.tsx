@@ -9,6 +9,9 @@ import { ThemeToggle } from '../components/ThemeToggle'
 // Feature flag for AI features (disabled by default for security)
 const AI_FEATURES_ENABLED = import.meta.env.VITE_PUBLIC_FEATURE_AI_ENABLED === 'true'
 
+// Pagination
+const PAGE_SIZE = 10
+
 // Generate a persistent visitor ID
 function getVisitorId(): string {
   const key = 'askAnkush_visitorId'
@@ -37,6 +40,8 @@ export default function AskAnkush() {
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<'upvotes' | 'recent' | 'trending'>('upvotes')
   const [showSuccess, setShowSuccess] = useState(false)
@@ -77,12 +82,34 @@ export default function AskAnkush() {
       const data = await questionsApi.getAll({
         topic: activeTopic ?? undefined,
         sort: sortBy,
+        limit: PAGE_SIZE,
+        offset: 0,
       })
       setQuestions(data)
+      setHasMore(data.length === PAGE_SIZE)
     } catch {
       setError('Failed to load questions')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const loadMoreQuestions = async () => {
+    try {
+      setIsLoadingMore(true)
+      setError(null)
+      const data = await questionsApi.getAll({
+        topic: activeTopic ?? undefined,
+        sort: sortBy,
+        limit: PAGE_SIZE,
+        offset: questions.length,
+      })
+      setQuestions((prev) => [...prev, ...data])
+      setHasMore(data.length === PAGE_SIZE)
+    } catch {
+      setError('Failed to load more questions')
+    } finally {
+      setIsLoadingMore(false)
     }
   }
 
@@ -673,6 +700,44 @@ export default function AskAnkush() {
               })}
             </AnimatePresence>
           </div>
+
+          {/* Show More Button */}
+          {hasMore && !isLoading && sortedQuestions.length > 0 && (
+            <div className="mt-8 text-center">
+              <button
+                onClick={loadMoreQuestions}
+                disabled={isLoadingMore}
+                className="px-8 py-3 bg-gray-100 dark:bg-gray-800/60 hover:bg-gray-200 dark:hover:bg-gray-700/70 text-gray-700 dark:text-gray-300 rounded-xl font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-gray-900 border border-gray-200 dark:border-gray-700/50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoadingMore ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg
+                      className="animate-spin h-4 w-4"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                    Loading...
+                  </span>
+                ) : (
+                  'Show more questions'
+                )}
+              </button>
+            </div>
+          )}
         </section>
 
         {/* Footer Note */}
