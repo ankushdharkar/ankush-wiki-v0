@@ -61,7 +61,7 @@ export default function ResumeHighlightSection() {
               transition={{ delay: 0.3 }}
               className="text-white/90 text-base md:text-lg max-w-xl mx-auto lg:mx-0"
             >
-              18 reasons why your resume keeps getting filtered out. If you're applying and hearing nothing back, read this.
+              18 reasons why your resume is not shortlisted and keeps getting filtered out.
             </motion.p>
           </div>
 
