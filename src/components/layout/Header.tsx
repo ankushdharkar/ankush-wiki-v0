@@ -4,7 +4,7 @@ import { BsLinkedin, BsGithub } from 'react-icons/bs'
 import TypingAnimation from '../ui/TypingAnimation'
 import { TextHoverEffect } from '../ui/TextHoverEffect'
 import { Boxes } from '../ui/BackgroundBoxes'
-import { HoverBorderGradient } from '../ui/hover-border-gradient'
+import { trackExternalLink } from '../../services/analytics'
 
 export default function Header() {
   const location = useLocation()
@@ -57,9 +57,43 @@ export default function Header() {
           I am a <TypingAnimation />
         </h2>
         
-        {/* Navigation - Primary CTA uses gradient, secondary nav uses simple styling */}
+        {/* Featured Products - Prominent CTAs */}
+        <nav className="mb-6 pointer-events-auto">
+          <ul className="flex flex-wrap justify-center gap-3 md:gap-4">
+            {/* RealDSA - Premium */}
+            <li>
+              <a
+                href="https://realdsa.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackExternalLink('https://realdsa.com', 'Header RealDSA')}
+                className="group relative px-5 py-2.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold transition-all duration-300 flex items-center gap-2 focus-ring hover:shadow-lg hover:shadow-orange-500/30 hover:scale-105"
+              >
+                <span className="text-lg">🔥</span>
+                RealDSA
+                <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-white text-orange-600 text-[10px] font-bold rounded-full shadow">Premium</span>
+              </a>
+            </li>
+            {/* Resume Guide - New */}
+            <li>
+              <a
+                href="https://myresumeisnotgettingshortlisted.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackExternalLink('https://myresumeisnotgettingshortlisted.com/', 'Header Resume Guide')}
+                className="group relative px-5 py-2.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold transition-all duration-300 flex items-center gap-2 focus-ring hover:shadow-lg hover:shadow-rose-500/30 hover:scale-105"
+              >
+                <span className="text-lg">📄</span>
+                Resume Guide
+                <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-yellow-400 text-yellow-900 text-[10px] font-bold rounded-full shadow animate-pulse">New</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        {/* Navigation - Secondary links */}
         <nav className="mb-8 pointer-events-auto">
-          <ul className="flex flex-wrap justify-center gap-4 md:gap-6 text-lg">
+          <ul className="flex flex-wrap justify-center gap-3 md:gap-4 text-base">
             {location.pathname !== '/' && (
               <li>
                 <Link
@@ -74,22 +108,18 @@ export default function Header() {
                 </Link>
               </li>
             )}
-            {/* Primary CTA - Gradient button */}
             <li>
-              <HoverBorderGradient
-                as={Link}
+              <Link
                 to="/important-links"
-                containerClassName="rounded-full"
-                className={`bg-slate-900 focus-ring ${
+                className={`px-4 py-2 rounded-full border border-gray-600 transition-all duration-300 focus-ring ${
                   location.pathname === '/important-links'
-                    ? 'text-green-400'
-                    : 'text-white hover:text-green-400'
+                    ? 'text-green-400 border-green-400'
+                    : 'text-white hover:text-green-400 hover:border-green-400'
                 }`}
               >
                 Important Links
-              </HoverBorderGradient>
+              </Link>
             </li>
-            {/* Secondary nav - Simple styling */}
             <li>
               <Link
                 to="/real-dev-squad"
