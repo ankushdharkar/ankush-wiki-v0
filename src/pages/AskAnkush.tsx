@@ -4,6 +4,7 @@ import { trackEvent } from '../services/analytics'
 import { questionsApi } from '../services/api'
 import type { Question, Topic } from '../services/api'
 import { TopicBadge } from '../components/ui/TopicBadge'
+import { ThemeToggle } from '../components/ThemeToggle'
 
 // Feature flag for AI features (disabled by default for security)
 const AI_FEATURES_ENABLED = import.meta.env.VITE_PUBLIC_FEATURE_AI_ENABLED === 'true'
@@ -153,26 +154,29 @@ export default function AskAnkush() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-white transition-colors">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-gray-900/95 backdrop-blur-md sticky top-0 z-10">
+      <header className="border-b border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold">Ask Ankush</h1>
-              <p className="text-gray-500 text-sm mt-1.5">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Ask Ankush</h1>
+              <p className="text-gray-500 dark:text-gray-500 text-sm mt-1.5">
                 Got a question? Ask away and upvote what you want answered first.
               </p>
             </div>
-            <div className="flex items-center gap-2 bg-gray-800/60 rounded-lg px-3.5 py-2 border border-gray-700/50">
-              <span className="text-xs text-gray-500 font-medium">Posting as</span>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => handleUsernameChange(e.target.value)}
-                className="w-28 bg-transparent text-sm text-white focus:outline-none placeholder:text-gray-600"
-                placeholder="Your name"
-              />
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800/60 rounded-lg px-3.5 py-2 border border-gray-200 dark:border-gray-700/50">
+                <span className="text-xs text-gray-500 dark:text-gray-500 font-medium">Posting as</span>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => handleUsernameChange(e.target.value)}
+                  className="w-28 bg-transparent text-sm text-gray-900 dark:text-white focus:outline-none placeholder:text-gray-400 dark:placeholder:text-gray-600"
+                  placeholder="Your name"
+                />
+              </div>
+              <ThemeToggle />
             </div>
           </div>
         </div>
@@ -181,9 +185,9 @@ export default function AskAnkush() {
       <main className="max-w-3xl mx-auto px-4 py-8">
         {/* Error Banner */}
         {error && (
-          <div className="mb-8 p-4 bg-red-900/20 border-l-4 border-red-500 rounded-r-lg flex items-start gap-3">
+          <div className="mb-8 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-r-lg flex items-start gap-3">
             <svg
-              className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5"
+              className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -196,11 +200,11 @@ export default function AskAnkush() {
               />
             </svg>
             <div className="flex-1">
-              <p className="text-red-300 font-medium">{error}</p>
+              <p className="text-red-700 dark:text-red-300 font-medium">{error}</p>
             </div>
             <button
               onClick={() => setError(null)}
-              className="text-red-400 hover:text-red-300 transition-colors"
+              className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-colors"
               aria-label="Dismiss error"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,13 +218,13 @@ export default function AskAnkush() {
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative bg-gray-800/40 rounded-2xl p-8 mb-10 border border-gray-700/50 shadow-[0_8px_16px_rgba(0,0,0,0.2)]"
+          className="relative bg-white dark:bg-gray-800/40 rounded-2xl p-8 mb-10 border border-gray-200 dark:border-gray-700/50 shadow-sm dark:shadow-[0_8px_16px_rgba(0,0,0,0.2)]"
         >
           {/* Accent border */}
           <div className="absolute top-0 left-8 right-8 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
 
           <form onSubmit={handleSubmit}>
-            <label htmlFor="question" className="block text-lg font-semibold mb-4 text-white">
+            <label htmlFor="question" className="block text-lg font-semibold mb-4 text-gray-900 dark:text-white">
               What would you like to know?
             </label>
             <textarea
@@ -228,7 +232,7 @@ export default function AskAnkush() {
               value={newQuestion}
               onChange={(e) => setNewQuestion(e.target.value)}
               placeholder="Ask about tech, career advice, Real Dev Squad, or anything else..."
-              className="w-full bg-gray-900/60 border border-gray-700/70 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 resize-none transition-all"
+              className="w-full bg-gray-50 dark:bg-gray-900/60 border border-gray-300 dark:border-gray-700/70 rounded-xl px-4 py-3.5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:border-blue-500 dark:focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-500/20 resize-none transition-all"
               rows={3}
               maxLength={500}
             />
@@ -239,7 +243,7 @@ export default function AskAnkush() {
                     type="checkbox"
                     checked={isAnonymous}
                     onChange={(e) => setIsAnonymous(e.target.checked)}
-                    className="peer w-5 h-5 rounded border-2 border-gray-600 bg-gray-900/50 checked:bg-green-500 checked:border-green-500 cursor-pointer appearance-none transition-all focus:ring-2 focus:ring-green-500/30 focus:ring-offset-2 focus:ring-offset-gray-800"
+                    className="peer w-5 h-5 rounded border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900/50 checked:bg-green-500 checked:border-green-500 cursor-pointer appearance-none transition-all focus:ring-2 focus:ring-green-500/30 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-800"
                   />
                   <svg
                     className="absolute top-0.5 left-0.5 w-4 h-4 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity"
@@ -255,18 +259,18 @@ export default function AskAnkush() {
                     />
                   </svg>
                 </div>
-                <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                <span className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
                   Ask anonymously
                 </span>
               </label>
               <div className="flex items-center gap-4">
-                <span className="text-xs text-gray-600 font-mono tabular-nums">
+                <span className="text-xs text-gray-400 dark:text-gray-600 font-mono tabular-nums">
                   {newQuestion.length}/500
                 </span>
                 <button
                   type="submit"
                   disabled={newQuestion.trim().length < 10 || isSubmitting}
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-800 disabled:text-gray-600 rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20 disabled:shadow-none"
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 text-white disabled:bg-gray-200 dark:disabled:bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-600 rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20 disabled:shadow-none"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
@@ -306,10 +310,10 @@ export default function AskAnkush() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="mt-5 p-4 bg-green-900/20 border-l-4 border-green-500 rounded-r-lg text-green-300 text-sm flex items-center gap-3"
+                className="mt-5 p-4 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 rounded-r-lg text-green-700 dark:text-green-300 text-sm flex items-center gap-3"
               >
                 <svg
-                  className="w-5 h-5 text-green-400 flex-shrink-0"
+                  className="w-5 h-5 text-green-500 dark:text-green-400 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -358,20 +362,20 @@ export default function AskAnkush() {
           )}
 
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-bold text-white">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
               Questions{' '}
-              <span className="text-gray-600 font-normal text-base">
+              <span className="text-gray-400 dark:text-gray-600 font-normal text-base">
                 ({sortedQuestions.length})
               </span>
             </h2>
-            <div className="flex bg-gray-800/40 rounded-lg p-1 gap-1 border border-gray-700/50">
+            <div className="flex bg-gray-100 dark:bg-gray-800/40 rounded-lg p-1 gap-1 border border-gray-200 dark:border-gray-700/50">
               <button
                 onClick={() => setSortBy('upvotes')}
                 aria-pressed={sortBy === 'upvotes'}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                className={`px-4 py-2 text-sm font-medium rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${
                   sortBy === 'upvotes'
-                    ? 'bg-gray-700 text-white shadow-md'
-                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm dark:shadow-md'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50'
                 }`}
               >
                 Top
@@ -379,10 +383,10 @@ export default function AskAnkush() {
               <button
                 onClick={() => setSortBy('recent')}
                 aria-pressed={sortBy === 'recent'}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                className={`px-4 py-2 text-sm font-medium rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${
                   sortBy === 'recent'
-                    ? 'bg-gray-700 text-white shadow-md'
-                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm dark:shadow-md'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50'
                 }`}
               >
                 Recent
@@ -390,10 +394,10 @@ export default function AskAnkush() {
               <button
                 onClick={() => setSortBy('trending')}
                 aria-pressed={sortBy === 'trending'}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                className={`px-4 py-2 text-sm font-medium rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${
                   sortBy === 'trending'
-                    ? 'bg-gray-700 text-white shadow-md'
-                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm dark:shadow-md'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/50'
                 }`}
               >
                 Trending
@@ -423,7 +427,7 @@ export default function AskAnkush() {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                 />
               </svg>
-              <p className="mt-4 text-gray-400">Loading questions...</p>
+              <p className="mt-4 text-gray-500 dark:text-gray-400">Loading questions...</p>
             </div>
           )}
 
@@ -432,24 +436,24 @@ export default function AskAnkush() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-24 px-6 bg-gray-800/20 rounded-2xl border border-gray-700/30"
+              className="text-center py-24 px-6 bg-gray-100 dark:bg-gray-800/20 rounded-2xl border border-gray-200 dark:border-gray-700/30"
             >
               {activeTopic ? (
                 <>
                   <div className="text-7xl mb-6">🏷️</div>
-                  <h3 className="text-2xl font-bold mb-3 text-white">
+                  <h3 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">
                     No questions in this topic yet
                   </h3>
                   <p className="text-gray-500 max-w-md mx-auto mb-8 text-[15px] leading-relaxed">
                     Be the first to ask a question about{' '}
-                    <span className="text-white font-semibold">
+                    <span className="text-gray-900 dark:text-white font-semibold">
                       {topics.find((t) => t.slug === activeTopic)?.name || activeTopic}
                     </span>
                     !
                   </p>
                   <button
                     onClick={() => setActiveTopic(null)}
-                    className="text-blue-400 hover:text-blue-300 font-semibold transition-colors"
+                    className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-colors"
                   >
                     View all questions →
                   </button>
@@ -457,14 +461,14 @@ export default function AskAnkush() {
               ) : (
                 <>
                   <div className="text-8xl mb-8">💭</div>
-                  <h3 className="text-3xl font-bold mb-4 text-white">No questions yet</h3>
+                  <h3 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">No questions yet</h3>
                   <p className="text-gray-500 max-w-md mx-auto mb-8 text-[15px] leading-relaxed">
                     Be the first to ask! Whether it's about tech, career, or anything
                     else — Ankush is here to help.
                   </p>
                   <button
                     onClick={() => document.getElementById('question')?.focus()}
-                    className="px-7 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 shadow-lg shadow-blue-600/20"
+                    className="px-7 py-3 bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 text-white rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-gray-900 shadow-lg shadow-blue-600/20"
                   >
                     Ask the first question
                   </button>
@@ -488,7 +492,7 @@ export default function AskAnkush() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-gray-800/30 rounded-2xl overflow-hidden border border-gray-700/40 shadow-[0_2px_8px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.25)] hover:border-gray-700/60 transition-all"
+                    className="bg-white dark:bg-gray-800/30 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700/40 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.15)] hover:shadow-md dark:hover:shadow-[0_8px_24px_rgba(0,0,0,0.25)] hover:border-gray-300 dark:hover:border-gray-700/60 transition-all"
                   >
                     <div className="p-6">
                       {/* Question Header */}
@@ -499,10 +503,10 @@ export default function AskAnkush() {
                           whileTap={{ scale: 0.9 }}
                           aria-label={`${hasUpvoted ? 'Remove upvote from' : 'Upvote'} question by ${question.isAnonymous ? 'anonymous user' : question.authorName}`}
                           aria-pressed={hasUpvoted}
-                          className={`flex flex-col items-center gap-1.5 px-3 py-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 ${
+                          className={`flex flex-col items-center gap-1.5 px-3 py-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 ${
                             hasUpvoted
-                              ? 'bg-orange-900/40 text-orange-400 ring-2 ring-orange-500/50 shadow-lg shadow-orange-500/10'
-                              : 'text-gray-500 hover:bg-gray-700/50 hover:text-gray-300 focus:ring-blue-400'
+                              ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 ring-2 ring-orange-500/50 shadow-lg shadow-orange-500/10'
+                              : 'text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-gray-600 dark:hover:text-gray-300 focus:ring-blue-500 dark:focus:ring-blue-400'
                           }`}
                         >
                           <svg
@@ -525,7 +529,7 @@ export default function AskAnkush() {
 
                         {/* Question Content */}
                         <div className="flex-1 min-w-0">
-                          <p className="text-white leading-relaxed text-[15px]">
+                          <p className="text-gray-900 dark:text-white leading-relaxed text-[15px]">
                             {question.content}
                           </p>
                           <div className="flex flex-wrap items-center gap-3 mt-4 text-sm">
@@ -558,12 +562,12 @@ export default function AskAnkush() {
                                 <span className="font-medium">{question.authorName}</span>
                               )}
                             </span>
-                            <span className="text-gray-600">·</span>
+                            <span className="text-gray-300 dark:text-gray-600">·</span>
                             <span className="text-gray-500">{formatTime(question.createdAt)}</span>
                             {question.ankushAnswer && (
                               <>
-                                <span className="text-gray-600">·</span>
-                                <span className="flex items-center gap-1.5 text-green-400 font-semibold">
+                                <span className="text-gray-300 dark:text-gray-600">·</span>
+                                <span className="flex items-center gap-1.5 text-green-600 dark:text-green-400 font-semibold">
                                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                   </svg>
@@ -581,7 +585,7 @@ export default function AskAnkush() {
                           }
                           aria-label={isExpanded ? 'Hide answers' : 'Show answers'}
                           aria-expanded={isExpanded}
-                          className="text-gray-500 hover:text-gray-300 p-2 rounded-lg hover:bg-gray-700/30 transition-all focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/30 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                         >
                           <svg
                             className={`w-5 h-5 transition-transform ${
@@ -610,21 +614,21 @@ export default function AskAnkush() {
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="border-t border-gray-700/50 bg-gray-900/40"
+                          className="border-t border-gray-200 dark:border-gray-700/50 bg-gray-50 dark:bg-gray-900/40"
                         >
                           <div className="p-6 space-y-5">
                             {/* AI Answer - only shown when AI features are enabled */}
                             {AI_FEATURES_ENABLED && question.aiAnswer && (
                               <div className="pl-5 border-l-4 border-blue-500/50">
                                 <div className="flex items-center gap-2.5 mb-3">
-                                  <span className="text-xs font-bold px-2.5 py-1 bg-blue-900/30 text-blue-300 rounded-md uppercase tracking-wide">
+                                  <span className="text-xs font-bold px-2.5 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md uppercase tracking-wide">
                                     AI Response
                                   </span>
-                                  <span className="text-xs text-gray-600">
+                                  <span className="text-xs text-gray-400 dark:text-gray-600">
                                     Based on Ankush's public content
                                   </span>
                                 </div>
-                                <p className="text-gray-300 text-sm leading-relaxed">
+                                <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
                                   {question.aiAnswer}
                                 </p>
                               </div>
@@ -634,16 +638,16 @@ export default function AskAnkush() {
                             {question.ankushAnswer ? (
                               <div className="pl-5 border-l-4 border-green-500">
                                 <div className="flex items-center gap-2.5 mb-3">
-                                  <span className="text-xs font-bold px-2.5 py-1 bg-green-900/30 text-green-300 rounded-md uppercase tracking-wide">
+                                  <span className="text-xs font-bold px-2.5 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md uppercase tracking-wide">
                                     Ankush's Answer
                                   </span>
                                 </div>
-                                <p className="text-gray-100 leading-relaxed">
+                                <p className="text-gray-800 dark:text-gray-100 leading-relaxed">
                                   {question.ankushAnswer}
                                 </p>
                               </div>
                             ) : (
-                              <div className="flex items-center gap-3 text-sm text-gray-600 italic bg-gray-800/30 rounded-lg p-4">
+                              <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-600 italic bg-gray-100 dark:bg-gray-800/30 rounded-lg p-4">
                                 <svg
                                   className="w-5 h-5 flex-shrink-0"
                                   fill="none"
@@ -672,8 +676,8 @@ export default function AskAnkush() {
         </section>
 
         {/* Footer Note */}
-        <footer className="mt-16 pt-8 border-t border-gray-800 text-center">
-          <p className="text-sm text-gray-600 leading-relaxed">
+        <footer className="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800 text-center">
+          <p className="text-sm text-gray-500 dark:text-gray-600 leading-relaxed">
             Questions are reviewed before appearing publicly.
             <br />
             Ankush answers when available.
