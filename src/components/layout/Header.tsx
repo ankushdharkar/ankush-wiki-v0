@@ -5,6 +5,7 @@ import TypingAnimation from '../ui/TypingAnimation'
 import { TextHoverEffect } from '../ui/TextHoverEffect'
 import { Boxes } from '../ui/BackgroundBoxes'
 import { trackExternalLink } from '../../services/analytics'
+import { SOCIAL_LINKS, PRODUCT_LINKS } from '../../config/links'
 
 export default function Header() {
   const location = useLocation()
@@ -20,7 +21,7 @@ export default function Header() {
         {/* Profile Photo - Responsive sizing */}
         <div className="mb-6 flex justify-center pointer-events-auto">
           <a
-            href="https://twitter.com/ankushdharkar"
+            href={SOCIAL_LINKS.twitter}
             target="_blank"
             rel="noopener noreferrer"
             className="block focus-ring rounded-full"
@@ -63,10 +64,10 @@ export default function Header() {
             {/* RealDSA - Premium */}
             <li>
               <a
-                href="https://realdsa.com"
+                href={PRODUCT_LINKS.realDsa}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => trackExternalLink('https://realdsa.com', 'Header RealDSA')}
+                onClick={() => trackExternalLink(PRODUCT_LINKS.realDsa, 'Header RealDSA')}
                 className="group relative px-5 py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold transition-all duration-300 flex items-center gap-2 focus-ring hover:shadow-lg hover:shadow-pink-500/30 hover:scale-105"
               >
                 <img src="/images/Real DSA.png" alt="RealDSA" className="w-5 h-5" />
@@ -77,10 +78,10 @@ export default function Header() {
             {/* Get Shortlisted - New */}
             <li>
               <a
-                href="https://myresumeisnotgettingshortlisted.com/"
+                href={PRODUCT_LINKS.getShortlisted}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => trackExternalLink('https://myresumeisnotgettingshortlisted.com/', 'Header Get Shortlisted')}
+                onClick={() => trackExternalLink(PRODUCT_LINKS.getShortlisted, 'Header Get Shortlisted')}
                 className="group relative px-5 py-2.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold transition-all duration-300 flex items-center gap-2 focus-ring hover:shadow-lg hover:shadow-orange-500/30 hover:scale-105"
               >
                 <span className="text-lg">🔥</span>
@@ -174,7 +175,7 @@ export default function Header() {
         {/* Social links */}
         <div className="flex justify-center gap-6 pointer-events-auto">
           <a
-            href="https://www.linkedin.com/in/ankushdharkar"
+            href={SOCIAL_LINKS.linkedin}
             target="_blank"
             rel="noopener noreferrer"
             className="text-2xl hover:text-blue-400 transition-colors duration-300 focus-ring rounded-md p-1"
@@ -183,7 +184,7 @@ export default function Header() {
             <BsLinkedin />
           </a>
           <a
-            href="https://github.com/ankushdharkar"
+            href={SOCIAL_LINKS.github}
             target="_blank"
             rel="noopener noreferrer"
             className="text-2xl hover:text-green-400 transition-colors duration-300 focus-ring rounded-md p-1"

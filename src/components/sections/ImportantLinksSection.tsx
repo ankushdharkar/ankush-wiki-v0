@@ -2,6 +2,7 @@ import RevealAnimation from '../ui/RevealAnimation'
 import { motion } from 'motion/react'
 import { BsYoutube } from 'react-icons/bs'
 import { trackExternalLink } from '../../services/analytics'
+import { MEDIA_LINKS } from '../../config/links'
 
 
 
@@ -56,8 +57,8 @@ export default function ImportantLinksSection({ isStandalone = false }: Importan
       type: 'youtube',
       title: 'Podcast Appearance',
       description: 'My featured podcast appearance on YouTube',
-      url: 'https://www.youtube.com/watch?v=idLp9jI44L0',
-      embedId: 'idLp9jI44L0',
+      url: MEDIA_LINKS.youtubePodcast,
+      embedId: MEDIA_LINKS.youtubePodcastEmbedId,
       icon: BsYoutube,
       color: '#FF0000'
     }
@@ -166,11 +167,11 @@ export default function ImportantLinksSection({ isStandalone = false }: Importan
             <p className="text-gray-600 dark:text-gray-300 mb-6">Check out more content and updates</p>
             <div className="flex justify-center gap-4">
               <a
-                href="https://www.youtube.com/watch?v=idLp9jI44L0"
+                href={MEDIA_LINKS.youtubePodcast}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 flex items-center gap-2 focus-ring"
-                onClick={() => trackExternalLink('https://www.youtube.com/watch?v=idLp9jI44L0', 'YouTube Podcast')}
+                onClick={() => trackExternalLink(MEDIA_LINKS.youtubePodcast, 'YouTube Podcast')}
               >
                 <BsYoutube />
                 Watch on YouTube

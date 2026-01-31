@@ -1,5 +1,6 @@
 import RevealAnimation from '../ui/RevealAnimation'
 import { trackExternalLink } from '../../services/analytics'
+import { COMMUNITY_LINKS } from '../../config/links'
 
 interface JsTsGuildSectionProps {
   isStandalone?: boolean;
@@ -68,7 +69,7 @@ export default function JsTsGuildSection({ isStandalone = false }: JsTsGuildSect
                       <span className="text-green-600 dark:text-green-400 text-xl">▶</span>
                       <div>
                         <strong>Discord Link:</strong><br />
-                        <a href="https://discord.gg/Vm2dugCsC8" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 focus-ring rounded-md" onClick={() => trackExternalLink('https://discord.gg/Vm2dugCsC8', 'JS TS Guild Discord')}>
+                        <a href={COMMUNITY_LINKS.jsTsGuildDiscord} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 focus-ring rounded-md" onClick={() => trackExternalLink(COMMUNITY_LINKS.jsTsGuildDiscord, 'JS TS Guild Discord')}>
                           Join Here
                         </a>
                       </div>

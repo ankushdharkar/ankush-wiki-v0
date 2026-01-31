@@ -1,5 +1,6 @@
 import RevealAnimation from '../ui/RevealAnimation'
 import { motion } from 'motion/react'
+import { SOCIAL_LINKS } from '../../config/links'
 
 interface ComingSoonSectionProps {
   isStandalone?: boolean;
@@ -87,7 +88,7 @@ export default function ComingSoonSection({ isStandalone = false }: ComingSoonSe
             <p className="text-gray-300 mb-6">Stay tuned for updates</p>
             <div className="flex justify-center gap-4">
               <a
-                href="https://twitter.com/ankushdharkar"
+                href={SOCIAL_LINKS.twitter}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 focus-ring"

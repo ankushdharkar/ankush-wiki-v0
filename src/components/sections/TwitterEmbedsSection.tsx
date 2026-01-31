@@ -1,6 +1,7 @@
 import RevealAnimation from '../ui/RevealAnimation'
 import { useEffect } from 'react'
 import { BsTwitter } from 'react-icons/bs'
+import { TWITTER_EMBEDS } from '../../config/links'
 
 declare global {
   interface Window {
@@ -23,35 +24,15 @@ type TweetType = {
 }
 
 export default function TwitterEmbedsSection({ isStandalone = false }: TwitterEmbedsSectionProps) {
-  const tweetLinks: TweetType[] = [
-    {
-      type: 'twitter',
-      title: 'Featured Tweet #1',
-      description: 'Latest updates and insights',
-      url: 'https://x.com/ankushdharkar/status/1954534159583420476',
-      embedId: '1954534159583420476',
-      icon: BsTwitter,
-      color: '#1DA1F2'
-    },
-    {
-      type: 'twitter',
-      title: 'Featured Tweet #2',
-      description: 'Important thoughts and updates',
-      url: 'https://x.com/ankushdharkar/status/1911666308778774958',
-      embedId: '1911666308778774958',
-      icon: BsTwitter,
-      color: '#1DA1F2'
-    },
-    {
-      type: 'twitter',
-      title: 'Featured Tweet #3',
-      description: 'Insights and technical discussions',
-      url: 'https://x.com/ankushdharkar/status/1852708946978783592',
-      embedId: '1852708946978783592',
-      icon: BsTwitter,
-      color: '#1DA1F2'
-    }
-  ];
+  const tweetLinks: TweetType[] = TWITTER_EMBEDS.map((tweet, index) => ({
+    type: 'twitter' as const,
+    title: `Featured Tweet #${index + 1}`,
+    description: tweet.description,
+    url: tweet.url,
+    embedId: tweet.url.split('/').pop() || '',
+    icon: BsTwitter,
+    color: '#1DA1F2'
+  }));
 
   const renderTweetEmbed = (link: TweetType) => {
     return (

@@ -1,5 +1,6 @@
 import { motion } from 'motion/react'
 import { trackExternalLink } from '../../services/analytics'
+import { PRODUCT_LINKS } from '../../config/links'
 
 export default function ResumeHighlightSection() {
   return (
@@ -73,10 +74,10 @@ export default function ResumeHighlightSection() {
             className="flex-shrink-0"
           >
             <motion.a
-              href="https://myresumeisnotgettingshortlisted.com/"
+              href={PRODUCT_LINKS.getShortlisted}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => trackExternalLink('https://myresumeisnotgettingshortlisted.com/', 'Get Shortlisted Highlight CTA')}
+              onClick={() => trackExternalLink(PRODUCT_LINKS.getShortlisted, 'Get Shortlisted Highlight CTA')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
               className="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-orange-700 font-bold text-lg rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden"

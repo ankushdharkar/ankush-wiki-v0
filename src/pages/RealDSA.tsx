@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { motion } from 'motion/react'
 import Navigation from '../components/layout/Navigation'
 import { trackExternalLink } from '../services/analytics'
+import { PRODUCT_LINKS } from '../config/links'
 
 const curriculum = [
   { module: 'Foundations', topics: ['Arrays & Strings', 'Time & Space Complexity', 'Recursion Basics'], level: 'Beginner' },
@@ -135,10 +136,10 @@ export default function RealDSA() {
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
               <motion.a
-                href="https://realdsa.com"
+                href={PRODUCT_LINKS.realDsa}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => trackExternalLink('https://realdsa.com', 'RealDSA Hero CTA')}
+                onClick={() => trackExternalLink(PRODUCT_LINKS.realDsa, 'RealDSA Hero CTA')}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
                 className="group relative px-10 py-5 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-xl rounded-2xl shadow-xl shadow-pink-500/30 hover:shadow-pink-500/50 transition-all duration-300 overflow-hidden"
@@ -307,10 +308,10 @@ export default function RealDSA() {
               Join hundreds of developers who've transformed their careers with structured DSA learning.
             </p>
             <motion.a
-              href="https://realdsa.com"
+              href={PRODUCT_LINKS.realDsa}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => trackExternalLink('https://realdsa.com', 'RealDSA Bottom CTA')}
+              onClick={() => trackExternalLink(PRODUCT_LINKS.realDsa, 'RealDSA Bottom CTA')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
               className="inline-flex items-center gap-3 px-10 py-5 bg-white text-pink-600 font-bold text-xl rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300"

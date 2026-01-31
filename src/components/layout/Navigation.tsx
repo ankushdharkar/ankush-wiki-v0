@@ -3,6 +3,7 @@ import { BsLinkedin, BsGithub } from 'react-icons/bs'
 import TypingAnimation from '../ui/TypingAnimation'
 import { trackExternalLink } from '../../services/analytics'
 import { ThemeToggle } from '../ThemeToggle'
+import { SOCIAL_LINKS } from '../../config/links'
 
 export default function Navigation() {
   const location = useLocation()
@@ -122,22 +123,22 @@ export default function Navigation() {
           {/* Social links and theme toggle */}
           <div className="flex justify-center items-center gap-4">
             <a
-              href="https://www.linkedin.com/in/ankushdharkar"
+              href={SOCIAL_LINKS.linkedin}
               target="_blank"
               rel="noopener noreferrer"
               className="text-xl hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 focus-ring rounded-md p-1"
               aria-label="LinkedIn Profile"
-              onClick={() => trackExternalLink('https://www.linkedin.com/in/ankushdharkar', 'LinkedIn')}
+              onClick={() => trackExternalLink(SOCIAL_LINKS.linkedin, 'LinkedIn')}
             >
               <BsLinkedin />
             </a>
             <a
-              href="https://github.com/ankushdharkar"
+              href={SOCIAL_LINKS.github}
               target="_blank"
               rel="noopener noreferrer"
               className="text-xl hover:text-green-600 dark:hover:text-green-400 transition-colors duration-300 focus-ring rounded-md p-1"
               aria-label="GitHub Profile"
-              onClick={() => trackExternalLink('https://github.com/ankushdharkar', 'GitHub')}
+              onClick={() => trackExternalLink(SOCIAL_LINKS.github, 'GitHub')}
             >
               <BsGithub />
             </a>

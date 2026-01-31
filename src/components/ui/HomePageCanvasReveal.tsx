@@ -3,6 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { LazyCanvasRevealEffect as CanvasRevealEffect } from "./LazyCanvasRevealEffect";
 import { trackExternalLink } from "../../services/analytics";
+import { PRODUCT_LINKS } from "../../config/links";
 
 export function HomePageCanvasReveal() {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ export function HomePageCanvasReveal() {
         title="RealDSA"
         icon={<RealDSAIcon />}
         bgColor="bg-pink-950/50"
-        onClick={() => handleExternalClick('https://realdsa.com', 'RealDSA Hero Card')}
+        onClick={() => handleExternalClick(PRODUCT_LINKS.realDsa, 'RealDSA Hero Card')}
         order="order-1"
         badge="Premium"
         badgeColor="bg-pink-500"
@@ -38,7 +39,7 @@ export function HomePageCanvasReveal() {
         title="Get Shortlisted"
         icon={<ResumeIcon />}
         bgColor="bg-orange-950/50"
-        onClick={() => handleExternalClick('https://myresumeisnotgettingshortlisted.com/', 'Get Shortlisted Hero Card')}
+        onClick={() => handleExternalClick(PRODUCT_LINKS.getShortlisted, 'Get Shortlisted Hero Card')}
         order="order-2"
         badge="New"
         badgeColor="bg-yellow-400 text-yellow-900"

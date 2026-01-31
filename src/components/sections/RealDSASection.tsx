@@ -1,6 +1,7 @@
 import { motion } from 'motion/react'
 import RevealAnimation from '../ui/RevealAnimation'
 import { trackExternalLink } from '../../services/analytics'
+import { PRODUCT_LINKS } from '../../config/links'
 
 interface RealDSASectionProps {
   isStandalone?: boolean;
@@ -91,10 +92,10 @@ export default function RealDSASection({ isStandalone = false }: RealDSASectionP
         <RevealAnimation delay={0.8}>
           <div className="text-center">
             <motion.a
-              href="https://realdsa.com"
+              href={PRODUCT_LINKS.realDsa}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => trackExternalLink('https://realdsa.com', 'RealDSA CTA')}
+              onClick={() => trackExternalLink(PRODUCT_LINKS.realDsa, 'RealDSA CTA')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
               className="inline-flex px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold text-lg rounded-xl shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 transition-all duration-300 items-center gap-2"

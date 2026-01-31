@@ -1,5 +1,6 @@
 import RevealAnimation from '../ui/RevealAnimation'
 import { trackExternalLink } from '../../services/analytics'
+import { COMMUNITY_LINKS } from '../../config/links'
 
 interface ChilloutsSectionProps {
   isStandalone?: boolean;
@@ -77,11 +78,11 @@ export default function ChilloutsSection({ isStandalone = false }: ChilloutsSect
               <div className="mt-8">
                 <RevealAnimation delay={0.8}>
                   <a
-                    href="https://docs.google.com/document/d/1Pn37IDyVp3yQV9PZduFwWMZa8yHP7FCitvRwo7Zdv5Y/edit?usp=sharing"
+                    href={COMMUNITY_LINKS.chilloutsJoin}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-300 focus-ring"
-                    onClick={() => trackExternalLink('https://docs.google.com/document/d/1Pn37IDyVp3yQV9PZduFwWMZa8yHP7FCitvRwo7Zdv5Y', 'Chillouts Join')}
+                    onClick={() => trackExternalLink(COMMUNITY_LINKS.chilloutsJoin, 'Chillouts Join')}
                   >
                     Join Our Community
                   </a>
