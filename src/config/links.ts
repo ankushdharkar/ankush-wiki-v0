@@ -7,6 +7,7 @@ export const SOCIAL_LINKS = {
   twitter: 'https://x.com/RealAnkush',
   linkedin: 'https://www.linkedin.com/in/ankushdharkar',
   github: 'https://github.com/ankushdharkar',
+  youtube: 'https://www.youtube.com/@ankushdharkar',
 } as const;
 
 export const PRODUCT_LINKS = {
