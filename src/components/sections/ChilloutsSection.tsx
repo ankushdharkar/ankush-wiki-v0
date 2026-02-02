@@ -8,8 +8,8 @@ interface ChilloutsSectionProps {
 
 export default function ChilloutsSection({ isStandalone = false }: ChilloutsSectionProps) {
   const containerClass = isStandalone
-    ? "min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white pt-20 pb-8 md:pb-20 transition-colors"
-    : "py-20 bg-gray-50 dark:bg-gray-900 transition-colors";
+    ? "min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white pt-16 md:pt-20 pb-8 md:pb-20 transition-colors"
+    : "py-16 md:py-24 bg-gray-50 dark:bg-gray-900 transition-colors";
 
   return (
     <section id="chillouts" className={containerClass}>
@@ -17,7 +17,7 @@ export default function ChilloutsSection({ isStandalone = false }: ChilloutsSect
         {/* Section Title */}
         <RevealAnimation delay={0.2}>
           <div className="text-center mb-16">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">Chillouts</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Chillouts</h2>
             <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
               A community focused on friends, relationships, high quality connections, dating, life, partnerships, and fun.
             </p>
@@ -35,7 +35,7 @@ export default function ChilloutsSection({ isStandalone = false }: ChilloutsSect
             </RevealAnimation>
 
             <RevealAnimation delay={0.6} direction="right" className="lg:w-2/3">
-              <p className="text-lg md:text-xl mb-8 font-semibold">What we focus on</p>
+              <p className="text-xs md:text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-6">What we focus on</p>
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
                   <ul className="space-y-4">

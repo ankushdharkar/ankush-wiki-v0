@@ -36,8 +36,8 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
   ]
 
   const containerClass = isStandalone
-    ? "min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white pt-20 pb-8 md:pb-20 transition-colors"
-    : "py-20 bg-gray-100 dark:bg-gray-800 transition-colors";
+    ? "min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white pt-16 md:pt-20 pb-8 md:pb-20 transition-colors"
+    : "py-16 md:py-24 bg-gray-50 dark:bg-gray-900 transition-colors";
 
   return (
     <section id="real-dev-squad" className={containerClass}>
@@ -45,7 +45,7 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
         {/* Section Title */}
         <RevealAnimation delay={0.2}>
           <div className="text-center mb-16">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">Real Dev Squad</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Real Dev Squad</h2>
           </div>
         </RevealAnimation>
 
@@ -64,19 +64,19 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
             </RevealAnimation>
 
             <RevealAnimation delay={0.6} direction="right" className="lg:w-2/3">
-              <p className="text-lg md:text-xl mb-8 font-semibold">What is it</p>
+              <p className="text-xs md:text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-6">What is it</p>
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
                   <ul className="space-y-4">
                     <li className="flex items-start gap-3">
-                      <span className="text-green-600 dark:text-green-400 text-xl">▶</span>
+                      <span className="text-blue-600 dark:text-blue-400 text-xl">▶</span>
                       <div>
                         <strong>For:</strong><br />
                         Developers, Designs, Product Managers, Project Managers, Social media marketing
                       </div>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-green-600 dark:text-green-400 text-xl">▶</span>
+                      <span className="text-blue-600 dark:text-blue-400 text-xl">▶</span>
                       <div>
                         <strong>Requirements:</strong><br />
                         Time commitment necessary
@@ -87,21 +87,21 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
                 <div>
                   <ul className="space-y-4">
                     <li className="flex items-start gap-3">
-                      <span className="text-green-600 dark:text-green-400 text-xl">▶</span>
+                      <span className="text-blue-600 dark:text-blue-400 text-xl">▶</span>
                       <div>
                         <strong>Location:</strong><br />
                         Discord + GitHub
                       </div>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-green-600 dark:text-green-400 text-xl">▶</span>
+                      <span className="text-blue-600 dark:text-blue-400 text-xl">▶</span>
                       <div>
                         <strong>Contact:</strong><br />
                         @RealAnkush on Twitter
                       </div>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-green-600 dark:text-green-400 text-xl">▶</span>
+                      <span className="text-blue-600 dark:text-blue-400 text-xl">▶</span>
                       <div>
                         <strong>Read this to get a better sense on how to join:</strong><br />
                         <a href={COMMUNITY_LINKS.realDevSquadFaq} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 focus-ring rounded-md" onClick={() => trackExternalLink(COMMUNITY_LINKS.realDevSquadFaq, 'RDS FAQ Inline')}>
@@ -120,11 +120,11 @@ export default function RealDevSquadSection({ isStandalone = false }: RealDevSqu
         <div className="mb-16">
           <RevealAnimation delay={0.8}>
             <div className="text-center mb-12">
-              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold">What does it teach</h2>
+              <h3 className="text-xl md:text-2xl font-bold">What does it teach</h3>
             </div>
           </RevealAnimation>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {teachings.map((item, index) => {
               const IconComponent = item.icon
               return (
