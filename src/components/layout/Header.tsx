@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import { BsLinkedin, BsGithub, BsTwitterX } from 'react-icons/bs'
+import { BsLinkedin, BsGithub, BsTwitterX, BsYoutube } from 'react-icons/bs'
 import TypingAnimation from '../ui/TypingAnimation'
 import { TextHoverEffect } from '../ui/TextHoverEffect'
 import { Boxes } from '../ui/BackgroundBoxes'
@@ -12,7 +12,7 @@ export default function Header() {
   const [imageLoaded, setImageLoaded] = useState(false)
   
   return (
-    <header id="header" className="h-[90vh] bg-slate-900 text-white flex flex-col justify-center items-center relative overflow-hidden">
+    <header id="header" className="min-h-[80vh] md:min-h-[90vh] bg-slate-900 text-white flex flex-col justify-center items-center relative overflow-hidden">
       {/* Background Boxes Animation */}
       <div className="absolute inset-0 w-full h-full bg-slate-900 z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
       <Boxes />
@@ -58,9 +58,25 @@ export default function Header() {
           I am a <TypingAnimation />
         </h2>
         
+        {/* YouTube Subscribe - Featured CTA */}
+        <div className="mb-6 pointer-events-auto">
+          <a
+            href={SOCIAL_LINKS.youtube}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackExternalLink(SOCIAL_LINKS.youtube, 'Header YouTube Subscribe')}
+            className="group relative inline-flex items-center gap-3 px-6 py-3 md:px-8 md:py-4 rounded-full bg-red-600 hover:bg-red-700 text-white font-bold text-lg md:text-xl transition-all duration-300 focus-ring hover:shadow-xl hover:shadow-red-500/40 hover:scale-105"
+          >
+            <BsYoutube className="text-2xl md:text-3xl" />
+            <span>Subscribe on YouTube</span>
+            <span className="absolute -top-2 -right-2 px-2.5 py-1 bg-white text-red-600 text-[11px] font-bold rounded-full shadow-lg animate-pulse border-2 border-red-600">New</span>
+          </a>
+        </div>
+
         {/* Featured Products - Prominent CTAs */}
         <nav className="mb-6 pointer-events-auto">
           <ul className="flex flex-wrap justify-center gap-3 md:gap-4">
+            {/* TODO: Revisit after March 15th - consider removing to reduce redundancy with dedicated sections */}
             {/* RealDSA - Premium */}
             <li>
               <a
@@ -75,6 +91,7 @@ export default function Header() {
                 <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-white text-pink-600 text-[10px] font-bold rounded-full shadow">Premium</span>
               </a>
             </li>
+            {/* TODO: Revisit after March 15th - consider removing to reduce redundancy with dedicated sections */}
             {/* Get Shortlisted - New */}
             <li>
               <a
@@ -99,7 +116,7 @@ export default function Header() {
               <li>
                 <Link
                   to="/"
-                  className={`px-4 py-2 rounded-full border border-gray-600 transition-all duration-300 focus-ring ${
+                  className={`px-4 py-2.5 rounded-full border border-gray-600 transition-all duration-300 focus-ring ${
                     location.pathname === '/'
                       ? 'text-green-400 border-green-400'
                       : 'text-white hover:text-green-400 hover:border-green-400'
@@ -112,7 +129,7 @@ export default function Header() {
             <li>
               <Link
                 to="/important-links"
-                className={`px-4 py-2 rounded-full border border-gray-600 transition-all duration-300 focus-ring ${
+                className={`px-4 py-2.5 rounded-full border border-gray-600 transition-all duration-300 focus-ring ${
                   location.pathname === '/important-links'
                     ? 'text-green-400 border-green-400'
                     : 'text-white hover:text-green-400 hover:border-green-400'
@@ -124,7 +141,7 @@ export default function Header() {
             <li>
               <Link
                 to="/real-dev-squad"
-                className={`px-4 py-2 rounded-full border border-gray-600 transition-all duration-300 flex items-center gap-2 focus-ring ${
+                className={`px-4 py-2.5 rounded-full border border-gray-600 transition-all duration-300 flex items-center gap-2 focus-ring ${
                   location.pathname === '/real-dev-squad'
                     ? 'text-green-400 border-green-400'
                     : 'text-white hover:text-green-400 hover:border-green-400'
@@ -142,7 +159,7 @@ export default function Header() {
             <li>
               <Link
                 to="/chillouts"
-                className={`px-4 py-2 rounded-full border border-gray-600 transition-all duration-300 focus-ring ${
+                className={`px-4 py-2.5 rounded-full border border-gray-600 transition-all duration-300 focus-ring ${
                   location.pathname === '/chillouts'
                     ? 'text-green-400 border-green-400'
                     : 'text-white hover:text-green-400 hover:border-green-400'
@@ -154,7 +171,7 @@ export default function Header() {
             <li>
               <Link
                 to="/js-ts-guild"
-                className={`px-4 py-2 rounded-full border border-gray-600 transition-all duration-300 flex items-center gap-2 focus-ring ${
+                className={`px-4 py-2.5 rounded-full border border-gray-600 transition-all duration-300 flex items-center gap-2 focus-ring ${
                   location.pathname === '/js-ts-guild'
                     ? 'text-green-400 border-green-400'
                     : 'text-white hover:text-green-400 hover:border-green-400'
