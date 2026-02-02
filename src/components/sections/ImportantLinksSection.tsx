@@ -63,24 +63,14 @@ export default function ImportantLinksSection({ isStandalone = false }: Importan
 
 
   return (
-    <section id="important-links" className={containerClass}>
+    <section id="coming-soon" className={containerClass}>
       <div className="container mx-auto px-6">
-        {/* Section Title */}
-        <RevealAnimation delay={0.2}>
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Important Links</h2>
-            <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
-              Featured content, appearances, and key updates from across the web
-            </p>
-          </div>
-        </RevealAnimation>
-
         {/* Coming Soon Section */}
         <div className="mb-16">
-          <RevealAnimation delay={0.6}>
+          <RevealAnimation delay={0.2}>
             <div className="text-center mb-8">
-              <h3 className="text-xl md:text-2xl font-semibold mb-4">Coming Soon</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm max-w-lg mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Coming Soon</h2>
+              <p className="text-gray-600 dark:text-gray-300 text-lg max-w-lg mx-auto">
                 Exciting new features and content are in development
               </p>
             </div>
@@ -92,14 +82,14 @@ export default function ImportantLinksSection({ isStandalone = false }: Importan
                 key={index}
                 title={item.title}
                 description={item.description}
-                delay={0.8 + index * 0.1}
+                delay={0.4 + index * 0.1}
               />
             ))}
           </div>
         </div>
 
         {/* Call to Action */}
-        <RevealAnimation delay={1.2}>
+        <RevealAnimation delay={0.8}>
           <div className="text-center mt-16">
             <p className="text-gray-600 dark:text-gray-300 mb-6">Check out more content and updates</p>
             <div className="flex justify-center gap-4">

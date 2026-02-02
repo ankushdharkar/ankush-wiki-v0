@@ -8,7 +8,7 @@ import RealDevSquadSection from '../components/sections/RealDevSquadSection'
 import JsTsGuildSection from '../components/sections/JsTsGuildSection'
 import ChilloutsSection from '../components/sections/ChilloutsSection'
 import ImportantLinksSection from '../components/sections/ImportantLinksSection'
-import { HomePageCanvasReveal } from '../components/ui/HomePageCanvasReveal'
+import { ImportantLinksCards } from '../components/ui/HomePageCanvasReveal'
 import { trackExternalLink } from '../services/analytics'
 // import AboutSection from '../components/sections/AboutSection'
 
@@ -26,15 +26,15 @@ export default function Portfolio() {
       <ResumeHighlightSection />
       <RealDSASection />
 
-      {/* Navigation Hub */}
-      <HomePageCanvasReveal />
+      {/* Important Links */}
+      <ImportantLinksCards />
 
       {/* Communities */}
       <RealDevSquadSection />
       <JsTsGuildSection />
       <ChilloutsSection />
 
-      {/* Content/Media */}
+      {/* Coming Soon */}
       <ImportantLinksSection />
       {/* <AboutSection /> */}
 

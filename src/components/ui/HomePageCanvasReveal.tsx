@@ -5,7 +5,7 @@ import { LazyCanvasRevealEffect as CanvasRevealEffect } from "./LazyCanvasReveal
 import { trackExternalLink } from "../../services/analytics";
 import { PRODUCT_LINKS } from "../../config/links";
 
-export function HomePageCanvasReveal() {
+export function ImportantLinksCards() {
   const navigate = useNavigate();
 
   const handleExternalClick = (url: string, name: string) => {
@@ -14,7 +14,15 @@ export function HomePageCanvasReveal() {
   };
 
   return (
-    <section id="hero-cards" className="py-20 flex flex-wrap items-center justify-center bg-black w-full gap-x-4 gap-y-8 mx-auto px-4 md:px-8">
+    <section id="important-links" className="py-16 md:py-24 bg-black w-full">
+      <div className="container mx-auto px-4 md:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Important Links</h2>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Quick access to products, communities, and resources
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-8">
       {/* Premium Products - First Row */}
       <Card
         title="RealDSA"
@@ -124,9 +132,14 @@ export function HomePageCanvasReveal() {
           dotSize={8}
         />
       </Card>
+        </div>
+      </div>
     </section>
   );
 }
+
+// Keep old export name for backwards compatibility
+export const HomePageCanvasReveal = ImportantLinksCards;
 
 const Card = ({
   title,
