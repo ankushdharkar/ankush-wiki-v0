@@ -91,6 +91,7 @@ export default function ChilloutsSection({ isStandalone = false }: ChilloutsSect
             </RevealAnimation>
           </div>
         </div>
+
       </div>
     </section>
   )
