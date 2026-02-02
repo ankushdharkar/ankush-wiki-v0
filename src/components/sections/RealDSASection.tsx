@@ -32,8 +32,8 @@ const benefits = [
 
 export default function RealDSASection({ isStandalone = false }: RealDSASectionProps) {
   const containerClass = isStandalone
-    ? "min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white pt-20 pb-8 md:pb-20 transition-colors"
-    : "py-20 bg-gradient-to-b from-pink-50 to-gray-50 dark:from-gray-800 dark:to-gray-900 transition-colors";
+    ? "min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white pt-16 md:pt-20 pb-8 md:pb-20 transition-colors"
+    : "py-16 md:py-24 bg-gradient-to-b from-pink-50 to-gray-50 dark:from-gray-800 dark:to-gray-900 transition-colors";
 
   return (
     <section id="real-dsa" className={containerClass}>
@@ -57,7 +57,7 @@ export default function RealDSASection({ isStandalone = false }: RealDSASectionP
 
             <div className="flex items-center justify-center gap-4 mb-4">
               <img src="/images/Real DSA.png" alt="RealDSA Logo" className="w-12 h-12 md:w-16 md:h-16" />
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">
+              <h2 className="text-3xl md:text-4xl font-bold">
                 <span className="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
                   RealDSA
                 </span>

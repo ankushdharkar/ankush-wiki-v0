@@ -10,16 +10,6 @@ interface ImportantLinksSectionProps {
   isStandalone?: boolean;
 }
 
-type LinkType = {
-  type: string;
-  title: string;
-  description: string;
-  url: string;
-  embedId?: string;
-  icon: any;
-  color: string;
-}
-
 const ComingSoonCard = ({
   title,
   description,
@@ -52,18 +42,6 @@ const ComingSoonCard = ({
 }
 
 export default function ImportantLinksSection({ isStandalone = false }: ImportantLinksSectionProps) {
-  const links = [
-    {
-      type: 'youtube',
-      title: 'Podcast Appearance',
-      description: 'My featured podcast appearance on YouTube',
-      url: MEDIA_LINKS.youtubePodcast,
-      embedId: MEDIA_LINKS.youtubePodcastEmbedId,
-      icon: BsYoutube,
-      color: '#FF0000'
-    }
-  ]
-
   const comingSoonItems = [
     {
       title: 'Blog Posts',
@@ -79,35 +57,9 @@ export default function ImportantLinksSection({ isStandalone = false }: Importan
     }
   ]
 
-  const renderEmbed = (link: LinkType) => {
-    switch (link.type) {
-      case 'youtube':
-        return (
-          <div className="bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-            <div className="aspect-video w-full">
-              <iframe
-                width="100%"
-                height="100%"
-                src={`https://www.youtube.com/embed/${link.embedId || ''}`}
-                title="YouTube video player"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                className="w-full h-full"
-              ></iframe>
-            </div>
-          </div>
-        )
-
-      default:
-        return null
-    }
-  }
-
-
   const containerClass = isStandalone
-    ? "min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white pt-20 pb-8 md:pb-20 transition-colors"
-    : "py-20 bg-gray-50 dark:bg-gray-900 transition-colors";
+    ? "min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white pt-16 md:pt-20 pb-8 md:pb-20 transition-colors"
+    : "py-16 md:py-24 bg-gray-100 dark:bg-gray-800 transition-colors";
 
 
   return (
@@ -116,27 +68,12 @@ export default function ImportantLinksSection({ isStandalone = false }: Importan
         {/* Section Title */}
         <RevealAnimation delay={0.2}>
           <div className="text-center mb-16">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">Important Links</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Important Links</h2>
             <p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">
               Featured content, appearances, and key updates from across the web
             </p>
           </div>
         </RevealAnimation>
-
-        {/* Featured Podcast */}
-        <div className="mb-16">
-          <RevealAnimation delay={0.4}>
-            <div className="text-center mb-8">
-              <h3 className="text-xl md:text-2xl font-semibold mb-4 flex items-center justify-center gap-2">
-                <BsYoutube className="text-red-500" />
-                Podcast Appearance
-              </h3>
-            </div>
-            <div className="max-w-4xl mx-auto">
-              {renderEmbed(links[0])}
-            </div>
-          </RevealAnimation>
-        </div>
 
         {/* Coming Soon Section */}
         <div className="mb-16">
