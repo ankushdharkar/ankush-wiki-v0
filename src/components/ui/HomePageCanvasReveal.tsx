@@ -14,7 +14,7 @@ export function HomePageCanvasReveal() {
   };
 
   return (
-    <div className="py-20 flex flex-wrap items-center justify-center bg-black w-full gap-x-4 gap-y-8 mx-auto px-4 md:px-8">
+    <section id="hero-cards" className="py-20 flex flex-wrap items-center justify-center bg-black w-full gap-x-4 gap-y-8 mx-auto px-4 md:px-8">
       {/* Premium Products - First Row */}
       <Card
         title="RealDSA"
@@ -124,7 +124,7 @@ export function HomePageCanvasReveal() {
           dotSize={8}
         />
       </Card>
-    </div>
+    </section>
   );
 }
 
