@@ -1,161 +1,60 @@
 import { Link, useLocation } from 'react-router-dom'
-import { BsLinkedin, BsGithub, BsTwitterX } from 'react-icons/bs'
-import TypingAnimation from '../ui/TypingAnimation'
-import { trackExternalLink } from '../../services/analytics'
 import { ThemeToggle } from '../ThemeToggle'
 import UserMenu from '../ui/UserMenu'
-import { SOCIAL_LINKS } from '../../config/links'
+
+const navLinks = [
+  { to: '/important-links', label: 'Links' },
+  { to: '/real-dsa', label: 'RealDSA' },
+  { to: '/real-dev-squad', label: 'Real Dev Squad' },
+  { to: '/chillouts', label: 'Chillouts' },
+  { to: '/js-ts-guild', label: 'JS TS Guild' },
+]
 
 export default function Navigation() {
-  const location = useLocation()
+  const { pathname } = useLocation()
 
   return (
-    <header className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white py-6 border-b border-gray-200 dark:border-gray-700 transition-colors">
-      <div className="container mx-auto px-6">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-          {/* Logo and typing */}
-          <div className="text-center lg:text-left">
-            <h1 className="text-2xl lg:text-3xl font-bold mb-2">
-              <Link to="/" className="hover:text-green-600 dark:hover:text-green-400 transition-colors duration-300 focus-ring rounded-md">
-                Ankush Dharkar
+    <header className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-colors">
+      <div className="h-full max-w-7xl mx-auto px-6 flex items-center justify-between">
+        {/* Home */}
+        <Link
+          to="/"
+          className="flex items-center gap-2 focus-ring rounded-full shrink-0 group"
+        >
+          <img
+            src="/images/ankush-at-event.JPG"
+            alt="Ankush Dharkar"
+            className="w-9 h-9 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700 group-hover:border-green-400 transition-colors"
+          />
+          <span className="text-sm font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors">
+            Ankush Dharkar
+          </span>
+        </Link>
+
+        {/* Nav links */}
+        <nav className="hidden md:flex items-center gap-1">
+          {navLinks.map(({ to, label }) => {
+            const isActive = pathname === to
+            return (
+              <Link
+                key={to}
+                to={to}
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus-ring ${
+                  isActive
+                    ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/50'
+                }`}
+              >
+                {label}
               </Link>
-            </h1>
-            <h2 className="text-sm lg:text-base text-gray-600 dark:text-gray-300">
-              I am a <TypingAnimation />
-            </h2>
-          </div>
+            )
+          })}
+        </nav>
 
-          {/* Navigation */}
-          <nav className="flex-1 mx-8">
-            <ul className="flex flex-wrap justify-center gap-4 lg:gap-6 text-sm lg:text-base">
-              <li>
-                <Link
-                  to="/"
-                  className={`font-semibold transition-colors focus-ring rounded-md px-1 ${
-                    location.pathname === '/'
-                      ? 'text-green-600 dark:text-green-400 underline underline-offset-4'
-                      : 'hover:text-green-600 dark:hover:text-green-400'
-                  }`}
-                >
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/important-links"
-                  className={`transition-colors duration-300 focus-ring rounded-md px-1 ${
-                    location.pathname === '/important-links'
-                      ? 'text-green-600 dark:text-green-400 underline underline-offset-4'
-                      : 'hover:text-green-600 dark:hover:text-green-400'
-                  }`}
-                >
-                  Important Links
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/real-dsa"
-                  className={`transition-colors duration-300 flex items-center gap-2 focus-ring rounded-md px-1 font-semibold ${
-                    location.pathname === '/real-dsa'
-                      ? 'text-pink-600 dark:text-pink-400 underline underline-offset-4'
-                      : 'text-pink-600 dark:text-pink-400 hover:text-purple-600 dark:hover:text-purple-400'
-                  }`}
-                >
-                  RealDSA
-                  <img
-                    src="/images/Real DSA.png"
-                    className="w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0"
-                    alt="RealDSA Logo"
-                    loading="lazy"
-                  />
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/real-dev-squad"
-                  className={`transition-colors duration-300 flex items-center gap-2 focus-ring rounded-md px-1 ${
-                    location.pathname === '/real-dev-squad'
-                      ? 'text-green-600 dark:text-green-400 underline underline-offset-4'
-                      : 'hover:text-green-600 dark:hover:text-green-400'
-                  }`}
-                >
-                  Real Dev Squad
-                  <img
-                    src="/images/Real-Dev-Squad-logo.png"
-                    className="w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0"
-                    alt="RDS Logo"
-                    loading="lazy"
-                  />
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/chillouts"
-                  className={`transition-colors duration-300 focus-ring rounded-md px-1 ${
-                    location.pathname === '/chillouts'
-                      ? 'text-green-600 dark:text-green-400 underline underline-offset-4'
-                      : 'hover:text-green-600 dark:hover:text-green-400'
-                  }`}
-                >
-                  Chillouts
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/js-ts-guild"
-                  className={`transition-colors duration-300 flex items-center gap-2 focus-ring rounded-md px-1 ${
-                    location.pathname === '/js-ts-guild'
-                      ? 'text-green-600 dark:text-green-400 underline underline-offset-4'
-                      : 'hover:text-green-600 dark:hover:text-green-400'
-                  }`}
-                >
-                  JS TS Guild
-                  <img
-                    src="/images/JS-TS-Guild-logo.jpeg"
-                    className="w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0"
-                    alt="JS TS Guild Logo"
-                    loading="lazy"
-                  />
-                </Link>
-              </li>
-            </ul>
-          </nav>
-
-          {/* Social links and theme toggle */}
-          <div className="flex justify-center items-center gap-4">
-            <a
-              href={SOCIAL_LINKS.twitter}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xl hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-300 focus-ring rounded-md p-1"
-              aria-label="X (Twitter) Profile"
-              onClick={() => trackExternalLink(SOCIAL_LINKS.twitter, 'Twitter')}
-            >
-              <BsTwitterX />
-            </a>
-            <a
-              href={SOCIAL_LINKS.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xl hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300 focus-ring rounded-md p-1"
-              aria-label="LinkedIn Profile"
-              onClick={() => trackExternalLink(SOCIAL_LINKS.linkedin, 'LinkedIn')}
-            >
-              <BsLinkedin />
-            </a>
-            <a
-              href={SOCIAL_LINKS.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xl hover:text-green-600 dark:hover:text-green-400 transition-colors duration-300 focus-ring rounded-md p-1"
-              aria-label="GitHub Profile"
-              onClick={() => trackExternalLink(SOCIAL_LINKS.github, 'GitHub')}
-            >
-              <BsGithub />
-            </a>
-            <ThemeToggle />
-            <UserMenu />
-          </div>
+        {/* Right side */}
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <UserMenu />
         </div>
       </div>
     </header>

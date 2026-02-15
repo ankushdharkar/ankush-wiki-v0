@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
+import Navigation from './components/layout/Navigation'
 import PageTransition from './components/layout/PageTransition'
 import { usePageTracking } from './hooks/usePageTracking'
 
@@ -18,21 +19,24 @@ function App() {
   usePageTracking()
 
   return (
-    <PageTransition>
-      <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>}>
-        <Routes>
-          <Route path="/" element={<Portfolio />} />
-          <Route path="/ace" element={<AceShowcase />} />
-          <Route path="/chillouts" element={<Chillouts />} />
-          <Route path="/js-ts-guild" element={<JsTsGuild />} />
-          <Route path="/real-dev-squad" element={<RealDevSquad />} />
-          <Route path="/real-dsa" element={<RealDSA />} />
-          <Route path="/important-links" element={<ImportantLinks />} />
-          <Route path="/dev" element={<Dev />} />
-          <Route path="/new" element={<AskAnkush />} />
-        </Routes>
-      </Suspense>
-    </PageTransition>
+    <>
+      <Navigation />
+      <PageTransition>
+        <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<Portfolio />} />
+            <Route path="/ace" element={<AceShowcase />} />
+            <Route path="/chillouts" element={<Chillouts />} />
+            <Route path="/js-ts-guild" element={<JsTsGuild />} />
+            <Route path="/real-dev-squad" element={<RealDevSquad />} />
+            <Route path="/real-dsa" element={<RealDSA />} />
+            <Route path="/important-links" element={<ImportantLinks />} />
+            <Route path="/dev" element={<Dev />} />
+            <Route path="/new" element={<AskAnkush />} />
+          </Routes>
+        </Suspense>
+      </PageTransition>
+    </>
   )
 }
 

@@ -2,40 +2,11 @@ import { useState } from 'react'
 import { useSession, useLogin, useLogout } from '../../hooks/useAuth'
 import { motion } from 'framer-motion'
 
-interface UserMenuProps {
-  variant?: 'hero' | 'nav'
-}
-
-const styles = {
-  hero: {
-    button: `px-4 py-2.5 rounded-full border border-gray-600 text-sm font-medium transition-all duration-300
-      text-white hover:text-green-400 hover:border-green-400
-      focus:outline-none focus:ring-2 focus:ring-green-500/50
-      disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:text-white disabled:hover:border-gray-600`,
-    spinner: 'border-white',
-    userName: 'text-sm text-gray-300 hidden sm:inline',
-    loading: 'h-10 w-24 rounded-full bg-gray-700/50 border border-gray-600 animate-pulse',
-  },
-  nav: {
-    button: `px-4 py-2 rounded-lg border text-sm font-medium transition-colors
-      bg-gray-100 hover:bg-gray-200 dark:bg-gray-800/60 dark:hover:bg-gray-700/70
-      border-gray-200 dark:border-gray-700/50
-      text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100
-      focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-400/50
-      disabled:opacity-60 disabled:cursor-not-allowed`,
-    spinner: 'border-gray-700 dark:border-gray-300',
-    userName: 'text-sm text-gray-600 dark:text-gray-400 hidden sm:inline',
-    loading: 'h-9 w-20 rounded-lg bg-gray-100 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700/50 animate-pulse',
-  },
-}
-
-export default function UserMenu({ variant = 'nav' }: UserMenuProps) {
+export default function UserMenu() {
   const { user, loading } = useSession()
   const login = useLogin()
   const logout = useLogout()
   const [isRedirecting, setIsRedirecting] = useState(false)
-
-  const s = styles[variant]
 
   const handleSignIn = () => {
     setIsRedirecting(true)
@@ -43,7 +14,7 @@ export default function UserMenu({ variant = 'nav' }: UserMenuProps) {
   }
 
   if (loading) {
-    return <div className={s.loading} />
+    return <div className="h-8 w-16 rounded-md bg-gray-100 dark:bg-gray-800 animate-pulse" />
   }
 
   if (!user) {
@@ -52,11 +23,16 @@ export default function UserMenu({ variant = 'nav' }: UserMenuProps) {
         onClick={handleSignIn}
         disabled={isRedirecting}
         whileTap={{ scale: isRedirecting ? 1 : 0.95 }}
-        className={s.button}
+        className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors
+          text-gray-600 dark:text-gray-400
+          hover:text-gray-900 dark:hover:text-gray-200
+          hover:bg-gray-100 dark:hover:bg-gray-800/50
+          disabled:opacity-60 disabled:cursor-not-allowed
+          focus:outline-none focus:ring-2 focus:ring-green-500/50"
       >
-        <span className="flex items-center gap-2">
+        <span className="flex items-center gap-1.5">
           {isRedirecting && (
-            <span className={`animate-spin h-3.5 w-3.5 border-2 border-t-transparent rounded-full ${s.spinner}`} />
+            <span className="animate-spin h-3 w-3 border-2 border-gray-400 border-t-transparent rounded-full" />
           )}
           {isRedirecting ? 'Signing in...' : 'Sign In'}
         </span>
@@ -66,13 +42,17 @@ export default function UserMenu({ variant = 'nav' }: UserMenuProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <span className={s.userName}>
+      <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:inline">
         {user.name || user.email}
       </span>
       <motion.button
         onClick={() => logout()}
         whileTap={{ scale: 0.95 }}
-        className={s.button}
+        className="px-3 py-1.5 rounded-md text-sm font-medium transition-colors
+          text-gray-600 dark:text-gray-400
+          hover:text-gray-900 dark:hover:text-gray-200
+          hover:bg-gray-100 dark:hover:bg-gray-800/50
+          focus:outline-none focus:ring-2 focus:ring-green-500/50"
       >
         Sign Out
       </motion.button>

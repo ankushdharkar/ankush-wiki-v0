@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { motion } from 'motion/react'
-import Navigation from '../components/layout/Navigation'
 import { trackExternalLink } from '../services/analytics'
 import { PRODUCT_LINKS } from '../config/links'
 
@@ -59,8 +58,6 @@ export default function RealDSA() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors">
-      <Navigation />
-
       {/* Hero Section */}
       <section className="relative overflow-hidden pt-20 pb-32">
         {/* Animated background gradient */}
