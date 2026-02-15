@@ -34,48 +34,41 @@ export default function AskAnkush() {
     document.title = 'Ask Ankush'
   }, [])
 
-  // Load data once auth is resolved and user is logged in
+  // Load topics once after auth resolves
   useEffect(() => {
-    if (!authLoading && user) {
-      loadTopics()
-      loadQuestions()
-    }
+    if (authLoading || !user) return
+    questionsApi.getTopics().then(setTopics).catch(() => {})
   }, [authLoading, user])
 
-  // Reload questions when filter changes
+  // Load questions when auth resolves or filters change
   useEffect(() => {
-    if (user) {
-      loadQuestions()
-    }
-  }, [activeTopic, sortBy])
+    if (authLoading || !user) return
 
-  const loadTopics = async () => {
-    try {
-      const data = await questionsApi.getTopics()
-      setTopics(data)
-    } catch {
-      // Topics are optional, don't show error
-    }
-  }
+    let stale = false
+    setIsLoading(true)
+    setError(null)
 
-  const loadQuestions = async () => {
-    try {
-      setIsLoading(true)
-      setError(null)
-      const data = await questionsApi.getAll({
+    questionsApi
+      .getAll({
         topic: activeTopic ?? undefined,
         sort: sortBy,
         limit: PAGE_SIZE,
         offset: 0,
       })
-      setQuestions(data)
-      setHasMore(data.length === PAGE_SIZE)
-    } catch {
-      setError('Failed to load questions')
-    } finally {
-      setIsLoading(false)
-    }
-  }
+      .then((data) => {
+        if (stale) return
+        setQuestions(data)
+        setHasMore(data.length === PAGE_SIZE)
+      })
+      .catch(() => {
+        if (!stale) setError('Failed to load questions')
+      })
+      .finally(() => {
+        if (!stale) setIsLoading(false)
+      })
+
+    return () => { stale = true }
+  }, [authLoading, user, activeTopic, sortBy])
 
   const loadMoreQuestions = async () => {
     try {
