@@ -1,4 +1,23 @@
-const API_URL = import.meta.env.VITE_PUBLIC_API_URL || 'http://localhost:3001';
+export const API_URL = import.meta.env.VITE_PUBLIC_API_URL;
+
+/** Authenticated fetch wrapper — prepends API_URL, includes credentials, and throws on non-OK responses. */
+export async function apiAuthFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(`${API_URL}${path}`, {
+    ...options,
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error(`API error: ${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+/** Shorthand for authenticated POST with JSON body. */
+export function apiAuthPost<T>(path: string, body: unknown): Promise<T> {
+  return apiAuthFetch<T>(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
 
 export interface Question {
   id: number;
@@ -49,36 +68,18 @@ export const questionsApi = {
     if (params?.offset) searchParams.set('offset', params.offset.toString());
 
     const queryString = searchParams.toString();
-    const url = `${API_URL}/questions${queryString ? `?${queryString}` : ''}`;
-
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Failed to fetch questions');
-    return res.json();
+    return apiAuthFetch(`/questions${queryString ? `?${queryString}` : ''}`);
   },
 
   async getTopics(): Promise<Topic[]> {
-    const res = await fetch(`${API_URL}/questions/topics`);
-    if (!res.ok) throw new Error('Failed to fetch topics');
-    return res.json();
+    return apiAuthFetch('/questions/topics');
   },
 
   async create(dto: CreateQuestionDto): Promise<Question> {
-    const res = await fetch(`${API_URL}/questions`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dto),
-    });
-    if (!res.ok) throw new Error('Failed to create question');
-    return res.json();
+    return apiAuthPost('/questions', dto);
   },
 
   async upvote(id: number, visitorId: string): Promise<Question> {
-    const res = await fetch(`${API_URL}/questions/${id}/upvote`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ visitorId }),
-    });
-    if (!res.ok) throw new Error('Failed to upvote');
-    return res.json();
+    return apiAuthPost(`/questions/${id}/upvote`, { visitorId });
   },
 };
