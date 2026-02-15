@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { identifyUser, resetUser } from '../services/analytics'
 import { apiAuthFetch, API_URL } from '../services/api'
 
@@ -8,26 +8,19 @@ export interface SessionUser {
   name: string
 }
 
-interface AuthState {
-  user: SessionUser | null
-  loading: boolean
-}
-
 export function useSession() {
-  const [state, setState] = useState<AuthState>({ user: null, loading: true })
+  const { data, isLoading } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { user } = await apiAuthFetch<{ user: SessionUser | null }>('/auth/session')
+      if (user) {
+        identifyUser(user.authId, { email: user.email, name: user.name })
+      }
+      return user
+    },
+  })
 
-  useEffect(() => {
-    apiAuthFetch<{ user: SessionUser | null }>('/auth/session')
-      .then(({ user }) => {
-        setState({ user, loading: false })
-        if (user) {
-          identifyUser(user.authId, { email: user.email, name: user.name })
-        }
-      })
-      .catch(() => setState({ user: null, loading: false }))
-  }, [])
-
-  return state
+  return { user: data ?? null, loading: isLoading }
 }
 
 export function useLogin() {
