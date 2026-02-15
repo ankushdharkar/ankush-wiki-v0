@@ -1,109 +1,59 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { trackEvent } from '../services/analytics'
-import { questionsApi } from '../services/api'
-import type { Question, Topic } from '../services/api'
 import { TopicBadge } from '../components/ui/TopicBadge'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { useSession, useLogin } from '../hooks/useAuth'
+import { useQuestions, useTopics, useCreateQuestion, useUpvoteQuestion } from '../hooks/useQuestions'
 
 // Feature flag for AI features (disabled by default for security)
 const AI_FEATURES_ENABLED = import.meta.env.VITE_PUBLIC_FEATURE_AI_ENABLED === 'true'
 
-// Pagination
-const PAGE_SIZE = 10
-
 export default function AskAnkush() {
   const { user, loading: authLoading } = useSession()
   const login = useLogin()
-  const [questions, setQuestions] = useState<Question[]>([])
   const [newQuestion, setNewQuestion] = useState('')
   const [isAnonymous, setIsAnonymous] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isLoadingMore, setIsLoadingMore] = useState(false)
-  const [hasMore, setHasMore] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<'upvotes' | 'recent' | 'trending'>('upvotes')
   const [showSuccess, setShowSuccess] = useState(false)
   const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null)
-  const [topics, setTopics] = useState<Topic[]>([])
   const [activeTopic, setActiveTopic] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  const isAuthenticated = !authLoading && !!user
+
+  const {
+    data: questionsData,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useQuestions({ topic: activeTopic ?? undefined, sort: sortBy }, isAuthenticated)
+
+  const { data: topics = [] } = useTopics(isAuthenticated)
+
+  const createQuestion = useCreateQuestion()
+  const upvoteQuestion = useUpvoteQuestion()
+
+  const sortedQuestions = questionsData?.pages.flat() ?? []
 
   useEffect(() => {
     document.title = 'Ask Ankush'
   }, [])
 
-  // Load topics once after auth resolves
-  useEffect(() => {
-    if (authLoading || !user) return
-    questionsApi.getTopics().then(setTopics).catch(() => {})
-  }, [authLoading, user])
-
-  // Load questions when auth resolves or filters change
-  useEffect(() => {
-    if (authLoading || !user) return
-
-    let stale = false
-    setIsLoading(true)
-    setError(null)
-
-    questionsApi
-      .getAll({
-        topic: activeTopic ?? undefined,
-        sort: sortBy,
-        limit: PAGE_SIZE,
-        offset: 0,
-      })
-      .then((data) => {
-        if (stale) return
-        setQuestions(data)
-        setHasMore(data.length === PAGE_SIZE)
-      })
-      .catch(() => {
-        if (!stale) setError('Failed to load questions')
-      })
-      .finally(() => {
-        if (!stale) setIsLoading(false)
-      })
-
-    return () => { stale = true }
-  }, [authLoading, user, activeTopic, sortBy])
-
-  const loadMoreQuestions = async () => {
-    try {
-      setIsLoadingMore(true)
-      setError(null)
-      const data = await questionsApi.getAll({
-        topic: activeTopic ?? undefined,
-        sort: sortBy,
-        limit: PAGE_SIZE,
-        offset: questions.length,
-      })
-      setQuestions((prev) => [...prev, ...data])
-      setHasMore(data.length === PAGE_SIZE)
-    } catch {
-      setError('Failed to load more questions')
-    } finally {
-      setIsLoadingMore(false)
-    }
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (newQuestion.trim().length < 10) return
 
-    setIsSubmitting(true)
     setError(null)
 
     try {
-      const question = await questionsApi.create({
+      const question = await createQuestion.mutateAsync({
         content: newQuestion.trim(),
         isAnonymous,
         authorName: user!.name || user!.email,
       })
 
-      setQuestions((prev) => [question, ...prev])
       setNewQuestion('')
       setIsAnonymous(false)
       setShowSuccess(true)
@@ -115,14 +65,12 @@ export default function AskAnkush() {
       })
     } catch {
       setError('Failed to submit question')
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
   const handleUpvote = async (questionId: number) => {
     if (!user) return
-    const question = questions.find((q) => q.id === questionId)
+    const question = sortedQuestions.find((q) => q.id === questionId)
     const hasUpvoted = question?.upvotedBy.includes(user.authId)
 
     trackEvent('question_upvote', {
@@ -131,17 +79,11 @@ export default function AskAnkush() {
     })
 
     try {
-      const updated = await questionsApi.upvote(questionId, user.authId)
-      setQuestions((prev) =>
-        prev.map((q) => (q.id === questionId ? updated : q))
-      )
+      await upvoteQuestion.mutateAsync({ questionId, visitorId: user.authId })
     } catch {
       setError('Failed to upvote')
     }
   }
-
-  // Questions are already filtered and sorted by the API
-  const sortedQuestions = questions
 
   const totalQuestions = topics.reduce((sum, t) => sum + t.count, 0)
 
@@ -302,10 +244,10 @@ export default function AskAnkush() {
                 </span>
                 <button
                   type="submit"
-                  disabled={newQuestion.trim().length < 10 || isSubmitting}
+                  disabled={newQuestion.trim().length < 10 || createQuestion.isPending}
                   className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 text-white disabled:bg-gray-200 dark:disabled:bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-600 rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 disabled:cursor-not-allowed shadow-lg shadow-blue-600/20 disabled:shadow-none"
                 >
-                  {isSubmitting ? (
+                  {createQuestion.isPending ? (
                     <span className="flex items-center gap-2">
                       <svg
                         className="animate-spin h-4 w-4"
@@ -708,14 +650,14 @@ export default function AskAnkush() {
           </div>
 
           {/* Show More Button */}
-          {hasMore && !isLoading && sortedQuestions.length > 0 && (
+          {hasNextPage && !isLoading && sortedQuestions.length > 0 && (
             <div className="mt-8 text-center">
               <button
-                onClick={loadMoreQuestions}
-                disabled={isLoadingMore}
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
                 className="px-8 py-3 bg-gray-100 dark:bg-gray-800/60 hover:bg-gray-200 dark:hover:bg-gray-700/70 text-gray-700 dark:text-gray-300 rounded-xl font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-gray-900 border border-gray-200 dark:border-gray-700/50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoadingMore ? (
+                {isFetchingNextPage ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg
                       className="animate-spin h-4 w-4"
