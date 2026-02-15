@@ -57,18 +57,28 @@ export function useUpvoteQuestion() {
     mutationFn: ({ questionId, visitorId }: { questionId: number; visitorId: string }) =>
       questionsApi.upvote(questionId, visitorId),
     onSuccess: (updated) => {
-      queryClient.setQueriesData<{ pages: Question[][]; pageParams: number[] }>(
-        { queryKey: ['questions'] },
-        (old) => {
-          if (!old) return old
-          return {
-            ...old,
-            pages: old.pages.map((page) =>
-              page.map((q) => (q.id === updated.id ? updated : q)),
-            ),
-          }
-        },
-      )
+      const cache = queryClient.getQueriesData<{ pages: Question[][]; pageParams: number[] }>({
+        queryKey: ['questions'],
+      })
+      for (const [queryKey, old] of cache) {
+        if (!old) continue
+        const params = queryKey[1] as { sort?: string } | undefined
+        const all = old.pages
+          .flat()
+          .map((q) => (q.id === updated.id ? updated : q))
+        // Re-sort only when sorted by upvotes so layout animation triggers
+        if (params?.sort === 'upvotes') {
+          all.sort((a, b) => b.upvotes - a.upvotes)
+        }
+        // Re-chunk into pages preserving original page sizes
+        const pages: Question[][] = []
+        let offset = 0
+        for (const page of old.pages) {
+          pages.push(all.slice(offset, offset + page.length))
+          offset += page.length
+        }
+        queryClient.setQueryData(queryKey, { ...old, pages })
+      }
     },
   })
 }
