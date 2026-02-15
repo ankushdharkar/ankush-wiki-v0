@@ -5,12 +5,12 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import { ValidateEnv, Schema } from '@julr/vite-plugin-validate-env'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     ValidateEnv({
-      VITE_PUBLIC_API_URL: Schema.string({ format: 'url', protocol: true }),
+      VITE_PUBLIC_API_URL: Schema.string({ format: 'url', protocol: true, tld: mode === 'production' }),
       VITE_PUBLIC_POSTHOG_KEY: Schema.string(),
-      VITE_PUBLIC_POSTHOG_HOST: Schema.string.optional({ format: 'url', protocol: true }),
+      VITE_PUBLIC_POSTHOG_HOST: Schema.string.optional({ format: 'url', protocol: true, tld: mode === 'production' }),
       VITE_PUBLIC_FEATURE_AI_ENABLED: Schema.string.optional(),
     }),
     react(),
@@ -66,4 +66,4 @@ export default defineConfig({
     // Set chunk size warning limit to 150KB
     chunkSizeWarningLimit: 150,
   },
-})
+}))
