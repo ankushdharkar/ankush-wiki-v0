@@ -2,10 +2,17 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { visualizer } from 'rollup-plugin-visualizer'
+import { ValidateEnv, Schema } from '@julr/vite-plugin-validate-env'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
+    ValidateEnv({
+      VITE_PUBLIC_API_URL: Schema.string({ format: 'url', protocol: true }),
+      VITE_PUBLIC_POSTHOG_KEY: Schema.string(),
+      VITE_PUBLIC_POSTHOG_HOST: Schema.string.optional({ format: 'url', protocol: true }),
+      VITE_PUBLIC_FEATURE_AI_ENABLED: Schema.string.optional(),
+    }),
     react(),
     tailwindcss(),
     visualizer({
