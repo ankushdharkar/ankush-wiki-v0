@@ -6,6 +6,7 @@ import { TextHoverEffect } from '../ui/TextHoverEffect'
 import { Boxes } from '../ui/BackgroundBoxes'
 import { trackExternalLink } from '../../services/analytics'
 import { SOCIAL_LINKS, PRODUCT_LINKS } from '../../config/links'
+import UserMenu from '../ui/UserMenu'
 
 export default function Header() {
   const location = useLocation()
@@ -13,6 +14,11 @@ export default function Header() {
   
   return (
     <header id="header" className="min-h-[80vh] md:min-h-[90vh] bg-slate-900 text-white flex flex-col justify-center items-center relative overflow-hidden">
+      {/* Auth */}
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 z-30">
+        <UserMenu variant="hero" />
+      </div>
+
       {/* Background Boxes Animation */}
       <div className="absolute inset-0 w-full h-full bg-slate-900 z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
       <Boxes />

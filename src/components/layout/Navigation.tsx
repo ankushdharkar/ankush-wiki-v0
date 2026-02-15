@@ -3,6 +3,7 @@ import { BsLinkedin, BsGithub, BsTwitterX } from 'react-icons/bs'
 import TypingAnimation from '../ui/TypingAnimation'
 import { trackExternalLink } from '../../services/analytics'
 import { ThemeToggle } from '../ThemeToggle'
+import UserMenu from '../ui/UserMenu'
 import { SOCIAL_LINKS } from '../../config/links'
 
 export default function Navigation() {
@@ -153,6 +154,7 @@ export default function Navigation() {
               <BsGithub />
             </a>
             <ThemeToggle />
+            <UserMenu />
           </div>
         </div>
       </div>
