@@ -5,6 +5,7 @@ import { questionsApi } from '../services/api'
 import type { Question, Topic } from '../services/api'
 import { TopicBadge } from '../components/ui/TopicBadge'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { useSession, useLogin } from '../hooks/useAuth'
 
 // Feature flag for AI features (disabled by default for security)
 const AI_FEATURES_ENABLED = import.meta.env.VITE_PUBLIC_FEATURE_AI_ENABLED === 'true'
@@ -12,29 +13,9 @@ const AI_FEATURES_ENABLED = import.meta.env.VITE_PUBLIC_FEATURE_AI_ENABLED === '
 // Pagination
 const PAGE_SIZE = 10
 
-// Generate a persistent visitor ID
-function getVisitorId(): string {
-  const key = 'askAnkush_visitorId'
-  let id = localStorage.getItem(key)
-  if (!id) {
-    id = 'visitor-' + Math.random().toString(36).substr(2, 9)
-    localStorage.setItem(key, id)
-  }
-  return id
-}
-
-// Get/set persistent username
-function getStoredUsername(): string {
-  return localStorage.getItem('askAnkush_username') || 'Ankush'
-}
-
-function setStoredUsername(name: string): void {
-  localStorage.setItem('askAnkush_username', name)
-}
-
-const VISITOR_ID = getVisitorId()
-
 export default function AskAnkush() {
+  const { user, loading: authLoading } = useSession()
+  const login = useLogin()
   const [questions, setQuestions] = useState<Question[]>([])
   const [newQuestion, setNewQuestion] = useState('')
   const [isAnonymous, setIsAnonymous] = useState(false)
@@ -46,24 +27,26 @@ export default function AskAnkush() {
   const [sortBy, setSortBy] = useState<'upvotes' | 'recent' | 'trending'>('upvotes')
   const [showSuccess, setShowSuccess] = useState(false)
   const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null)
-  const [username, setUsername] = useState(getStoredUsername)
   const [topics, setTopics] = useState<Topic[]>([])
   const [activeTopic, setActiveTopic] = useState<string | null>(null)
 
-  const handleUsernameChange = (name: string) => {
-    setUsername(name)
-    setStoredUsername(name)
-  }
-
   useEffect(() => {
     document.title = 'Ask Ankush'
-    loadTopics()
-    loadQuestions()
   }, [])
+
+  // Load data once auth is resolved and user is logged in
+  useEffect(() => {
+    if (!authLoading && user) {
+      loadTopics()
+      loadQuestions()
+    }
+  }, [authLoading, user])
 
   // Reload questions when filter changes
   useEffect(() => {
-    loadQuestions()
+    if (user) {
+      loadQuestions()
+    }
   }, [activeTopic, sortBy])
 
   const loadTopics = async () => {
@@ -124,7 +107,7 @@ export default function AskAnkush() {
       const question = await questionsApi.create({
         content: newQuestion.trim(),
         isAnonymous,
-        authorName: username || 'Visitor',
+        authorName: user!.name || user!.email,
       })
 
       setQuestions((prev) => [question, ...prev])
@@ -145,8 +128,9 @@ export default function AskAnkush() {
   }
 
   const handleUpvote = async (questionId: number) => {
+    if (!user) return
     const question = questions.find((q) => q.id === questionId)
-    const hasUpvoted = question?.upvotedBy.includes(VISITOR_ID)
+    const hasUpvoted = question?.upvotedBy.includes(user.authId)
 
     trackEvent('question_upvote', {
       questionId,
@@ -154,7 +138,7 @@ export default function AskAnkush() {
     })
 
     try {
-      const updated = await questionsApi.upvote(questionId, VISITOR_ID)
+      const updated = await questionsApi.upvote(questionId, user.authId)
       setQuestions((prev) =>
         prev.map((q) => (q.id === questionId ? updated : q))
       )
@@ -193,16 +177,12 @@ export default function AskAnkush() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800/60 rounded-lg px-3.5 py-2 border border-gray-200 dark:border-gray-700/50">
-                <span className="text-xs text-gray-500 dark:text-gray-500 font-medium">Posting as</span>
-                <input
-                  type="text"
-                  value={username}
-                  onChange={(e) => handleUsernameChange(e.target.value)}
-                  className="w-28 bg-transparent text-sm text-gray-900 dark:text-white focus:outline-none placeholder:text-gray-400 dark:placeholder:text-gray-600"
-                  placeholder="Your name"
-                />
-              </div>
+              {user && (
+                <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800/60 rounded-lg px-3.5 py-2 border border-gray-200 dark:border-gray-700/50">
+                  <span className="text-xs text-gray-500 dark:text-gray-500 font-medium">Posting as</span>
+                  <span className="text-sm text-gray-900 dark:text-white font-medium">{user.name || user.email}</span>
+                </div>
+              )}
               <ThemeToggle />
             </div>
           </div>
@@ -210,6 +190,39 @@ export default function AskAnkush() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-8">
+        {/* Auth Loading */}
+        {authLoading && (
+          <div className="text-center py-24">
+            <svg className="animate-spin h-8 w-8 mx-auto text-gray-400" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+          </div>
+        )}
+
+        {/* Sign In Gate */}
+        {!authLoading && !user && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-24 px-6 bg-white dark:bg-gray-800/30 rounded-2xl border border-gray-200 dark:border-gray-700/40"
+          >
+            <div className="text-7xl mb-6">🔐</div>
+            <h2 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">Sign in to ask a question</h2>
+            <p className="text-gray-500 max-w-md mx-auto mb-8 text-[15px] leading-relaxed">
+              Sign in to ask questions, upvote, and see what others are curious about.
+            </p>
+            <button
+              onClick={() => login('/new')}
+              className="px-7 py-3 bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 text-white rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-50 dark:focus:ring-offset-gray-900 shadow-lg shadow-blue-600/20"
+            >
+              Sign In
+            </button>
+          </motion.div>
+        )}
+
+        {/* Authenticated content */}
+        {user && <>
         {/* Error Banner */}
         {error && (
           <div className="mb-8 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-r-lg flex items-start gap-3">
@@ -508,7 +521,7 @@ export default function AskAnkush() {
           <div className="space-y-5">
             <AnimatePresence mode="popLayout">
               {sortedQuestions.map((question, index) => {
-                const hasUpvoted = question.upvotedBy.includes(VISITOR_ID)
+                const hasUpvoted = user ? question.upvotedBy.includes(user.authId) : false
                 const isExpanded = expandedQuestion === question.id
 
                 return (
@@ -748,6 +761,7 @@ export default function AskAnkush() {
             Ankush answers when available.
           </p>
         </footer>
+        </>}
       </main>
     </div>
   )
