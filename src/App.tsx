@@ -11,7 +11,7 @@ const RealDevSquad = lazy(() => import('./pages/RealDevSquad'))
 const RealDSA = lazy(() => import('./pages/RealDSA'))
 const ImportantLinks = lazy(() => import('./pages/ImportantLinks'))
 const Dev = lazy(() => import('./pages/Dev'))
-// const AskAnkush = lazy(() => import('./pages/AskAnkush')) // Re-enable this line to restore the /new page
+const AskAnkush = lazy(() => import('./pages/AskAnkush'))
 
 function App() {
   // Track page views on route changes
@@ -29,7 +29,7 @@ function App() {
           <Route path="/real-dsa" element={<RealDSA />} />
           <Route path="/important-links" element={<ImportantLinks />} />
           <Route path="/dev" element={<Dev />} />
-          {/* <Route path="/new" element={<AskAnkush />} /> Re-enable this line to restore the /new page */}
+          <Route path="/new" element={<AskAnkush />} />
         </Routes>
       </Suspense>
     </PageTransition>
