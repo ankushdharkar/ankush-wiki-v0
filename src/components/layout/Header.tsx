@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { BsLinkedin, BsGithub, BsTwitterX, BsYoutube } from 'react-icons/bs'
 import TypingAnimation from '../ui/TypingAnimation'
@@ -8,17 +8,16 @@ import { trackExternalLink } from '../../services/analytics'
 import { SOCIAL_LINKS, PRODUCT_LINKS } from '../../config/links'
 
 export default function Header() {
-  const location = useLocation()
   const [imageLoaded, setImageLoaded] = useState(false)
-  
+
   return (
     <header id="header" className="min-h-[80vh] md:min-h-[90vh] bg-slate-900 text-white flex flex-col justify-center items-center relative overflow-hidden">
       {/* Background Boxes Animation */}
       <div className="absolute inset-0 w-full h-full bg-slate-900 z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none" />
       <Boxes />
-      
+
       <div className="container mx-auto px-6 text-center relative z-20 pointer-events-none">
-        {/* Profile Photo - Responsive sizing */}
+        {/* Profile Photo */}
         <div className="mb-6 flex justify-center pointer-events-auto">
           <a
             href={SOCIAL_LINKS.twitter}
@@ -28,7 +27,6 @@ export default function Header() {
           >
             <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl relative"
                  style={{ backgroundColor: !imageLoaded ? '#4f46e5' : 'transparent' }}>
-              {/* Simple skeleton loading placeholder */}
               {!imageLoaded && (
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600" />
               )}
@@ -45,181 +43,118 @@ export default function Header() {
             </div>
           </a>
         </div>
-        
+
         {/* Main heading */}
         <div className="mb-8 h-24 flex items-center justify-center pointer-events-auto">
           <Link to="/" className="block w-full max-w-2xl focus-ring rounded-lg">
             <TextHoverEffect text="Ankush Dharkar" duration={0} />
           </Link>
         </div>
-        
+
         {/* Typing animation */}
-        <h2 className="text-xl md:text-2xl mb-8 text-gray-300">
+        <h2 className="text-xl md:text-2xl mb-10 text-gray-300">
           I am a <TypingAnimation />
         </h2>
-        
-        {/* YouTube Subscribe - Featured CTA */}
-        <div className="mb-6 pointer-events-auto">
+
+        {/* CTAs */}
+        <div className="flex flex-wrap justify-center items-center gap-4 mb-10 pointer-events-auto">
+          {/* YouTube - Primary */}
           <a
             href={SOCIAL_LINKS.youtube}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackExternalLink(SOCIAL_LINKS.youtube, 'Header YouTube Subscribe')}
-            className="group relative inline-flex items-center gap-3 px-6 py-3 md:px-8 md:py-4 rounded-full bg-red-600 hover:bg-red-700 text-white font-bold text-lg md:text-xl transition-all duration-300 focus-ring hover:shadow-xl hover:shadow-red-500/40 hover:scale-105"
+            className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-red-600 hover:bg-red-700 text-white font-semibold transition-all duration-300 focus-ring hover:shadow-lg hover:shadow-red-500/30 hover:scale-105"
           >
-            <BsYoutube className="text-2xl md:text-3xl" />
-            <span>Subscribe on YouTube</span>
-            <span className="absolute -top-2 -right-2 px-2.5 py-1 bg-white text-red-600 text-[11px] font-bold rounded-full shadow-lg animate-pulse border-2 border-red-600">New</span>
+            <BsYoutube className="text-xl" />
+            Subscribe on YouTube
+          </a>
+
+          {/* RealDSA */}
+          <a
+            href={PRODUCT_LINKS.realDsa}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackExternalLink(PRODUCT_LINKS.realDsa, 'Header RealDSA')}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold transition-all duration-300 focus-ring hover:shadow-lg hover:shadow-pink-500/30 hover:scale-105"
+          >
+            <img src="/images/Real DSA.png" alt="" className="w-5 h-5" />
+            RealDSA
+          </a>
+
+          {/* Get Shortlisted */}
+          <a
+            href={PRODUCT_LINKS.getShortlisted}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackExternalLink(PRODUCT_LINKS.getShortlisted, 'Header Get Shortlisted')}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold transition-all duration-300 focus-ring hover:shadow-lg hover:shadow-orange-500/30 hover:scale-105"
+          >
+            Get Shortlisted
           </a>
         </div>
 
-        {/* Featured Products - Prominent CTAs */}
-        <nav className="mb-6 pointer-events-auto">
-          <ul className="flex flex-wrap justify-center gap-3 md:gap-4">
-            {/* TODO: Revisit after March 15th - consider removing to reduce redundancy with dedicated sections */}
-            {/* RealDSA - Premium */}
-            <li>
-              <a
-                href={PRODUCT_LINKS.realDsa}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackExternalLink(PRODUCT_LINKS.realDsa, 'Header RealDSA')}
-                className="group relative px-5 py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold transition-all duration-300 flex items-center gap-2 focus-ring hover:shadow-lg hover:shadow-pink-500/30 hover:scale-105"
-              >
-                <img src="/images/Real DSA.png" alt="RealDSA" className="w-5 h-5" />
-                RealDSA
-                <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-white text-pink-600 text-[10px] font-bold rounded-full shadow">Premium</span>
-              </a>
-            </li>
-            {/* TODO: Revisit after March 15th - consider removing to reduce redundancy with dedicated sections */}
-            {/* Get Shortlisted - New */}
-            <li>
-              <a
-                href={PRODUCT_LINKS.getShortlisted}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackExternalLink(PRODUCT_LINKS.getShortlisted, 'Header Get Shortlisted')}
-                className="group relative px-5 py-2.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold transition-all duration-300 flex items-center gap-2 focus-ring hover:shadow-lg hover:shadow-orange-500/30 hover:scale-105"
-              >
-                <span className="text-lg">🔥</span>
-                Get Shortlisted
-                <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-yellow-400 text-yellow-900 text-[10px] font-bold rounded-full shadow animate-pulse">New</span>
-              </a>
-            </li>
-          </ul>
-        </nav>
+        {/* Secondary nav links */}
+        <div className="flex flex-wrap justify-center items-center gap-3 mb-10 pointer-events-auto">
+          <Link
+            to="/important-links"
+            className="px-5 py-2.5 rounded-full border border-gray-600 text-sm text-white hover:text-green-400 hover:border-green-400 transition-all duration-300 focus-ring"
+          >
+            Important Links
+          </Link>
+          <Link
+            to="/real-dev-squad"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-600 text-sm text-white hover:text-green-400 hover:border-green-400 transition-all duration-300 focus-ring"
+          >
+            Real Dev Squad
+            <img src="/images/Real-Dev-Squad-logo.png" className="w-5 h-5" alt="RDS Logo" loading="lazy" />
+          </Link>
+          <Link
+            to="/chillouts"
+            className="px-5 py-2.5 rounded-full border border-gray-600 text-sm text-white hover:text-green-400 hover:border-green-400 transition-all duration-300 focus-ring"
+          >
+            Chillouts
+          </Link>
+          <Link
+            to="/js-ts-guild"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-600 text-sm text-white hover:text-green-400 hover:border-green-400 transition-all duration-300 focus-ring"
+          >
+            JS TS Guild
+            <img src="/images/JS-TS-Guild-logo.jpeg" className="w-5 h-5" alt="JS TS Guild Logo" loading="lazy" />
+          </Link>
+        </div>
 
-        {/* Navigation - Secondary links */}
-        <nav className="mb-8 pointer-events-auto">
-          <ul className="flex flex-wrap justify-center gap-3 md:gap-4 text-base">
-            {location.pathname !== '/' && (
-              <li>
-                <Link
-                  to="/"
-                  className={`px-4 py-2.5 rounded-full border border-gray-600 transition-all duration-300 focus-ring ${
-                    location.pathname === '/'
-                      ? 'text-green-400 border-green-400'
-                      : 'text-white hover:text-green-400 hover:border-green-400'
-                  }`}
-                >
-                  Home
-                </Link>
-              </li>
-            )}
-            <li>
-              <Link
-                to="/important-links"
-                className={`px-4 py-2.5 rounded-full border border-gray-600 transition-all duration-300 focus-ring ${
-                  location.pathname === '/important-links'
-                    ? 'text-green-400 border-green-400'
-                    : 'text-white hover:text-green-400 hover:border-green-400'
-                }`}
-              >
-                Important Links
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/real-dev-squad"
-                className={`px-4 py-2.5 rounded-full border border-gray-600 transition-all duration-300 flex items-center gap-2 focus-ring ${
-                  location.pathname === '/real-dev-squad'
-                    ? 'text-green-400 border-green-400'
-                    : 'text-white hover:text-green-400 hover:border-green-400'
-                }`}
-              >
-                Real Dev Squad
-                <img
-                  src="/images/Real-Dev-Squad-logo.png"
-                  className="w-5 h-5 flex-shrink-0"
-                  alt="RDS Logo"
-                  loading="lazy"
-                />
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/chillouts"
-                className={`px-4 py-2.5 rounded-full border border-gray-600 transition-all duration-300 focus-ring ${
-                  location.pathname === '/chillouts'
-                    ? 'text-green-400 border-green-400'
-                    : 'text-white hover:text-green-400 hover:border-green-400'
-                }`}
-              >
-                Chillouts
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/js-ts-guild"
-                className={`px-4 py-2.5 rounded-full border border-gray-600 transition-all duration-300 flex items-center gap-2 focus-ring ${
-                  location.pathname === '/js-ts-guild'
-                    ? 'text-green-400 border-green-400'
-                    : 'text-white hover:text-green-400 hover:border-green-400'
-                }`}
-              >
-                JS TS Guild
-                <img
-                  src="/images/JS-TS-Guild-logo.jpeg"
-                  className="w-5 h-5 flex-shrink-0"
-                  alt="JS TS Guild Logo"
-                  loading="lazy"
-                />
-              </Link>
-            </li>
-          </ul>
-        </nav>
-        
         {/* Social links */}
-        <div className="flex justify-center gap-8 pointer-events-auto">
+        <div className="flex justify-center gap-6 pointer-events-auto">
           <a
             href={SOCIAL_LINKS.twitter}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative text-4xl text-white/80 hover:text-white transition-colors duration-300 focus-ring rounded-md p-2"
+            className="text-3xl text-white/50 hover:text-white transition-colors duration-300 focus-ring rounded-md p-1"
             aria-label="X (Twitter) Profile"
+            onClick={() => trackExternalLink(SOCIAL_LINKS.twitter, 'Twitter')}
           >
-            <span className="absolute inset-0 rounded-full bg-gray-400/20 animate-pulse group-hover:bg-gray-400/40 transition-colors" />
-            <BsTwitterX className="relative z-10" />
+            <BsTwitterX />
           </a>
           <a
             href={SOCIAL_LINKS.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative text-4xl text-white/80 hover:text-blue-400 transition-colors duration-300 focus-ring rounded-md p-2"
+            className="text-3xl text-white/50 hover:text-blue-400 transition-colors duration-300 focus-ring rounded-md p-1"
             aria-label="LinkedIn Profile"
+            onClick={() => trackExternalLink(SOCIAL_LINKS.linkedin, 'LinkedIn')}
           >
-            <span className="absolute inset-0 rounded-full bg-blue-500/20 animate-pulse group-hover:bg-blue-500/40 transition-colors" />
-            <BsLinkedin className="relative z-10" />
+            <BsLinkedin />
           </a>
           <a
             href={SOCIAL_LINKS.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative text-4xl text-white/80 hover:text-green-400 transition-colors duration-300 focus-ring rounded-md p-2"
+            className="text-3xl text-white/50 hover:text-green-400 transition-colors duration-300 focus-ring rounded-md p-1"
             aria-label="GitHub Profile"
+            onClick={() => trackExternalLink(SOCIAL_LINKS.github, 'GitHub')}
           >
-            <span className="absolute inset-0 rounded-full bg-green-500/20 animate-pulse group-hover:bg-green-500/40 transition-colors" />
-            <BsGithub className="relative z-10" />
+            <BsGithub />
           </a>
         </div>
       </div>
