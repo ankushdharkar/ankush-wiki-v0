@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 
+const words = ["Software Engineer", "Coach", "Coder", "Motivator"]
+
 export default function TypingAnimation() {
-  const words = ["Software Engineer", "Coach", "Coder", "Motivator"]
   const [currentWordIndex, setCurrentWordIndex] = useState(0)
   const [currentText, setCurrentText] = useState("")
   const [isDeleting, setIsDeleting] = useState(false)
@@ -36,7 +37,7 @@ export default function TypingAnimation() {
     }, typingSpeed)
 
     return () => clearTimeout(timer)
-  }, [currentText, isDeleting, currentWordIndex, typingSpeed, words])
+  }, [currentText, isDeleting, currentWordIndex, typingSpeed])
 
   return (
     <span className="text-green-400 font-semibold">
