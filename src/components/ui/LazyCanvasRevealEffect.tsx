@@ -1,23 +1,18 @@
-import { lazy, Suspense, useState, useEffect } from 'react';
+import { lazy, Suspense, useSyncExternalStore } from 'react';
 
 const CanvasRevealEffect = lazy(() => import('./CanvasRevealEffect').then(module => ({
   default: module.CanvasRevealEffect
 })));
 
-export function LazyCanvasRevealEffect(props: Parameters<typeof CanvasRevealEffect>[0]) {
-  const [isPageLoaded, setIsPageLoaded] = useState(false);
+// The page counts as loaded once the window has finished loading
+const subscribeToPageLoad = (onLoad: () => void) => {
+  window.addEventListener('load', onLoad);
+  return () => window.removeEventListener('load', onLoad);
+};
+const getIsPageLoaded = () => document.readyState === 'complete';
 
-  useEffect(() => {
-    // Check if document is already loaded
-    if (document.readyState === 'complete') {
-      setIsPageLoaded(true);
-    } else {
-      // Wait for the window to finish loading
-      const handleLoad = () => setIsPageLoaded(true);
-      window.addEventListener('load', handleLoad);
-      return () => window.removeEventListener('load', handleLoad);
-    }
-  }, []);
+export function LazyCanvasRevealEffect(props: Parameters<typeof CanvasRevealEffect>[0]) {
+  const isPageLoaded = useSyncExternalStore(subscribeToPageLoad, getIsPageLoaded);
 
   if (!isPageLoaded) {
     return <div className="h-full w-full bg-gray-800 animate-pulse" />;

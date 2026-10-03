@@ -14,20 +14,19 @@ export default function RouteCard({ title, description, href, icon }: RouteCardP
   const [animationTime, setAnimationTime] = useState(0);
 
   useEffect(() => {
-    if (!hovered) {
-      setAnimationTime(0);
-      return;
-    }
+    if (!hovered) return;
 
     const startTime = Date.now();
+    let frame = 0;
     const animate = () => {
       const elapsed = (Date.now() - startTime) / 1000;
       setAnimationTime(elapsed);
-      if (hovered && elapsed < 2) {
-        requestAnimationFrame(animate);
+      if (elapsed < 2) {
+        frame = requestAnimationFrame(animate);
       }
     };
-    requestAnimationFrame(animate);
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
   }, [hovered]);
 
   const createDots = () => {
@@ -71,7 +70,10 @@ export default function RouteCard({ title, description, href, icon }: RouteCardP
       <motion.div
         className="relative h-80 p-8 rounded-lg border border-gray-600 bg-black/20 overflow-hidden cursor-pointer"
         onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseLeave={() => {
+          setHovered(false);
+          setAnimationTime(0);
+        }}
         whileHover={{ y: -2 }}
         transition={{ duration: 0.2 }}
       >
