@@ -57,7 +57,7 @@ function WelcomeLetter({ overview, firstName, onNext }: { overview: RoundOvervie
   const [preview, setPreview] = useState<LetterVariant | null>(null)
   const own = activeCommitmentMoney(overview)
   const variant = preview ?? letterVariant(overview)
-  const corner = overview.capabilities.canManageRound === true && <div role="group" aria-label="Preview the letter as" className="absolute top-1 right-6 flex gap-3 opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-within:opacity-100 motion-reduce:transition-none sm:right-8">
+  const corner = overview.capabilities.canManageRound === true && <div role="group" aria-label="Preview the letter as" className="absolute top-0 right-0 flex gap-3 pt-1 pr-6 pl-3 opacity-0 transition-opacity duration-150 hover:opacity-100 has-focus-visible:opacity-100 motion-reduce:transition-none sm:pr-8">
     {previewVariants.map(([value, name]) => <button key={value} type="button" aria-pressed={value === variant} onClick={() => setPreview(value)} className={cornerLink}>{name}</button>)}
   </div>
   if (variant === 'new') return <MemberWelcome firstName={firstName} onNext={onNext} corner={corner} />
@@ -82,7 +82,7 @@ function WelcomeBack({ money, withdrawn, firstName, onNext, corner }: LetterProp
   </Letter>
 }
 function Letter({ title, firstName, onNext, corner, children, after }: LetterProps & { title: string; children: ReactNode; after?: ReactNode }) {
-  return <section className={`group relative mx-auto max-w-xl ${sheet}`}>
+  return <section className={`relative mx-auto max-w-xl ${sheet}`}>
     {corner}
     <h1 className={pageTitle}>{title}</h1>
     <div className={`mt-6 space-y-5 ${voice}`}>{firstName && <p>Dear {firstName},</p>}{children}</div>

@@ -1031,6 +1031,10 @@ test('the admin sees New, Returning and Withdrawn on the welcome letter, with th
     }
   }
   assertNoRoundTotals(previewHarness(adminWith(savedUsd)).html())
+  // The links reveal on hover of their own corner and on keyboard focus only, so a mouse click never leaves them showing.
+  const group = previewHarness(adminOverview).html().match(/<div role="group" aria-label="Preview the letter as" class="([^"]*)"/)[1].split(' ')
+  for (const name of ['hover:opacity-100', 'has-focus-visible:opacity-100']) assert.ok(group.includes(name), name)
+  assert.equal(group.some(name => name.startsWith('group-hover:') || name.startsWith('focus-within:')), false)
 })
 test('pressing New shows the first-time letter even when the admin has history', () => {
   const state = previewHarness(adminWith(savedUsd))
