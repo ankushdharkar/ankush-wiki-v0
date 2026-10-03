@@ -166,7 +166,7 @@ const panel = load('src/features/friends-family/CommitmentPanel.tsx', { react: R
 const progress = load('src/features/friends-family/RoundProgress.tsx', { 'react/jsx-runtime': jsxRuntime, './money': money, './ui': ui })
 const member = load('src/features/friends-family/MemberRound.tsx', {
   react: React, 'react/jsx-runtime': jsxRuntime, './CommitmentPanel': panel, './RoundProgress': progress,
-  './money': money, './MoneyEditor': moneyEditor, './participants': participantHelpers, './memberFlow': flow, './ui': ui,
+  './money': money, './participants': participantHelpers, './memberFlow': flow, './ui': ui,
 })
 const memberProps = { overview: roundFixture, queryKey: ['private-friends-family', 'overview', 'synthetic-member'], refresh: async () => roundFixture, onUnauthorized: () => {}, refreshFailed: false }
 function renderStage(stage, overview = roundFixture) {
@@ -284,7 +284,7 @@ test('member conflict review cannot adopt a newer polling version without loadin
   assert.notEqual(state.commands[0].operationId, state.commands[1].operationId)
 })
 const targetHelpers = load('src/features/friends-family/roundTarget.ts', { './money': money })
-const targetComponents = load('src/features/friends-family/RoundTargetEditor.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, './api': inertApi, './money': money, './MoneyEditor': moneyEditor, './roundTarget': targetHelpers, './ui': ui })
+const targetComponents = load('src/features/friends-family/RoundTargetEditor.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, './api': inertApi, './money': money, './roundTarget': targetHelpers, './ui': ui })
 const targetSnapshot = { config: roundFixture.config, round: { version: '1', updatedAt: '2026-10-03T00:00:00.000Z' }, summary: { ...roundFixture.summary, totalUsdMinor: '50000000', totalInrMinor: '4750000000', progressBasisPoints: '2500', participantCount: '2' }, participants: [] }
 test('million USD entry produces exact canonical cents and rejects fractional cents/invalid formats', () => {
   assert.equal(targetHelpers.parseTargetMillions('2'), '200000000')
@@ -367,7 +367,7 @@ function targetHarness() {
     useRef: (initial) => { const index = cursor++; if (!(index in slots)) slots[index] = { current: initial }; return slots[index] },
   }
   const api = { ...inertApi, createRoundTargetCommand: (expectedVersion, targetUsdMinor) => ({ operationId: `target-operation-${++count}`, expectedVersion, targetUsdMinor }) }
-  const component = load('src/features/friends-family/RoundTargetEditor.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, './api': api, './money': money, './MoneyEditor': moneyEditor, './roundTarget': targetHelpers, './ui': ui })
+  const component = load('src/features/friends-family/RoundTargetEditor.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, './api': api, './money': money, './roundTarget': targetHelpers, './ui': ui })
   const render = () => { cursor = 0; return component.RoundTargetEditor({ snapshot, canManage: manage, save: (command) => { commands.push(command); return new Promise((resolve, reject) => { response = { resolve, reject } }) }, refresh: async () => { snapshot = latest; return latest }, onAccessDenied: status => denied.push(status), onEditStateChange: next => editing.push(next) }) }
   return { render, commands, denied, editing, get response() { return response }, setSnapshot: next => { snapshot = next }, setLatest: next => { latest = next }, setManage: next => { manage = next } }
 }
@@ -443,15 +443,15 @@ test('target access failures are handed to dashboard privacy feedback and revoke
   assert.equal(findElement(state.render(), node => node.type === 'form'), undefined)
 })
 
-const views = load('src/features/friends-family/RoundViews.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, './MemberRound': member, './AdminDashboard': { AdminDashboard: () => { throw Error('Dashboard must be explicitly opened') } }, './MoneyEditor': moneyEditor, './ui': ui })
+const views = load('src/features/friends-family/RoundViews.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, './MemberRound': member, './AdminDashboard': { AdminDashboard: () => { throw Error('Dashboard must be explicitly opened') } }, './ui': ui })
 const adminOverview = { ...roundFixture, capabilities: { canViewParticipants: true, canManageRound: true } }
 function pageHarness(user, overview) {
   const queries = []
   const page = load('src/pages/FriendsAndFamily.tsx', {
     react: React, 'react/jsx-runtime': jsxRuntime,
     '@tanstack/react-query': { useQueryClient: () => ({}), useQuery: (options) => { queries.push(options); return { data: options.queryKey[1] === 'session' ? { user } : overview, isPending: false, isError: false } } },
-    '../components/ThemeToggle': { ThemeToggle: () => null }, '../services/api': { API_URL: 'https://example.com' },
-    '../features/friends-family/api': inertApi, '../features/friends-family/RoundViews': views, '../features/friends-family/MoneyEditor': moneyEditor,
+    '../services/api': { API_URL: 'https://example.com' },
+    '../features/friends-family/api': inertApi, '../features/friends-family/RoundViews': views,
     '../features/friends-family/ThemeSwitch': { ThemeSwitch: () => null }, '../features/friends-family/ui': ui,
   })
   const html = renderToStaticMarkup(React.createElement(page.default))
@@ -460,32 +460,32 @@ function pageHarness(user, overview) {
 test('admin first load uses the regular welcome and owner overview without fetching participant data', () => {
   const state = pageHarness({ authId: 'admin-subject', name: 'Admin Example', email: 'admin@example.test' }, adminOverview)
   assert.ok(state.html.includes('Thank you for being here.'))
-  assert.ok(state.html.includes('Admin View'))
+  assert.ok(state.html.includes('Admin view'))
   assertNoRoundTotals(state.html)
   assert.equal(state.queries.length, 2)
   assert.equal(state.queries[1].queryKey[2], 'admin-subject')
   assert.equal(state.queries.some(query => query.queryKey[1] === 'participants'), false)
 })
-test('ordinary members have the same welcome and no Admin View action', () => {
+test('ordinary members have the same welcome and no Admin view action', () => {
   const state = pageHarness({ authId: 'member-subject', name: 'Member Example', email: 'member@example.test' }, roundFixture)
   assert.ok(state.html.includes('Thank you for being here.'))
-  assert.equal(state.html.includes('Admin View'), false)
+  assert.equal(state.html.includes('Admin view'), false)
 })
 function viewsHarness(overview = adminOverview) {
   const slots = []; let cursor = 0
   const hooks = { useState: (initial) => { const index = cursor++; if (!(index in slots)) slots[index] = initial; return [slots[index], next => { slots[index] = typeof next === 'function' ? next(slots[index]) : next }] } }
   const dashboard = { AdminDashboard: function Dashboard() {} }
-  const component = load('src/features/friends-family/RoundViews.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, './MemberRound': member, './AdminDashboard': dashboard, './MoneyEditor': moneyEditor, './ui': ui })
+  const component = load('src/features/friends-family/RoundViews.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, './MemberRound': member, './AdminDashboard': dashboard, './ui': ui })
   const render = () => { cursor = 0; return component.RoundViews({ ...memberProps, overview, authId: 'admin-subject', login: () => {} }) }
   return { render, dashboard: dashboard.AdminDashboard, setOverview: next => { overview = next } }
 }
 function toggleViews(state, label) { findElement(state.render(), node => node.type === 'button' && node.props.children === label).props.onClick() }
-test('only explicit Admin View mounts dashboard; returning removes it and retains member subtree position', () => {
+test('only explicit Admin view mounts dashboard; returning removes it and retains member subtree position', () => {
   const state = viewsHarness()
   const before = state.render()
   const initialMember = findElement(before, node => node.type === member.MemberRound)
   assert.ok(initialMember); assert.equal(findElement(before, node => node.type === state.dashboard), undefined)
-  toggleViews(state, 'Admin View')
+  toggleViews(state, 'Admin view')
   let tree = state.render()
   assert.ok(findElement(tree, node => node.type === state.dashboard))
   const retainedMember = findElement(tree, node => node.type === member.MemberRound)
@@ -493,35 +493,35 @@ test('only explicit Admin View mounts dashboard; returning removes it and retain
   assert.equal(retainedMember.key, initialMember.key)
   assert.equal(retainedMember.props.queryKey, initialMember.props.queryKey)
   assert.equal(React.Children.toArray(tree.props.children)[1].props.hidden, true)
-  toggleViews(state, 'FnF View')
+  toggleViews(state, 'Member view')
   tree = state.render()
   assert.equal(findElement(tree, node => node.type === state.dashboard), undefined)
   assert.equal(React.Children.toArray(tree.props.children)[1].props.hidden, false)
 })
 test('target drafts and uncertain results block FnF return until editor confirms save or cancellation', () => {
-  const state = viewsHarness(); toggleViews(state, 'Admin View')
+  const state = viewsHarness(); toggleViews(state, 'Admin view')
   findElement(state.render(), node => node.type === state.dashboard).props.onExitLockChange(true)
   let tree = state.render()
-  const back = findElement(tree, node => node.type === 'button' && node.props.children === 'FnF View')
+  const back = findElement(tree, node => node.type === 'button' && node.props.children === 'Member view')
   assert.equal(back.props.disabled, true)
   assert.ok(renderToStaticMarkup(findElement(tree, node => node.props?.id === 'round-view-lock')).includes('retry the same change first'))
   back.props.onClick(); assert.ok(findElement(state.render(), node => node.type === state.dashboard))
   findElement(state.render(), node => node.type === state.dashboard).props.onExitLockChange(false)
-  toggleViews(state, 'FnF View'); assert.equal(findElement(state.render(), node => node.type === state.dashboard), undefined)
+  toggleViews(state, 'Member view'); assert.equal(findElement(state.render(), node => node.type === state.dashboard), undefined)
 })
 test('capability removal immediately hides dashboard and restoration stays in FnF; a new account defaults to FnF', () => {
-  const state = viewsHarness(); toggleViews(state, 'Admin View')
+  const state = viewsHarness(); toggleViews(state, 'Admin view')
   state.setOverview(roundFixture)
   assert.equal(findElement(state.render(), node => node.type === state.dashboard), undefined)
   state.setOverview(adminOverview)
   assert.equal(findElement(state.render(), node => node.type === state.dashboard), undefined)
-  assert.ok(findElement(state.render(), node => node.type === 'button' && node.props.children === 'Admin View'))
+  assert.ok(findElement(state.render(), node => node.type === 'button' && node.props.children === 'Admin view'))
   assert.equal(findElement(viewsHarness().render(), node => node.type === state.dashboard), undefined)
 })
 test('the actual page keys the shared experience by authenticated subject when accounts change', () => {
   for (const authId of ['admin-one', 'admin-two']) {
     const hooks = { useState: initial => [initial, () => {}] }
-    const page = load('src/pages/FriendsAndFamily.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({}), useQuery: options => ({ data: options.queryKey[1] === 'session' ? { user: { authId } } : adminOverview, isPending: false, isError: false }) }, '../components/ThemeToggle': { ThemeToggle: () => null }, '../services/api': { API_URL: '' }, '../features/friends-family/api': inertApi, '../features/friends-family/RoundViews': views, '../features/friends-family/MoneyEditor': moneyEditor, '../features/friends-family/ThemeSwitch': { ThemeSwitch: () => null }, '../features/friends-family/ui': ui })
+    const page = load('src/pages/FriendsAndFamily.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({}), useQuery: options => ({ data: options.queryKey[1] === 'session' ? { user: { authId } } : adminOverview, isPending: false, isError: false }) }, '../services/api': { API_URL: '' }, '../features/friends-family/api': inertApi, '../features/friends-family/RoundViews': views, '../features/friends-family/ThemeSwitch': { ThemeSwitch: () => null }, '../features/friends-family/ui': ui })
     const experience = findElement(page.default(), node => node.type === views.RoundViews)
     assert.equal(experience.key.endsWith(`$${authId}`), true)
     assert.equal(experience.props.authId, authId)
@@ -532,7 +532,7 @@ test('login and logout return to the private /invest page', async () => {
   for (const user of [null, { authId: 'member-subject' }]) {
     const window = { location: { href: '' } }
     const hooks = { useState: initial => [initial, () => {}] }
-    const page = load('src/pages/FriendsAndFamily.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({ cancelQueries: () => Promise.resolve(), removeQueries: () => {} }), useQuery: options => ({ data: options.queryKey[1] === 'session' ? { user } : roundFixture, isPending: false, isError: false }) }, '../components/ThemeToggle': { ThemeToggle: () => null }, '../services/api': { API_URL: 'https://api.example.test' }, '../features/friends-family/api': inertApi, '../features/friends-family/RoundViews': views, '../features/friends-family/MoneyEditor': moneyEditor, '../features/friends-family/ThemeSwitch': { ThemeSwitch: () => null }, '../features/friends-family/ui': ui }, { window })
+    const page = load('src/pages/FriendsAndFamily.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({ cancelQueries: () => Promise.resolve(), removeQueries: () => {} }), useQuery: options => ({ data: options.queryKey[1] === 'session' ? { user } : roundFixture, isPending: false, isError: false }) }, '../services/api': { API_URL: 'https://api.example.test' }, '../features/friends-family/api': inertApi, '../features/friends-family/RoundViews': views, '../features/friends-family/ThemeSwitch': { ThemeSwitch: () => null }, '../features/friends-family/ui': ui }, { window })
     const label = user ? 'Sign out' : 'Continue with Google'
     findElement(page.default(), node => node.type === 'button' && node.props.children === label).props.onClick()
     await new Promise(resolve => setImmediate(resolve))
@@ -554,7 +554,7 @@ test('canceling an editable target releases the view-exit lock without recording
 test('dashboard unmount cancels and removes its account-specific participant query', () => {
   const cleanups = []; const calls = []
   const hooks = { useState: initial => [initial, () => {}], useRef: initial => ({ current: initial }), useEffect: effect => { const cleanup = effect(); if (cleanup) cleanups.push(cleanup) } }
-  const dashboard = load('src/features/friends-family/AdminDashboard.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({ cancelQueries: options => { calls.push(['cancel', options.queryKey]); return Promise.resolve() }, removeQueries: options => calls.push(['remove', options.queryKey]) }), useQuery: options => { calls.push(['query', options.queryKey]); return { data: targetSnapshot, dataUpdatedAt: 1 } } }, './api': inertApi, './RoundProgress': progress, './money': money, './participants': participantHelpers, './ParticipantList': { ParticipantList: () => null }, './RoundTargetEditor': targetComponents, './roundTarget': targetHelpers, './MoneyEditor': moneyEditor, './ui': ui })
+  const dashboard = load('src/features/friends-family/AdminDashboard.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({ cancelQueries: options => { calls.push(['cancel', options.queryKey]); return Promise.resolve() }, removeQueries: options => calls.push(['remove', options.queryKey]) }), useQuery: options => { calls.push(['query', options.queryKey]); return { data: targetSnapshot, dataUpdatedAt: 1 } } }, './api': inertApi, './RoundProgress': progress, './money': money, './participants': participantHelpers, './ParticipantList': { ParticipantList: () => null }, './RoundTargetEditor': targetComponents, './roundTarget': targetHelpers, './ui': ui })
   dashboard.AdminDashboard({ overview: adminOverview, authId: 'admin-subject', login: () => {} })
   assert.deepEqual(Array.from(calls[0][1]), ['private-friends-family', 'participants', 'admin-subject'])
   for (const cleanup of cleanups) cleanup()
@@ -562,17 +562,17 @@ test('dashboard unmount cancels and removes its account-specific participant que
   assert.deepEqual(Array.from(calls[2][1]), ['private-friends-family', 'participants', 'admin-subject'])
 })
 test('revoking target management permits FnF return even when participant viewing remains allowed', () => {
-  const state = viewsHarness(); toggleViews(state, 'Admin View')
+  const state = viewsHarness(); toggleViews(state, 'Admin view')
   findElement(state.render(), node => node.type === state.dashboard).props.onExitLockChange(true)
   state.setOverview({ ...adminOverview, capabilities: { canViewParticipants: true, canManageRound: false } })
-  const back = findElement(state.render(), node => node.type === 'button' && node.props.children === 'FnF View')
+  const back = findElement(state.render(), node => node.type === 'button' && node.props.children === 'Member view')
   assert.equal(back.props.disabled, false)
   back.props.onClick()
   assert.equal(findElement(state.render(), node => node.type === state.dashboard), undefined)
   state.setOverview(adminOverview)
-  toggleViews(state, 'Admin View')
-  assert.equal(findElement(state.render(), node => node.type === 'button' && node.props.children === 'FnF View').props.disabled, false)
-  toggleViews(state, 'FnF View')
+  toggleViews(state, 'Admin view')
+  assert.equal(findElement(state.render(), node => node.type === 'button' && node.props.children === 'Member view').props.disabled, false)
+  toggleViews(state, 'Member view')
   assert.equal(findElement(state.render(), node => node.type === state.dashboard), undefined)
 })
 test('late own-command results after account unmount cannot expire a new session or restore old cache', async () => {

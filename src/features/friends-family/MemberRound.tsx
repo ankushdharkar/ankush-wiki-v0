@@ -29,7 +29,7 @@ export function MemberRoundContent({ stage, onNext, onSaveConfirmed, ...props }:
   if (stage === 'amount') return <div className="mx-auto max-w-xl space-y-6">{panel}{refreshNotice}</div>
   return <div className="mx-auto max-w-xl space-y-8">
     <header>
-      <h1 className={pageTitle}>The round so far</h1>
+      <h1 className={pageTitle}>The round</h1>
       <p className={`mt-3 text-base leading-7 ${secondaryText}`}>Your commitment stays yours to manage. You can change it or withdraw it here.</p>
     </header>
     <div className={sheet}>
