@@ -177,8 +177,9 @@ const progress = load('src/features/friends-family/RoundProgress.tsx', { 'react/
 const emptyAssets = { ankushPhoto: null, welcomeMedia: null }
 function loadMember({ react = React, assets = emptyAssets } = {}) {
   return load('src/features/friends-family/MemberRound.tsx', {
-    react, 'react/jsx-runtime': jsxRuntime, './CommitmentPanel': panel, './RoundProgress': progress,
-    './money': money, './participants': participantHelpers, './memberFlow': flow, './ui': ui, './assets': assets,
+    // No RoundProgress or participants helpers: the member screens carry no round figures.
+    react, 'react/jsx-runtime': jsxRuntime, './CommitmentPanel': panel,
+    './money': money, './memberFlow': flow, './ui': ui, './assets': assets,
   })
 }
 const member = loadMember()
@@ -187,7 +188,17 @@ function renderStage(stage, overview = roundFixture, extra = {}, component = mem
   return renderToStaticMarkup(React.createElement(component.MemberRoundContent, { ...memberProps, overview, stage, onNext: () => {}, onSaveConfirmed: () => {}, ...extra }))
 }
 function assertNoRoundTotals(html) {
-  for (const marker of ['Round progress', 'progressbar', 'US$2,000,000', 'US$1,000', 'of the target', 'Friends and family so far', 'Still to go']) assert.equal(html.includes(marker), false, marker)
+  for (const marker of ['Round progress', 'progressbar', 'Together so far', 'of the round', 'US$2,000,000', 'US$1,000', 'of the target', 'Friends and family so far', 'Still to go', 'Remaining', 'People committed']) assert.equal(html.includes(marker), false, marker)
+}
+// A member overview from the current API: the round figures are withheld as null.
+const withheld = overview => ({ ...overview, round: null, summary: null, config: { ...overview.config, targetUsdMinor: null } })
+// Any read of a round figure throws, so a screen that renders with it provably never reads one, whichever shape arrives.
+function tripwire(overview) {
+  const config = { ...overview.config }
+  Object.defineProperty(config, 'targetUsdMinor', { enumerable: true, get() { throw Error('read config.targetUsdMinor') } })
+  const result = { ...overview, config }
+  for (const key of ['round', 'summary']) Object.defineProperty(result, key, { enumerable: true, get() { throw Error(`read ${key}`) } })
+  return result
 }
 const historyFixtures = [
   { ...roundFixture, currentVersion: '1' },
@@ -247,7 +258,8 @@ test('welcome renders personal gratitude and Next without aggregate information'
 test('amount stage renders an empty INR/Crore editor and explicit-save CTA without aggregate DOM', () => {
   const html = renderStage('amount')
   assert.ok(html.includes('What amount are you comfortable investing?'))
-  assert.ok(html.includes('Save commitment and view round'))
+  assert.ok(html.includes('>Save commitment</button>'))
+  assert.equal(html.includes('view round'), false)
   assert.ok(html.includes('<option selected="">INR</option>'))
   assert.ok(html.includes('<option selected="">Crore</option>'))
   assert.ok(html.includes('value=""'))
@@ -259,10 +271,15 @@ test('polling a remote commitment cannot expose totals before explicit local sav
   assertNoRoundTotals(renderStage('welcome', remote))
   assertNoRoundTotals(renderStage('amount', remote))
 })
-test('summary exposes goal/progress, own amount/share, remaining and participant count after confirmation', () => {
+test('summary shows the commitment panel and contact line under the "Your commitment" title, and no round figures', () => {
   const saved = { ...roundFixture, currentVersion: '1', ownCommitment: { status: 'active', currency: 'USD', amountMinor: '5000', version: '1', createdAt: '2026-10-03T00:01:00.000Z' } }
   const html = renderStage('summary', saved)
-  for (const marker of ['Round progress', 'US$2,000,000', 'US$50', 'of the target', 'Still to go', 'US$1,999,000', 'Friends and family so far', 'Change commitment']) assert.ok(html.includes(marker), marker)
+  for (const marker of ['<h1', '>Your commitment</h1>', 'Your commitment stays yours to manage.', 'US$50', 'Change commitment', 'Withdraw commitment', 'Call me or WhatsApp me.']) assert.ok(html.includes(marker), marker)
+  assert.equal(html.includes('The round'), false)
+  // The title is the only "Your commitment"; the panel beneath it no longer repeats it as a label.
+  assert.equal(html.split('>Your commitment<').length - 1, 1)
+  assertNoRoundTotals(html)
+  for (const marker of ['US$1,999,000', 'US$1,000,000']) assert.equal(html.includes(marker), false, marker)
 })
 // Exercise the panel's real handlers with a small hook store. No DOM or network dependency is needed.
 function findElement(element, predicate) {
@@ -961,9 +978,10 @@ test('with no commitment, or after a withdrawal, the bar is one segment and no "
     const segments = barSegments(progressBar(overview))
     assert.deepEqual(segments.map(segment => segment.props['data-segment']), ['total'])
     assert.equal(segments[0].props.style.width, '25%')
-    for (const html of [renderToStaticMarkup(React.createElement(progress.RoundProgress, { overview })), renderStage('summary', overview).match(/<section aria-label="Round progress">[\s\S]*?<\/section>/)[0]]) {
-      for (const marker of ['Yours', 'Your commitment', 'of the target', 'data-own-swatch']) assert.equal(html.includes(marker), false, marker)
-    }
+    const html = renderToStaticMarkup(React.createElement(progress.RoundProgress, { overview }))
+    for (const marker of ['Yours', 'Your commitment', 'of the target', 'data-own-swatch']) assert.equal(html.includes(marker), false, marker)
+    // The member summary has no round card at all, with or without a commitment.
+    assertNoRoundTotals(renderStage('summary', overview))
   }
 })
 test('a very small share still shows as a visible sliver without overstating the total', () => {
@@ -1094,4 +1112,59 @@ test('Next after a preview follows the admin real history and sends the real ove
   const back = previewHarness(saved); back.press('New'); back.press('Next')
   assert.equal(back.stage, 'summary')
   assert.equal(back.dispatched[0].overview, saved)
+})
+
+// Round figures are for the admin only. A member sees their own commitment and nothing about the round.
+const savedWithheld = withheld(savedUsd)
+test('the signed-out landing offers recording an amount and no longer mentions seeing how the round is going', () => {
+  const html = pageHarness(null, roundFixture).html
+  assert.ok(html.includes('After you sign in, you can record the amount you are comfortable investing. You can change or withdraw it here.'))
+  for (const marker of ['how the round is coming along', 'see how the round']) assert.equal(html.includes(marker), false, marker)
+  assertNoRoundTotals(html)
+})
+test('member screens show the commitment panel and contact line and never read a round figure, with or without figures in the response', () => {
+  for (const base of [roundFixture, savedUsd, savedInr, withdrawn]) {
+    for (const overview of [base, withheld(base), tripwire(base), tripwire(adminWith(base))]) {
+      for (const stage of ['welcome', 'amount', 'summary']) assertNoRoundTotals(renderStage(stage, overview, { memberName: 'Asha Rao' }))
+      const summary = renderStage('summary', overview, { memberName: 'Asha Rao' })
+      assert.ok(summary.includes('>Your commitment</h1>'))
+      assert.ok(summary.includes('Call me or WhatsApp me.'))
+      assert.ok(summary.includes(flow.hasMemberHistory(base) && base.ownCommitment?.status === 'active' ? 'Change commitment' : 'Make your commitment'))
+    }
+  }
+  const withdrawnSummary = renderStage('summary', tripwire(withdrawn))
+  assert.ok(withdrawnSummary.includes('Make your commitment')); assert.ok(withdrawnSummary.includes('>Save commitment</button>'))
+})
+test('the page and its member flow work when the overview carries no round figures', () => {
+  for (const user of [{ authId: 'member-subject', name: 'Member Example', email: 'member@example.test' }, null]) {
+    const state = pageHarness(user, tripwire(savedUsd))
+    assert.ok(state.html.includes(user ? 'Welcome back.' : 'Continue with Google'))
+    assertNoRoundTotals(state.html)
+  }
+  const reduced = memberFlowHarness(savedWithheld); reduced.next()
+  assert.equal(reduced.stage, 'summary')
+  const fresh = memberFlowHarness(withheld(roundFixture)); fresh.next()
+  assert.equal(fresh.stage, 'amount')
+})
+test('a save or withdrawal confirmed with the reduced response opens the summary', async () => {
+  const state = panelHarness()
+  findElement(state.render(), node => node.type === moneyEditor.MoneyEditor).props.onSave({ currency: 'USD', amountMinor: '5000' })
+  state.response.resolve(Object.assign(tripwire(savedUsd), { replayed: false }))
+  await new Promise(setImmediate)
+  assert.equal(state.confirmed, 1)
+  assert.equal(state.cache.length, 1)
+})
+function adminDashboardHtml(overview, snapshot) {
+  const hooks = { useState: initial => [initial, () => {}], useRef: initial => ({ current: initial }), useEffect: () => {} }
+  const dashboard = load('src/features/friends-family/AdminDashboard.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({}), useQuery: () => ({ data: snapshot, dataUpdatedAt: 1 }) }, './api': inertApi, './RoundProgress': progress, './money': money, './participants': participantHelpers, './ParticipantList': { ParticipantList: () => null }, './RoundTargetEditor': targetComponents, './ExchangeRateEditor': rateComponents, './roundTarget': targetHelpers, './ui': ui })
+  return renderToStaticMarkup(React.createElement(dashboard.AdminDashboard, { overview, authId: 'admin-subject', login: () => {} }))
+}
+test('the admin overview shows the full round card with the own-share segment, read from the admin data whatever the overview carries', () => {
+  const own = { ...adminOverview, currentVersion: '1', ownCommitment: ownActive }
+  for (const overview of [own, withheld(own), tripwire(own)]) {
+    const html = adminDashboardHtml(overview, targetSnapshot)
+    for (const marker of ['Round overview', 'aria-label="Round progress"', 'Together so far', '25% of the round', 'US$500,000', 'of US$2,000,000', 'role="progressbar"', 'data-segment="others"', 'data-segment="own"', 'Your commitment', 'US$100,000', '5% of the target', 'Remaining', 'US$1,500,000', 'People committed', 'Round target', 'Conversion rate']) assert.ok(html.includes(marker), marker)
+  }
+  const without = adminDashboardHtml(tripwire(adminOverview), targetSnapshot)
+  assert.ok(without.includes('data-segment="total"')); assert.equal(without.includes('data-segment="own"'), false)
 })

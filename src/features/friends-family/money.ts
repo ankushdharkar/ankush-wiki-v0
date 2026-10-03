@@ -1,4 +1,4 @@
-import type { Currency, Money, RoundConfig, RoundOverview } from './contract'
+import type { CommitmentConfig, Currency, Money, RoundConfig, RoundOverview } from './contract'
 
 export type RupeeUnit = 'Lakh' | 'Crore'
 export const unitScale = (currency: Currency, unit: RupeeUnit): bigint =>
@@ -54,7 +54,7 @@ export function parseScaledDecimal(value: string, scale: bigint): string | null 
 export function parseAmount(value: string, currency: Currency, unit: RupeeUnit): string | null {
   return parseScaledDecimal(value, unitScale(currency, unit))
 }
-export function amountError(amountMinor: string | null, config: RoundConfig): string | null {
+export function amountError(amountMinor: string | null, config: Pick<CommitmentConfig, 'minAmountMinor' | 'maxAmountMinor'>): string | null {
   if (amountMinor === null) return 'Enter an amount using numbers and a decimal point.'
   if (BigInt(amountMinor) < BigInt(config.minAmountMinor)) return `Enter at least ${decimalForScale(BigInt(config.minAmountMinor), 100n)} in the full currency amount.`
   if (BigInt(amountMinor) > BigInt(config.maxAmountMinor)) return `Enter ${decimalForScale(BigInt(config.maxAmountMinor), 100n)} or less in the full currency amount.`
@@ -88,7 +88,7 @@ export function progressSplit(progressBasisPoints: bigint, own: Money | null, co
   return { fillPercent, ownPercentOfFill: Number(clamped * 10_000n / progressBasisPoints) / 100 }
 }
 
-export function activeCommitmentMoney(overview: RoundOverview): Money | null {
+export function activeCommitmentMoney(overview: Pick<RoundOverview, 'ownCommitment'>): Money | null {
   const own = overview.ownCommitment
   return own?.status === 'active' && own.currency && own.amountMinor
     ? { currency: own.currency, amountMinor: own.amountMinor } : null

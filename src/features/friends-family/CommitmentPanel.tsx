@@ -4,7 +4,7 @@ import type { Money, RoundCommand, RoundOverview } from './contract'
 import { createCommand, executeCommand, RoundApiError } from './api'
 import { activeCommitmentMoney, formatMoney } from './money'
 import { MoneyEditor } from './MoneyEditor'
-import { actions, dangerButton, figure, inset, label, Notice, pageTitle, primaryButton, quietButton, secondaryButton, secondaryText, sectionTitle, sheet } from './ui'
+import { actions, dangerButton, figure, inset, Notice, pageTitle, primaryButton, quietButton, secondaryButton, secondaryText, sectionTitle, sheet } from './ui'
 
 export function CommitmentPanel({ overview, queryKey, refresh, onUnauthorized, entry = false, onSaveConfirmed, firstName = null }: {
   overview: RoundOverview; queryKey: readonly string[]
@@ -68,7 +68,8 @@ export function CommitmentPanel({ overview, queryKey, refresh, onUnauthorized, e
   const showEditor = entry || !!draft || !own
   const canReview = reviewReady && reviewedVersion.current === overview.currentVersion
   const Heading = entry ? 'h1' : 'h2'
-  const title = entry ? 'What amount are you comfortable investing?' : showEditor ? draft && own ? 'Change your commitment' : 'Make your commitment' : 'Your commitment'
+  // Only the editor has a heading here. At rest the summary page title, "Your commitment", heads the amount.
+  const title = entry ? 'What amount are you comfortable investing?' : draft && own ? 'Change your commitment' : 'Make your commitment'
   const intro = showEditor ? 'Choose an amount that feels right for you.' : `Thank you for being part of this round${firstName ? `, ${firstName}` : ''}.`
   return <section className="space-y-6">
     {/* On the entry step the question is the page title and sits above the sheet. */}
@@ -86,13 +87,12 @@ export function CommitmentPanel({ overview, queryKey, refresh, onUnauthorized, e
           }} className={secondaryButton}>I reviewed this, continue with my change</button> : <button onClick={() => void review()} disabled={busy} className={secondaryButton}>Load latest commitment</button>}
         </>}
       </Notice>}
-      {showEditor ? <MoneyEditor config={overview.config} initial={draft?.initial ?? null} pending={busy} saveLabel={entry ? 'Save commitment and view round' : undefined} locked={busy || !!command || conflict} onSave={(money) => {
+      {showEditor ? <MoneyEditor config={overview.config} initial={draft?.initial ?? null} pending={busy} locked={busy || !!command || conflict} onSave={(money) => {
         // Freeze the version when a new member starts a command too.
         void submit(createCommand(draft?.version ?? overview.currentVersion, money))
       }} onCancel={!entry && draft && own && !command && !conflict ? () => { setDraft(null); setError('') } : undefined} /> : <>
         <div>
-          <Heading className={label}>{title}</Heading>
-          <p className={`${figure} mt-1 text-3xl leading-9 break-words`}>{formatMoney(own.amountMinor, own.currency)}</p>
+          <p className={`${figure} text-3xl leading-9 break-words`}>{formatMoney(own.amountMinor, own.currency)}</p>
           <p className={`mt-2 text-base leading-7 ${secondaryText}`}>{intro}</p>
         </div>
         <div className={actions}><button disabled={busy || !!command || conflict} onClick={() => { setDraft({ initial: own, version: overview.currentVersion }); setMessage(''); setError(''); setConfirmWithdraw(false) }} className={secondaryButton}>Change commitment</button><button disabled={busy || !!command || conflict} onClick={() => { setConfirmWithdraw(true); withdrawVersion.current = overview.currentVersion; setMessage('') }} className={quietButton}>Withdraw commitment</button></div>

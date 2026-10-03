@@ -1,10 +1,10 @@
-import type { RoundOverview } from './contract'
+import type { RoundCardView } from './contract'
 import { activeCommitmentMoney, formatMoney, ownBasisPoints, percentLabel, progressSplit } from './money'
 import { figure, label, ownShare, OwnSwatch, secondaryText } from './ui'
 
 // The bar has at most two filled parts: everyone else combined, then the viewer's own share.
-// It is drawn from the round total and the viewer's own commitment only.
-export function RoundProgress({ overview }: { overview: RoundOverview }) {
+// It is drawn from the round total and the viewer's own commitment only. Only the admin overview shows it.
+export function RoundProgress({ overview }: { overview: RoundCardView }) {
   const { summary, config } = overview
   const own = activeCommitmentMoney(overview)
   const progress = BigInt(summary.progressBasisPoints)

@@ -1,4 +1,5 @@
 export type Currency = 'INR' | 'USD'
+// The admin's full config, from the participants and admin mutation responses.
 export interface RoundConfig {
   targetUsdMinor: string
   minTargetUsdMinor: string
@@ -32,14 +33,25 @@ export interface RoundSummary {
 }
 export interface RoundView { version: string; updatedAt: string }
 export interface ExchangeRateView { version: string; updatedAt: string }
+// What the amount editor needs: the rate and the amount bounds, never the round target.
+export type CommitmentConfig = Omit<RoundConfig, 'targetUsdMinor'>
+// The overview from GET /friends-and-family and the member commitment and withdraw responses. The API
+// withholds the round figures from members (null); the admin, and APIs older than that change, still send
+// them. Screens never read them from here: the admin overview reads them from ParticipantsResponse.
 export interface RoundOverview {
-  round: RoundView
+  round: RoundView | null
   exchangeRate?: ExchangeRateView
-  config: RoundConfig
-  summary: RoundSummary
+  config: CommitmentConfig & { targetUsdMinor: string | null }
+  summary: RoundSummary | null
   ownCommitment: Commitment | null
   currentVersion: string
   capabilities: { canViewParticipants: boolean; canManageRound: boolean }
+}
+// What the round card draws: the admin's round figures plus the viewer's own commitment.
+export interface RoundCardView {
+  config: RoundConfig
+  summary: RoundSummary
+  ownCommitment: Commitment | null
 }
 export interface Money { currency: Currency; amountMinor: string }
 export type RoundCommand = { operationId: string; expectedVersion: string } & (

@@ -40,7 +40,7 @@ export function AdminDashboard({ overview, authId, login, onExitLockChange }: { 
   if (accessStatus === 401 || accessStatus === 403) return <MessageSheet message={accessStatus === 401 ? 'Your sign-in has expired.' : 'This account cannot view the round dashboard.'} onAction={login} actionLabel={accessStatus === 401 ? 'Sign in again' : 'Sign in with another account'} />
   if (query.isPending) return <p role="status" className={statusText}>Loading the round dashboard…</p>
   if (!query.data) return <MessageSheet message="The round dashboard could not be loaded." onAction={() => void query.refetch()} actionLabel="Try again" />
-  const { config, round, summary, participants } = query.data
+  const { config, summary, participants } = query.data
   const canManage = overview.capabilities.canManageRound === true
   function reportEditing(editor: 'target' | 'rate') {
     return (next: boolean) => {
@@ -68,7 +68,8 @@ export function AdminDashboard({ overview, authId, login, onExitLockChange }: { 
   }
   const filtered = searchParticipants(participants, search)
   // Both totals and list come from the same server response, including during background refresh.
-  const snapshot = { ...overview, config, round, summary }
+  // The overview adds only the admin's own commitment, for the own-share segment.
+  const snapshot = { config, summary, ownCommitment: overview.ownCommitment }
   return <div className="mx-auto max-w-4xl space-y-8">
     <header className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1"><h1 className={pageTitle}>Round overview</h1><p className={`text-sm leading-6 tabular-nums ${secondaryText}`}>Updated <time dateTime={new Date(query.dataUpdatedAt).toISOString()}>{new Date(query.dataUpdatedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' })}</time></p></header>
     {query.isError && <Notice tone="warning" role="status"><p>The latest update could not be loaded. Showing the last confirmed round.</p><button type="button" onClick={() => void query.refetch()} className={compactButton}>Retry</button></Notice>}

@@ -2,13 +2,11 @@ import { useReducer, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { Money, RoundOverview } from './contract'
 import { CommitmentPanel } from './CommitmentPanel'
-import { RoundProgress } from './RoundProgress'
 import { activeCommitmentMoney, formatMoney } from './money'
-import { remainingUsdMinor } from './participants'
 import { firstNameFrom, initialMemberStage, letterVariant, memberFlowReducer } from './memberFlow'
 import type { LetterVariant, MemberStage } from './memberFlow'
 import { ankushPhoto, welcomeMedia } from './assets'
-import { compactButton, cornerLink, label, Notice, pageTitle, primaryButton, secondaryText, sheet, Signature, Stat, statRow, textLink, voice } from './ui'
+import { compactButton, cornerLink, label, Notice, pageTitle, primaryButton, secondaryText, sheet, Signature, textLink, voice } from './ui'
 
 interface MemberRoundProps {
   overview: RoundOverview
@@ -32,18 +30,12 @@ export function MemberRoundContent({ stage, onNext, onSaveConfirmed, ...props }:
   const panel = <CommitmentPanel overview={props.overview} queryKey={props.queryKey} refresh={props.refresh} onUnauthorized={props.onUnauthorized} entry={stage === 'amount'} onSaveConfirmed={onSaveConfirmed} firstName={firstName} />
   const refreshNotice = props.refreshFailed && <Notice tone="warning" role="status"><p>The latest update could not be loaded.</p><button type="button" onClick={() => void props.refresh().catch(() => {})} className={compactButton}>Retry</button></Notice>
   if (stage === 'amount') return <div className="mx-auto max-w-xl space-y-6">{panel}{refreshNotice}</div>
+  // No round figures here, for any member or the admin: the round card lives only in the admin overview.
   return <div className="mx-auto max-w-xl space-y-8">
     <header>
-      <h1 className={pageTitle}>The round</h1>
+      <h1 className={pageTitle}>Your commitment</h1>
       <p className={`mt-3 text-base leading-7 ${secondaryText}`}>Your commitment stays yours to manage. You can change it or withdraw it here.</p>
     </header>
-    <div className={sheet}>
-      <RoundProgress overview={props.overview} />
-      <dl className={statRow}>
-        <Stat label="Still to go" value={formatMoney(remainingUsdMinor(props.overview.config.targetUsdMinor, props.overview.summary.totalUsdMinor), 'USD')} />
-        <Stat label="Friends and family so far" value={new Intl.NumberFormat('en-US').format(BigInt(props.overview.summary.participantCount))} />
-      </dl>
-    </div>
     <div className="min-w-0 space-y-6">{panel}{refreshNotice}</div>
     {/* The address lives only in the link; the people on this page already have Ankush's number. */}
     <p className={`${voice} flex flex-wrap items-center gap-x-2`}><span>Questions? Call me or WhatsApp me.</span><a href="mailto:ankushdharkar@gmail.com" className={textLink}>Email me</a></p>

@@ -60,7 +60,7 @@ function Invitation({ children }: { children: ReactNode }) {
     <h1 className={`${pageTitle} mt-1`}>Friends &amp; family</h1>
     <p className={`${voice} mt-5`}>I shared this page with you personally. It is where you can take part in this friends and family round.</p>
     <dl className={`mt-8 divide-y divide-stone-200 border-y dark:divide-stone-800 ${hairline}`}>
-      <InvitationPoint title="What you can do here">After you sign in, you can see how the round is coming along and record the amount you are comfortable investing. You can change or withdraw it here.</InvitationPoint>
+      <InvitationPoint title="What you can do here">After you sign in, you can record the amount you are comfortable investing. You can change or withdraw it here.</InvitationPoint>
       <InvitationPoint title="No payment is taken">Recording a commitment does not move any money. Nothing is charged or transferred on this page.</InvitationPoint>
       <InvitationPoint title="Why I ask you to sign in">Signing in with Google ties your commitment to you and keeps it private.</InvitationPoint>
     </dl>

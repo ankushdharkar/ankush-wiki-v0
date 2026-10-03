@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import type { Money, RoundConfig } from './contract'
+import type { CommitmentConfig, Money } from './contract'
 import { amountError, convertMinor, decimalForScale, formatMoney, inrMinorPerUsd, parseAmount, rateLine, selectedMoney, unitScale } from './money'
 import type { RupeeUnit } from './money'
 import { actions, AlertIcon, compactButton, fieldError, fieldGroup, fieldGroupInvalid, fieldInput, fieldLabel, fieldSelect, hairline, primaryButton, quietButton, secondaryText, SelectChevron } from './ui'
 
-export function MoneyEditor({ config, initial, locked, pending, onSave, onCancel, saveLabel = 'Save commitment' }: {
-  config: RoundConfig; initial: Money | null; locked: boolean; pending: boolean
-  onSave: (money: Money) => void; onCancel?: () => void; saveLabel?: string
+export function MoneyEditor({ config, initial, locked, pending, onSave, onCancel }: {
+  config: CommitmentConfig; initial: Money | null; locked: boolean; pending: boolean
+  onSave: (money: Money) => void; onCancel?: () => void
 }) {
   const [currency, setCurrency] = useState<Money['currency']>(initial?.currency ?? 'INR')
   const [unit, setUnit] = useState<RupeeUnit>('Crore')
@@ -77,6 +77,6 @@ export function MoneyEditor({ config, initial, locked, pending, onSave, onCancel
         </div>
       </div>
     </fieldset>
-    <div className={actions}><button type="submit" disabled={locked} className={primaryButton}>{pending ? 'Saving…' : saveLabel}</button>{onCancel && <button type="button" disabled={locked} onClick={onCancel} className={quietButton}>Cancel</button>}</div>
+    <div className={actions}><button type="submit" disabled={locked} className={primaryButton}>{pending ? 'Saving…' : 'Save commitment'}</button>{onCancel && <button type="button" disabled={locked} onClick={onCancel} className={quietButton}>Cancel</button>}</div>
   </form>
 }
