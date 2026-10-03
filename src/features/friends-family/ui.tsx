@@ -79,6 +79,14 @@ export function Signature({ className = '' }: { className?: string }) {
   </span>
 }
 
+// The viewer's own share on the progress bar: the same teal hue, at the high-contrast end of the scale.
+// At least 3:1 against the others part (teal-600) and the track in both themes.
+export const ownShare = 'bg-teal-950 dark:bg-teal-100'
+// A small key in the own-share shade beside "Yours", so the bar does not rely on colour memory.
+export function OwnSwatch() {
+  return <span data-own-swatch aria-hidden="true" className={`mr-2 inline-block size-2.5 rounded-xs ${ownShare}`} />
+}
+
 // A label and its figure. Used for every round number that is not the headline total.
 export function Stat({ label: name, value }: { label: string; value: string }) {
   return <div className="min-w-0">

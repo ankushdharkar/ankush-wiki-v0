@@ -897,3 +897,79 @@ test('the welcome letters and the amount step, with every personal touch filled 
     for (const stage of ['welcome', 'amount']) assertNoRoundTotals(renderStage(stage, overview, { memberName: 'Asha Rao' }, full))
   }
 })
+// The viewer's own share is the last segment of the bar. Only the round total and the viewer's own commitment draw it.
+const ownActive = { status: 'active', currency: 'USD', amountMinor: '10000000', version: '1', createdAt: '2026-10-03T00:01:00.000Z' }
+const shareRound = { ...roundFixture, ...targetSnapshot, currentVersion: '1', ownCommitment: ownActive }
+function progressBar(overview) {
+  return findElement(progress.RoundProgress({ overview }), node => node.props?.role === 'progressbar')
+}
+function barSegments(bar) {
+  const segments = []
+  findElement(bar, node => { if (node.props?.['data-segment']) segments.push(node); return false })
+  return segments
+}
+function dashboardWith(overview, snapshot) {
+  const hooks = { useState: initial => [initial, () => {}], useRef: initial => ({ current: initial }), useEffect: () => {} }
+  const dashboard = load('src/features/friends-family/AdminDashboard.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({}), useQuery: () => ({ data: snapshot, dataUpdatedAt: 1 }) }, './api': inertApi, './RoundProgress': progress, './money': money, './participants': participantHelpers, './ParticipantList': { ParticipantList: () => null }, './RoundTargetEditor': targetComponents, './ExchangeRateEditor': rateComponents, './roundTarget': targetHelpers, './ui': ui })
+  return findElement(dashboard.AdminDashboard({ overview, authId: 'admin-subject', login: () => {} }), node => node.type === progress.RoundProgress)
+}
+test('with an active commitment the bar has exactly two filled segments, everyone else first and the viewer last, together the total', () => {
+  const others = [
+    { name: 'Synthetic Member One', email: 'one@example.test', commitment: { status: 'active', currency: 'USD', amountMinor: '12345678', version: '1', createdAt: '2026-10-03T00:00:00.000Z' } },
+    { name: 'Synthetic Member Two', email: 'two@example.test', commitment: { status: 'active', currency: 'INR', amountMinor: '2765432100', version: '1', createdAt: '2026-10-03T00:00:00.000Z' } },
+  ]
+  const single = progressBar({ ...shareRound, ownCommitment: null })
+  for (const count of ['2', '7', '250']) {
+    const bar = progressBar({ ...shareRound, summary: { ...shareRound.summary, participantCount: count } })
+    const segments = barSegments(bar)
+    assert.deepEqual(segments.map(segment => segment.props['data-segment']), ['others', 'own'], count)
+    const fill = findElement(bar, node => node.props?.children && barSegments(node).length === 2 && node !== bar)
+    assert.equal(fill.props.style.width, single.props.children.props.style.width)
+    assert.equal(fill.props.style.width, '25%')
+    assert.equal(segments[1].props.style.width, 'max(4px, 20%)')
+  }
+  const adminRound = { ...targetSnapshot, participants: [...others, { name: 'Admin', email: 'admin@example.test', commitment: ownActive }] }
+  const adminProgress = dashboardWith({ ...adminOverview, currentVersion: '1', ownCommitment: ownActive }, adminRound)
+  const adminBar = findElement(adminProgress.type(adminProgress.props), node => node.props?.role === 'progressbar')
+  assert.deepEqual(barSegments(adminBar).map(segment => segment.props['data-segment']), ['others', 'own'])
+  const markup = renderToStaticMarkup(adminBar)
+  for (const marker of ['US$123,456.78', '₹2,76,54,321', '123456', '2765432', 'Synthetic Member', '@example.test', 'title=', 'US$']) assert.equal(markup.includes(marker), false, marker)
+})
+test('with no commitment, or after a withdrawal, the bar is one segment and no "Yours" line is shown', () => {
+  const withdrawnShare = { ...shareRound, ownCommitment: { status: 'withdrawn', currency: null, amountMinor: null, version: '2', createdAt: '2026-10-03T00:02:00.000Z' } }
+  for (const overview of [{ ...shareRound, ownCommitment: null }, withdrawnShare]) {
+    const segments = barSegments(progressBar(overview))
+    assert.deepEqual(segments.map(segment => segment.props['data-segment']), ['total'])
+    assert.equal(segments[0].props.style.width, '25%')
+    for (const html of [renderToStaticMarkup(React.createElement(progress.RoundProgress, { overview })), renderStage('summary', overview).match(/<section aria-label="Round progress">[\s\S]*?<\/section>/)[0]]) {
+      for (const marker of ['Yours', 'Your commitment', 'of the target', 'data-own-swatch']) assert.equal(html.includes(marker), false, marker)
+    }
+  }
+})
+test('a very small share still shows as a visible sliver without overstating the total', () => {
+  const tiny = { ...shareRound, ownCommitment: { ...ownActive, amountMinor: '100' } }
+  assert.equal(money.ownBasisPoints(money.activeCommitmentMoney(tiny), tiny.config), 0n)
+  const bar = progressBar(tiny)
+  const own = barSegments(bar).find(segment => segment.props['data-segment'] === 'own')
+  assert.equal(own.props.style.width, 'max(4px, 0%)')
+  assert.ok(findElement(bar, node => node.props?.style?.width === '25%' && /overflow-hidden/.test(node.props.className)))
+  assert.equal(bar.props['aria-valuenow'], 25)
+})
+test('the bar keeps its accessible progress value and the viewer share is also stated in text', () => {
+  const bar = progressBar(shareRound)
+  assert.equal(bar.props.role, 'progressbar')
+  assert.equal(bar.props['aria-valuemin'], 0); assert.equal(bar.props['aria-valuemax'], 100)
+  assert.equal(bar.props['aria-valuenow'], 25); assert.equal(bar.props['aria-valuetext'], '25% committed')
+  const html = renderToStaticMarkup(React.createElement(progress.RoundProgress, { overview: shareRound }))
+  const text = visibleText(html)
+  for (const marker of ['Your commitment', 'US$100,000', '5% of the target']) assert.ok(text.includes(marker), marker)
+  assert.ok(/<span[^>]*data-own-swatch[^>]*aria-hidden="true"|<span[^>]*aria-hidden="true"[^>]*data-own-swatch/.test(html))
+})
+test('the admin overview shows the "Yours" line with the amount and percent of the target', () => {
+  const element = dashboardWith({ ...adminOverview, currentVersion: '1', ownCommitment: ownActive }, targetSnapshot)
+  const html = renderToStaticMarkup(element)
+  const text = visibleText(html)
+  for (const marker of ['Yours', 'Your commitment', 'US$100,000', '5% of the target']) assert.ok(text.includes(marker), marker)
+  assert.ok(html.includes('data-own-swatch'))
+  assert.equal(renderToStaticMarkup(dashboardWith(adminOverview, targetSnapshot)).includes('of the target'), false)
+})

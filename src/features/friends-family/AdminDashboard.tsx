@@ -73,7 +73,7 @@ export function AdminDashboard({ overview, authId, login, onExitLockChange }: { 
     <header className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1"><h1 className={pageTitle}>Round overview</h1><p className={`text-sm leading-6 tabular-nums ${secondaryText}`}>Updated <time dateTime={new Date(query.dataUpdatedAt).toISOString()}>{new Date(query.dataUpdatedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' })}</time></p></header>
     {query.isError && <Notice tone="warning" role="status"><p>The latest update could not be loaded. Showing the last confirmed round.</p><button type="button" onClick={() => void query.refetch()} className={compactButton}>Retry</button></Notice>}
     <div className={sheet}>
-      <RoundProgress overview={snapshot} showOwn={false} />
+      <RoundProgress overview={snapshot} />
       <dl className={statRow}>
         <Stat label="Remaining" value={formatMoney(remainingUsdMinor(config.targetUsdMinor, summary.totalUsdMinor), 'USD')} />
         <Stat label="People committed" value={new Intl.NumberFormat('en-US').format(BigInt(summary.participantCount))} />

@@ -76,6 +76,17 @@ export function ownBasisPoints(money: Money | null, config: RoundConfig): bigint
   const scaled = BigInt(money.amountMinor) * (money.currency === 'USD' ? rate : 100n)
   return scaled * 10_000n / (BigInt(config.targetUsdMinor) * rate)
 }
+// The one split of the progress bar. The fill is the round total, capped at the track; the viewer's
+// own share is its last part, as a percent of the fill. Only the total and the viewer's own commitment
+// go in, so the bar can never draw any other member. No own commitment means no split (null).
+export function progressSplit(progressBasisPoints: bigint, own: Money | null, config: RoundConfig): { fillPercent: number; ownPercentOfFill: number | null } {
+  const fillPercent = Number(progressBasisPoints > 10_000n ? 10_000n : progressBasisPoints < 0n ? 0n : progressBasisPoints) / 100
+  if (!own) return { fillPercent, ownPercentOfFill: null }
+  if (progressBasisPoints <= 0n) return { fillPercent, ownPercentOfFill: 100 }
+  const ownShare = ownBasisPoints(own, config)
+  const clamped = ownShare > progressBasisPoints ? progressBasisPoints : ownShare
+  return { fillPercent, ownPercentOfFill: Number(clamped * 10_000n / progressBasisPoints) / 100 }
+}
 
 export function activeCommitmentMoney(overview: RoundOverview): Money | null {
   const own = overview.ownCommitment
