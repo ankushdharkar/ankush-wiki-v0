@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import type { ParticipantsResponse, RoundTargetCommand, RoundTargetResult } from './contract'
 import { createRoundTargetCommand, RoundApiError } from './api'
 import { convertMinor, decimalForScale, formatMoney, inrMinorPerUsd, rateLine } from './money'
-import { actions, AlertIcon, fieldError, fieldGroup, fieldGroupInvalid, fieldInput, fieldLabel, figure, hairline, label, Notice, primaryButton, quietButton, secondaryButton, secondaryText } from './ui'
+import { actions, AlertIcon, compactButton, fieldError, fieldGroup, fieldGroupInvalid, fieldInput, fieldLabel, figure, hairline, label, Notice, primaryButton, quietButton, secondaryButton, secondaryText } from './ui'
 import { parseTargetMillions, targetError, USD_MILLION_SCALE } from './roundTarget'
 
 export function RoundTargetEditor({ snapshot, canManage, save, refresh, onAccessDenied, onEditStateChange }: {
@@ -57,10 +57,11 @@ export function RoundTargetEditor({ snapshot, canManage, save, refresh, onAccess
     onEditStateChange?.(false)
   }
   const invalid = showError && !!validation
-  return <section aria-labelledby="round-target-heading">
-    <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3"><div className="min-w-0"><h2 id="round-target-heading" className={label}>Round target</h2><p className={`${figure} mt-1 text-lg leading-7 break-words`}>{formatMoney(snapshot.config.targetUsdMinor, 'USD')}</p><p className={`mt-1 text-sm leading-6 ${secondaryText}`}>Target updated <time dateTime={snapshot.round.updatedAt} title={new Date(snapshot.round.updatedAt).toLocaleString()}>{new Date(snapshot.round.updatedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</time></p></div>
-      {canManage && !draft && <button type="button" onClick={() => { onEditStateChange?.(true); setDraft({ value: decimalForScale(BigInt(snapshot.config.targetUsdMinor), USD_MILLION_SCALE), version: snapshot.round.version }); setMessage(''); setError('') }} className={secondaryButton}>Change target</button>}
+  return <section aria-labelledby="round-target-heading" className={`min-w-0 ${draft && canManage ? 'sm:col-span-2' : ''}`}>
+    <div className="flex items-center justify-between gap-x-4"><div className="min-w-0"><h2 id="round-target-heading" className={label}>Round target</h2><p className={`${figure} mt-1 text-lg leading-7 break-words`}>{formatMoney(snapshot.config.targetUsdMinor, 'USD')}</p></div>
+      {canManage && !draft && <button type="button" onClick={() => { onEditStateChange?.(true); setDraft({ value: decimalForScale(BigInt(snapshot.config.targetUsdMinor), USD_MILLION_SCALE), version: snapshot.round.version }); setMessage(''); setError('') }} className={`${compactButton} shrink-0`}>Change target</button>}
     </div>
+    <p className={`mt-1 text-sm leading-6 ${secondaryText}`}>Target updated <time dateTime={snapshot.round.updatedAt} title={new Date(snapshot.round.updatedAt).toLocaleString()}>{new Date(snapshot.round.updatedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</time></p>
     {message && <Notice tone="success" role="status" className="mt-4">{message}</Notice>}
     {draft && canManage && <form className="mt-6 max-w-xl space-y-5" onSubmit={(event) => {
       event.preventDefault(); if (locked) return; setShowError(true)

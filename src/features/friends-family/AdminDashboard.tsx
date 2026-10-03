@@ -79,10 +79,8 @@ export function AdminDashboard({ overview, authId, login, onExitLockChange }: { 
         <Stat label="Remaining" value={formatMoney(remainingUsdMinor(config.targetUsdMinor, summary.totalUsdMinor), 'USD')} />
         <Stat label="People committed" value={new Intl.NumberFormat('en-US').format(BigInt(summary.participantCount))} />
       </dl>
-      <div className={`mt-6 border-t pt-6 ${hairline}`}>
+      <div className={statRow}>
         <RoundTargetEditor snapshot={query.data} canManage={canManage} onEditStateChange={reportEditing('target')} save={managed<RoundTargetCommand>(executeRoundTargetCommand)} refresh={refresh} onAccessDenied={onAccessDenied} />
-      </div>
-      <div className={`mt-6 border-t pt-6 ${hairline}`}>
         <ExchangeRateEditor snapshot={query.data} canManage={canManage} onEditStateChange={reportEditing('rate')} save={managed<ExchangeRateCommand>(executeExchangeRateCommand)} refresh={refresh} onAccessDenied={onAccessDenied} />
       </div>
     </div>

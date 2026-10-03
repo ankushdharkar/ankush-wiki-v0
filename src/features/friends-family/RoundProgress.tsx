@@ -17,7 +17,7 @@ export function RoundProgress({ overview }: { overview: RoundCardView }) {
     <p className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-1 tabular-nums"><strong className={`${figure} max-w-full min-w-0 text-3xl leading-9 break-words`}>{formatMoney(summary.totalUsdMinor, 'USD')}</strong><span className={`text-base ${secondaryText}`}>of {formatMoney(config.targetUsdMinor, 'USD')}</span></p>
     <div role="progressbar" aria-label="Round committed" aria-valuemin={0} aria-valuemax={100} aria-valuenow={width} aria-valuetext={`${percentLabel(progress)} committed`} className="mt-4 h-1.5 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-800">
       {ownPercentOfFill === null
-        ? <div data-segment="total" className="h-full rounded-full bg-teal-800 dark:bg-teal-500" style={{ width: `${width}%` }} />
+        ? <div data-segment="total" className="h-full rounded-full bg-teal-600" style={{ width: `${width}%` }} />
         // The own part keeps a few pixels when tiny. They come out of the others part; the fill stays the total.
         : <div className="flex h-full overflow-hidden rounded-full" style={{ width: `${width}%` }}>
           <div data-segment="others" className="h-full min-w-0 flex-1 bg-teal-600" />

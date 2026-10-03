@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { ComponentProps } from 'react'
 import { MemberRound } from './MemberRound'
 import { AdminDashboard } from './AdminDashboard'
-import { secondaryButton, secondaryText } from './ui'
+import { quietButton, secondaryText } from './ui'
 
 export function RoundViews({ authId, login, ...memberProps }: ComponentProps<typeof MemberRound> & {
   authId: string; login: () => void
@@ -20,7 +20,7 @@ export function RoundViews({ authId, login, ...memberProps }: ComponentProps<typ
         if (exitBlocked) return
         setExitLocked(false)
         setView(adminVisible ? 'fnf' : 'admin')
-      }} className={secondaryButton}>{adminVisible ? 'Member view' : 'Admin view'}</button>
+      }} className={quietButton}>{adminVisible ? 'Member view' : 'Admin view'}</button>
       {exitBlocked && <p id="round-view-lock" role="status" className={`w-full text-sm leading-6 sm:text-right ${secondaryText}`}>Save or cancel the target or rate edit to return. If its result is uncertain, retry the same change first.</p>}
     </nav>}
     {/* Preserve the same member subtree, including draft, stage and uncertain command. */}

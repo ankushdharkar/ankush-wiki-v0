@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import type { ExchangeRateCommand, ExchangeRateResult, ParticipantsResponse } from './contract'
 import { createExchangeRateCommand, RoundApiError } from './api'
 import { formatRate, inrMinorPerUsd, rateDecimal } from './money'
-import { actions, AlertIcon, fieldError, fieldGroup, fieldGroupInvalid, fieldInput, fieldLabel, figure, hairline, label, Notice, primaryButton, quietButton, secondaryButton, secondaryText } from './ui'
+import { actions, AlertIcon, compactButton, fieldError, fieldGroup, fieldGroupInvalid, fieldInput, fieldLabel, figure, hairline, label, Notice, primaryButton, quietButton, secondaryButton, secondaryText } from './ui'
 import { parseRate, rateError } from './exchangeRate'
 
 // Mirrors RoundTargetEditor: a frozen draft version, the same command retried after an uncertain
@@ -61,10 +61,11 @@ export function ExchangeRateEditor({ snapshot, canManage, save, refresh, onAcces
     onEditStateChange?.(false)
   }
   const invalid = showError && !!validation
-  return <section aria-labelledby="exchange-rate-heading">
-    <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3"><div className="min-w-0"><h2 id="exchange-rate-heading" className={label}>Conversion rate</h2><p className={`${figure} mt-1 text-lg leading-7 break-words`}>US$1 = ₹{formatRate(current)}</p>{snapshot.exchangeRate && <p className={`mt-1 text-sm leading-6 ${secondaryText}`}>{snapshot.config.rateIsTemporary ? 'Temporary rate. ' : ''}Rate updated <time dateTime={snapshot.exchangeRate.updatedAt} title={new Date(snapshot.exchangeRate.updatedAt).toLocaleString()}>{new Date(snapshot.exchangeRate.updatedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</time></p>}</div>
-      {canManage && !draft && rateVersion && <button type="button" onClick={() => { onEditStateChange?.(true); setDraft({ value: rateDecimal(current), version: rateVersion }); setMessage(''); setError('') }} className={secondaryButton}>Change rate</button>}
+  return <section aria-labelledby="exchange-rate-heading" className={`min-w-0 ${draft && canManage ? 'sm:col-span-2' : ''}`}>
+    <div className="flex items-center justify-between gap-x-4"><div className="min-w-0"><h2 id="exchange-rate-heading" className={label}>Conversion rate</h2><p className={`${figure} mt-1 text-lg leading-7 break-words`}>US$1 = ₹{formatRate(current)}</p></div>
+      {canManage && !draft && rateVersion && <button type="button" onClick={() => { onEditStateChange?.(true); setDraft({ value: rateDecimal(current), version: rateVersion }); setMessage(''); setError('') }} className={`${compactButton} shrink-0`}>Change rate</button>}
     </div>
+    {snapshot.exchangeRate && <p className={`mt-1 text-sm leading-6 ${secondaryText}`}>{snapshot.config.rateIsTemporary ? 'Temporary rate. ' : ''}Rate updated <time dateTime={snapshot.exchangeRate.updatedAt} title={new Date(snapshot.exchangeRate.updatedAt).toLocaleString()}>{new Date(snapshot.exchangeRate.updatedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</time></p>}
     {message && <Notice tone="success" role="status" className="mt-4">{message}</Notice>}
     {draft && canManage && <form className="mt-6 max-w-xl space-y-5" onSubmit={(event) => {
       event.preventDefault(); if (locked) return; setShowError(true)

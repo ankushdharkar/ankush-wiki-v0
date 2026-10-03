@@ -34,7 +34,7 @@ export const statusText = 'py-16 text-center text-base text-stone-600 dark:text-
 export const sheet = 'rounded-lg bg-white p-6 ring-1 ring-stone-200 sm:p-8 dark:bg-stone-900 dark:ring-stone-800'
 export const flushSheet = 'overflow-hidden rounded-lg bg-white ring-1 ring-stone-200 dark:bg-stone-900 dark:ring-stone-800'
 export const hairline = 'border-stone-200 dark:border-stone-800'
-export const statRow = `mt-6 flex flex-wrap gap-x-12 gap-y-4 border-t pt-6 ${hairline}`
+export const statRow = `mt-6 grid gap-x-12 gap-y-6 border-t pt-6 sm:grid-cols-2 ${hairline}`
 export const inset = 'rounded-md bg-stone-50 p-4 ring-1 ring-inset ring-stone-200 dark:bg-stone-950 dark:ring-stone-800'
 
 // Fields. A group holds one input plus its attached selects or unit, read as one control.
