@@ -7,10 +7,35 @@ export const unitScale = (currency: Currency, unit: RupeeUnit): bigint =>
 export function roundHalfUp(numerator: bigint, denominator: bigint): bigint {
   return (numerator + denominator / 2n) / denominator
 }
-export function convertMinor(money: Money, currency: Currency, rate: string): bigint {
+// The one reading of the conversion rate, as INR paise per US$1. A response from an older API has
+// only the whole-rupee inrPerUsd, so it falls back to that value times 100.
+export function inrMinorPerUsd(config: Pick<RoundConfig, 'inrMinorPerUsd' | 'inrPerUsd'>): string {
+  if (config.inrMinorPerUsd) return config.inrMinorPerUsd
+  const legacy = parseScaledDecimal(config.inrPerUsd, 100n)
+  if (legacy === null || legacy === '0') throw new Error('The conversion rate is missing')
+  return legacy
+}
+// rateMinor is INR paise per US$1. Each conversion rounds half up once; the entered amount is never converted back.
+export function convertMinor(money: Money, currency: Currency, rateMinor: string): bigint {
   const amount = BigInt(money.amountMinor)
   if (money.currency === currency) return amount
-  return currency === 'INR' ? amount * BigInt(rate) : roundHalfUp(amount, BigInt(rate))
+  const rate = BigInt(rateMinor)
+  return currency === 'INR' ? roundHalfUp(amount * rate, 100n) : roundHalfUp(amount * 100n, rate)
+}
+// Plain decimal for an input: "95", "88.75", "88.50".
+export function rateDecimal(rateMinor: string): string {
+  const rate = BigInt(rateMinor)
+  const fraction = rate % 100n
+  return `${rate / 100n}${fraction ? `.${fraction.toString().padStart(2, '0')}` : ''}`
+}
+// The one display of a rate: whole rates as "95", others with two decimals ("88.75", "88.50").
+export function formatRate(rateMinor: string): string {
+  const rate = BigInt(rateMinor)
+  const fraction = rate % 100n
+  return `${new Intl.NumberFormat('en-IN').format(rate / 100n)}${fraction ? `.${fraction.toString().padStart(2, '0')}` : ''}`
+}
+export function rateLine(config: Pick<RoundConfig, 'inrMinorPerUsd' | 'inrPerUsd' | 'rateIsTemporary'>): string {
+  return `${config.rateIsTemporary ? 'Temporary rate' : 'Conversion rate'}: US$1 = ₹${formatRate(inrMinorPerUsd(config))}`
 }
 export function decimalForScale(amount: bigint, scale: bigint): string {
   const digits = scale.toString().length - 1
@@ -46,8 +71,10 @@ export function percentLabel(basisPoints: bigint): string {
 }
 export function ownBasisPoints(money: Money | null, config: RoundConfig): bigint {
   if (!money) return 0n
-  return convertMinor(money, 'INR', config.inrPerUsd) * 10_000n /
-    (BigInt(config.targetUsdMinor) * BigInt(config.inrPerUsd))
+  // Hundredths of a paise keep a two-decimal rate exact, matching the server's progress rule.
+  const rate = BigInt(inrMinorPerUsd(config))
+  const scaled = BigInt(money.amountMinor) * (money.currency === 'USD' ? rate : 100n)
+  return scaled * 10_000n / (BigInt(config.targetUsdMinor) * rate)
 }
 
 export function activeCommitmentMoney(overview: RoundOverview): Money | null {
@@ -55,6 +82,6 @@ export function activeCommitmentMoney(overview: RoundOverview): Money | null {
   return own?.status === 'active' && own.currency && own.amountMinor
     ? { currency: own.currency, amountMinor: own.amountMinor } : null
 }
-export function selectedMoney(canonical: Money | null, currency: Currency, rate: string): Money | null {
-  return canonical ? { currency, amountMinor: convertMinor(canonical, currency, rate).toString() } : null
+export function selectedMoney(canonical: Money | null, currency: Currency, rateMinor: string): Money | null {
+  return canonical ? { currency, amountMinor: convertMinor(canonical, currency, rateMinor).toString() } : null
 }

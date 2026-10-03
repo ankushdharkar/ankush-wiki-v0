@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import type { ParticipantsResponse, RoundTargetCommand, RoundTargetResult } from './contract'
 import { createRoundTargetCommand, RoundApiError } from './api'
-import { convertMinor, decimalForScale, formatMoney } from './money'
+import { convertMinor, decimalForScale, formatMoney, inrMinorPerUsd, rateLine } from './money'
 import { actions, AlertIcon, fieldError, fieldGroup, fieldGroupInvalid, fieldInput, fieldLabel, figure, hairline, label, Notice, primaryButton, quietButton, secondaryButton, secondaryText } from './ui'
 import { parseTargetMillions, targetError, USD_MILLION_SCALE } from './roundTarget'
 
@@ -76,7 +76,7 @@ export function RoundTargetEditor({ snapshot, canManage, save, refresh, onAccess
         <label htmlFor="round-target-millions" className={fieldLabel}>Target in USD millions</label>
         <div className={`${invalid ? fieldGroupInvalid : fieldGroup} ${locked ? 'opacity-60' : ''}`}><input id="round-target-millions" inputMode="decimal" autoComplete="off" value={draft.value} disabled={locked} onChange={(event) => setDraft({ ...draft, value: event.target.value })} aria-invalid={invalid} aria-describedby="round-target-help round-target-error" className={`${fieldInput} h-14 w-full text-2xl font-medium tabular-nums`} /><span className={`flex shrink-0 items-center border-l px-3.5 text-base ${hairline} ${secondaryText}`}>million USD</span></div>
         {invalid && <p id="round-target-error" role="alert" className={fieldError}><AlertIcon />{validation}</p>}
-        <div id="round-target-help" className={`text-sm leading-6 break-words ${secondaryText}`}>{amount !== null && <><p className="text-lg leading-7 font-semibold tabular-nums text-stone-900 dark:text-stone-50">{formatMoney(amount, 'USD')}</p><p className="tabular-nums">{formatMoney(convertMinor({ currency: 'USD', amountMinor: amount }, 'INR', snapshot.config.inrPerUsd).toString(), 'INR')}</p></>}<p className={amount !== null ? 'mt-3' : ''}>{snapshot.config.rateIsTemporary ? 'Temporary rate' : 'Conversion rate'}: US$1 = ₹{snapshot.config.inrPerUsd}</p></div>
+        <div id="round-target-help" className={`text-sm leading-6 break-words ${secondaryText}`}>{amount !== null && <><p className="text-lg leading-7 font-semibold tabular-nums text-stone-900 dark:text-stone-50">{formatMoney(amount, 'USD')}</p><p className="tabular-nums">{formatMoney(convertMinor({ currency: 'USD', amountMinor: amount }, 'INR', inrMinorPerUsd(snapshot.config)).toString(), 'INR')}</p></>}<p className={amount !== null ? 'mt-3' : ''}>{rateLine(snapshot.config)}</p></div>
       </div>
       <div className={actions}><button type="submit" disabled={locked} className={primaryButton}>{busy ? 'Saving…' : 'Save target'}</button><button type="button" disabled={busy || !!command} onClick={cancel} className={quietButton}>Cancel</button></div>
     </form>}

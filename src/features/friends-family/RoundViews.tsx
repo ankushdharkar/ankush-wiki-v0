@@ -21,7 +21,7 @@ export function RoundViews({ authId, login, ...memberProps }: ComponentProps<typ
         setExitLocked(false)
         setView(adminVisible ? 'fnf' : 'admin')
       }} className={secondaryButton}>{adminVisible ? 'Member view' : 'Admin view'}</button>
-      {exitBlocked && <p id="round-view-lock" role="status" className={`w-full text-sm leading-6 sm:text-right ${secondaryText}`}>Save or cancel the target edit to return. If its result is uncertain, retry the same change first.</p>}
+      {exitBlocked && <p id="round-view-lock" role="status" className={`w-full text-sm leading-6 sm:text-right ${secondaryText}`}>Save or cancel the target or rate edit to return. If its result is uncertain, retry the same change first.</p>}
     </nav>}
     {/* Preserve the same member subtree, including draft, stage and uncertain command. */}
     <div hidden={adminVisible}><MemberRound {...memberProps} /></div>

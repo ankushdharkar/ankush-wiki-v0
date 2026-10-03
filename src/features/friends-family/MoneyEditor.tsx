@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Money, RoundConfig } from './contract'
-import { amountError, convertMinor, decimalForScale, formatMoney, parseAmount, selectedMoney, unitScale } from './money'
+import { amountError, convertMinor, decimalForScale, formatMoney, inrMinorPerUsd, parseAmount, rateLine, selectedMoney, unitScale } from './money'
 import type { RupeeUnit } from './money'
 import { actions, AlertIcon, compactButton, fieldError, fieldGroup, fieldGroupInvalid, fieldInput, fieldLabel, fieldSelect, hairline, primaryButton, quietButton, secondaryText, SelectChevron } from './ui'
 
@@ -13,7 +13,8 @@ export function MoneyEditor({ config, initial, locked, pending, onSave, onCancel
   const [canonical, setCanonical] = useState<Money | null>(initial)
   const [value, setValue] = useState(initial ? decimalForScale(BigInt(initial.amountMinor), unitScale(initial.currency, 'Crore')) : '')
   const [showError, setShowError] = useState(false)
-  const selected = selectedMoney(canonical, currency, config.inrPerUsd)
+  const rate = inrMinorPerUsd(config)
+  const selected = selectedMoney(canonical, currency, rate)
   const error = amountError(selected?.amountMinor ?? null, config)
   const invalidDraft = value !== '' && canonical === null
 
@@ -23,14 +24,14 @@ export function MoneyEditor({ config, initial, locked, pending, onSave, onCancel
     setCanonical(amountMinor === null ? null : { currency, amountMinor })
   }
   function step(direction: bigint) {
-    const current = canonical ? convertMinor(canonical, currency, config.inrPerUsd) : 0n
+    const current = canonical ? convertMinor(canonical, currency, rate) : 0n
     const increment = currency === 'INR' ? unitScale(currency, unit) : 10_000n
     const next = current + direction * increment
     const bounded = next < 0n ? 0n : next
     edit(decimalForScale(bounded, unitScale(currency, unit)))
     setShowError(false)
   }
-  const full = canonical ? convertMinor(canonical, currency, config.inrPerUsd).toString() : null
+  const full = canonical ? convertMinor(canonical, currency, rate).toString() : null
   const otherCurrency = currency === 'INR' ? 'USD' : 'INR'
   const invalid = showError && !!error
   // The visible step text is part of each button's accessible name.
@@ -44,7 +45,7 @@ export function MoneyEditor({ config, initial, locked, pending, onSave, onCancel
           <label className="sr-only" htmlFor="commitment-currency">Currency</label>
           <select id="commitment-currency" value={currency} disabled={locked || invalidDraft} onChange={(event) => {
             const next = event.target.value as Money['currency']; setCurrency(next)
-            if (canonical) setValue(decimalForScale(convertMinor(canonical, next, config.inrPerUsd), unitScale(next, unit)))
+            if (canonical) setValue(decimalForScale(convertMinor(canonical, next, rate), unitScale(next, unit)))
           }} className={fieldSelect}>{config.currencies.map((item) => <option key={item}>{item}</option>)}</select>
           <SelectChevron />
         </div>
@@ -53,7 +54,7 @@ export function MoneyEditor({ config, initial, locked, pending, onSave, onCancel
           <label className="sr-only" htmlFor="commitment-unit">Rupee unit</label>
           <select id="commitment-unit" value={unit} disabled={locked || invalidDraft} onChange={(event) => {
             const next = event.target.value as RupeeUnit; setUnit(next)
-            if (canonical) setValue(decimalForScale(convertMinor(canonical, currency, config.inrPerUsd), unitScale(currency, next)))
+            if (canonical) setValue(decimalForScale(convertMinor(canonical, currency, rate), unitScale(currency, next)))
           }} className={fieldSelect}><option>Lakh</option><option>Crore</option></select>
           <SelectChevron />
         </div>}
@@ -65,9 +66,9 @@ export function MoneyEditor({ config, initial, locked, pending, onSave, onCancel
             {full
               ? <p className="text-lg leading-7 font-semibold tabular-nums text-stone-900 dark:text-stone-50">{formatMoney(full, currency)}</p>
               : <p>Enter the amount you would like to commit</p>}
-            {canonical && <p className="tabular-nums">About {formatMoney(convertMinor(canonical, otherCurrency, config.inrPerUsd).toString(), otherCurrency)}</p>}
+            {canonical && <p className="tabular-nums">About {formatMoney(convertMinor(canonical, otherCurrency, rate).toString(), otherCurrency)}</p>}
           </div>
-          <p id="amount-rate" className="mt-2">{config.rateIsTemporary ? 'Temporary rate' : 'Conversion rate'}: US$1 = ₹{config.inrPerUsd}</p>
+          <p id="amount-rate" className="mt-2">{rateLine(config)}</p>
         </div>
         {/* On a phone the steps sit directly under the field they change. */}
         <div className="order-first flex shrink-0 gap-2 sm:order-none">

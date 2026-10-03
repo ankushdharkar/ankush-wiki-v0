@@ -14,7 +14,7 @@ function load(file, dependencies = {}, globals = {}) {
 }
 const money = load('src/features/friends-family/money.ts')
 const privacy = load('src/services/analyticsPrivacy.ts', {}, { URL })
-const config = { minAmountMinor: '1', maxAmountMinor: '1000000000000', inrPerUsd: '95', targetUsdMinor: '200000000' }
+const config = { minAmountMinor: '1', maxAmountMinor: '1000000000000', inrMinorPerUsd: '9500', inrPerUsd: '95', targetUsdMinor: '200000000' }
 test('exact paise survive crore and lakh entry, including smallest allowed amount', () => {
   assert.equal(money.parseAmount('1.000000001', 'INR', 'Crore'), '1000000001')
   assert.equal(money.parseAmount('0.000000001', 'INR', 'Crore'), '1')
@@ -39,17 +39,17 @@ test('unit switches preserve exact amounts across repeated toggles', () => {
 test('currency toggles retain canonical amount without conversion drift', () => {
   const canonical = { currency: 'INR', amountMinor: '1000000001' }
   for (let i = 0; i < 100; i++) {
-    assert.equal(money.selectedMoney(canonical, 'USD', '95').amountMinor, '10526316')
-    assert.equal(money.selectedMoney(canonical, 'INR', '95').amountMinor, '1000000001')
+    assert.equal(money.selectedMoney(canonical, 'USD', '9500').amountMinor, '10526316')
+    assert.equal(money.selectedMoney(canonical, 'INR', '9500').amountMinor, '1000000001')
   }
 })
 test('save uses selected currency and validates converted bounds, including tiny INR to zero USD', () => {
-  assert.equal(money.selectedMoney({ currency: 'INR', amountMinor: '9500' }, 'USD', '95').currency, 'USD')
-  assert.equal(money.selectedMoney({ currency: 'INR', amountMinor: '9500' }, 'USD', '95').amountMinor, '100')
-  assert.ok(money.amountError(money.selectedMoney({ currency: 'INR', amountMinor: '1' }, 'USD', '95').amountMinor, config))
-  assert.ok(money.amountError(money.selectedMoney({ currency: 'USD', amountMinor: config.maxAmountMinor }, 'INR', '95').amountMinor, config))
-  assert.equal(money.convertMinor({ currency: 'INR', amountMinor: '47' }, 'USD', '95'), 0n)
-  assert.equal(money.convertMinor({ currency: 'INR', amountMinor: '48' }, 'USD', '95'), 1n)
+  assert.equal(money.selectedMoney({ currency: 'INR', amountMinor: '9500' }, 'USD', '9500').currency, 'USD')
+  assert.equal(money.selectedMoney({ currency: 'INR', amountMinor: '9500' }, 'USD', '9500').amountMinor, '100')
+  assert.ok(money.amountError(money.selectedMoney({ currency: 'INR', amountMinor: '1' }, 'USD', '9500').amountMinor, config))
+  assert.ok(money.amountError(money.selectedMoney({ currency: 'USD', amountMinor: config.maxAmountMinor }, 'INR', '9500').amountMinor, config))
+  assert.equal(money.convertMinor({ currency: 'INR', amountMinor: '47' }, 'USD', '9500'), 0n)
+  assert.equal(money.convertMinor({ currency: 'INR', amountMinor: '48' }, 'USD', '9500'), 1n)
 })
 test('large amounts format without floating point loss and percentages identify target share', () => {
   assert.equal(money.formatMoney('1000000000001', 'INR'), '₹10,00,00,00,000.01')
@@ -285,7 +285,9 @@ test('member conflict review cannot adopt a newer polling version without loadin
 })
 const targetHelpers = load('src/features/friends-family/roundTarget.ts', { './money': money })
 const targetComponents = load('src/features/friends-family/RoundTargetEditor.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, './api': inertApi, './money': money, './roundTarget': targetHelpers, './ui': ui })
-const targetSnapshot = { config: roundFixture.config, round: { version: '1', updatedAt: '2026-10-03T00:00:00.000Z' }, summary: { ...roundFixture.summary, totalUsdMinor: '50000000', totalInrMinor: '4750000000', progressBasisPoints: '2500', participantCount: '2' }, participants: [] }
+const rateHelpers = load('src/features/friends-family/exchangeRate.ts', { './money': money })
+const rateComponents = load('src/features/friends-family/ExchangeRateEditor.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, './api': inertApi, './money': money, './exchangeRate': rateHelpers, './ui': ui })
+const targetSnapshot = { config: roundFixture.config, round: { version: '1', updatedAt: '2026-10-03T00:00:00.000Z' }, exchangeRate: { version: '1', updatedAt: '2026-10-03T00:00:00.000Z' }, summary: { ...roundFixture.summary, totalUsdMinor: '50000000', totalInrMinor: '4750000000', progressBasisPoints: '2500', participantCount: '2' }, participants: [] }
 test('million USD entry produces exact canonical cents and rejects fractional cents/invalid formats', () => {
   assert.equal(targetHelpers.parseTargetMillions('2'), '200000000')
   assert.equal(targetHelpers.parseTargetMillions('1.00000001'), '100000001')
@@ -554,7 +556,7 @@ test('canceling an editable target releases the view-exit lock without recording
 test('dashboard unmount cancels and removes its account-specific participant query', () => {
   const cleanups = []; const calls = []
   const hooks = { useState: initial => [initial, () => {}], useRef: initial => ({ current: initial }), useEffect: effect => { const cleanup = effect(); if (cleanup) cleanups.push(cleanup) } }
-  const dashboard = load('src/features/friends-family/AdminDashboard.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({ cancelQueries: options => { calls.push(['cancel', options.queryKey]); return Promise.resolve() }, removeQueries: options => calls.push(['remove', options.queryKey]) }), useQuery: options => { calls.push(['query', options.queryKey]); return { data: targetSnapshot, dataUpdatedAt: 1 } } }, './api': inertApi, './RoundProgress': progress, './money': money, './participants': participantHelpers, './ParticipantList': { ParticipantList: () => null }, './RoundTargetEditor': targetComponents, './roundTarget': targetHelpers, './ui': ui })
+  const dashboard = load('src/features/friends-family/AdminDashboard.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({ cancelQueries: options => { calls.push(['cancel', options.queryKey]); return Promise.resolve() }, removeQueries: options => calls.push(['remove', options.queryKey]) }), useQuery: options => { calls.push(['query', options.queryKey]); return { data: targetSnapshot, dataUpdatedAt: 1 } } }, './api': inertApi, './RoundProgress': progress, './money': money, './participants': participantHelpers, './ParticipantList': { ParticipantList: () => null }, './RoundTargetEditor': targetComponents, './ExchangeRateEditor': rateComponents, './roundTarget': targetHelpers, './ui': ui })
   dashboard.AdminDashboard({ overview: adminOverview, authId: 'admin-subject', login: () => {} })
   assert.deepEqual(Array.from(calls[0][1]), ['private-friends-family', 'participants', 'admin-subject'])
   for (const cleanup of cleanups) cleanup()
@@ -603,4 +605,149 @@ test('unknown paths, including the retired /friends-and-family link, reach Not f
   }
   assert.equal(render('/invest'), 'page:FriendsAndFamily')
   assert.equal(render('/').includes('page:NotFound'), false)
+})
+
+// Exchange rate: minor-unit money maths, the admin rate editor and its dashboard wiring.
+test('a two-decimal rate (88.75) converts and rounds half up both ways without drift', () => {
+  assert.equal(money.convertMinor({ currency: 'USD', amountMinor: '1' }, 'INR', '8875'), 89n)
+  assert.equal(money.convertMinor({ currency: 'USD', amountMinor: '2' }, 'INR', '8875'), 178n)
+  assert.equal(money.convertMinor({ currency: 'USD', amountMinor: '100' }, 'INR', '8875'), 8875n)
+  assert.equal(money.convertMinor({ currency: 'INR', amountMinor: '8875' }, 'USD', '8875'), 100n)
+  assert.equal(money.convertMinor({ currency: 'INR', amountMinor: '44' }, 'USD', '8875'), 0n)
+  assert.equal(money.convertMinor({ currency: 'INR', amountMinor: '45' }, 'USD', '8875'), 1n)
+  const canonical = { currency: 'USD', amountMinor: '12345' }
+  for (let i = 0; i < 50; i++) {
+    assert.equal(money.selectedMoney(canonical, 'INR', '8875').amountMinor, '1095619')
+    assert.equal(money.selectedMoney(canonical, 'USD', '8875').amountMinor, '12345')
+  }
+  const at8875 = { ...config, inrMinorPerUsd: '8875', inrPerUsd: '88.75' }
+  assert.equal(money.ownBasisPoints({ currency: 'USD', amountMinor: '1000000' }, at8875), 50n)
+  assert.equal(money.ownBasisPoints({ currency: 'INR', amountMinor: '88750000' }, at8875), 50n)
+})
+test('one formatter renders whole rates without decimals and others with two', () => {
+  assert.equal(money.formatRate('9500'), '95')
+  assert.equal(money.formatRate('8875'), '88.75')
+  assert.equal(money.formatRate('8850'), '88.50')
+  assert.equal(money.formatRate('100000'), '1,000')
+  assert.equal(money.rateLine({ ...config, rateIsTemporary: true }), 'Temporary rate: US$1 = ₹95')
+  assert.equal(money.rateLine({ ...config, inrMinorPerUsd: '8850', rateIsTemporary: false }), 'Conversion rate: US$1 = ₹88.50')
+})
+test('without inrMinorPerUsd from an older API, the rate falls back to inrPerUsd times 100', () => {
+  assert.equal(money.inrMinorPerUsd({ inrPerUsd: '95' }), '9500')
+  assert.equal(money.inrMinorPerUsd({ inrPerUsd: '88.75' }), '8875')
+  assert.equal(money.inrMinorPerUsd({ inrMinorPerUsd: '8875', inrPerUsd: '89' }), '8875')
+  const { inrMinorPerUsd: _omitted, ...legacy } = config
+  assert.equal(money.ownBasisPoints({ currency: 'USD', amountMinor: '1000000' }, legacy), 50n)
+})
+test('the rate row shows US$1 = ₹95 and offers Change rate only to an account that can manage the round', () => {
+  const props = { snapshot: targetSnapshot, save: async () => {}, refresh: async () => targetSnapshot, onAccessDenied: () => {} }
+  const denied = renderToStaticMarkup(React.createElement(rateComponents.ExchangeRateEditor, { ...props, canManage: false }))
+  const allowed = renderToStaticMarkup(React.createElement(rateComponents.ExchangeRateEditor, { ...props, canManage: true }))
+  for (const html of [denied, allowed]) { assert.ok(html.includes('Conversion rate')); assert.ok(html.includes('US$1 = ₹95')) }
+  assert.equal(denied.includes('Change rate'), false)
+  assert.equal(denied.includes('exchange-rate-inr'), false)
+  assert.ok(allowed.includes('Change rate'))
+})
+function dashboardHarness(overview, execute) {
+  const calls = []
+  const hooks = { useState: initial => [initial, () => {}], useRef: initial => ({ current: initial }), useEffect: () => {} }
+  const client = { cancelQueries: async ({ queryKey }) => { calls.push(['cancel', queryKey]) }, removeQueries: () => {}, setQueryData: (key, data) => calls.push(['set', key, data]), invalidateQueries: async ({ queryKey }) => { calls.push(['invalidate', queryKey]) } }
+  const dashboard = load('src/features/friends-family/AdminDashboard.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => client, useQuery: () => ({ data: targetSnapshot, dataUpdatedAt: 1 }) }, './api': { ...inertApi, executeExchangeRateCommand: execute }, './RoundProgress': progress, './money': money, './participants': participantHelpers, './ParticipantList': { ParticipantList: () => null }, './RoundTargetEditor': targetComponents, './ExchangeRateEditor': rateComponents, './roundTarget': targetHelpers, './ui': ui })
+  const tree = dashboard.AdminDashboard({ overview, authId: 'admin-subject', login: () => {} })
+  return { tree, calls }
+}
+test('the dashboard places the rate row beneath the round target and grants changes only with round management', () => {
+  const managed = dashboardHarness(adminOverview, async () => {}).tree
+  const editors = []
+  findElement(managed, node => { if (node.type === targetComponents.RoundTargetEditor || node.type === rateComponents.ExchangeRateEditor) editors.push(node.type); return false })
+  assert.deepEqual(editors, [targetComponents.RoundTargetEditor, rateComponents.ExchangeRateEditor])
+  assert.equal(findElement(managed, node => node.type === rateComponents.ExchangeRateEditor).props.canManage, true)
+  const viewer = dashboardHarness({ ...adminOverview, capabilities: { canViewParticipants: true, canManageRound: false } }, async () => {}).tree
+  assert.equal(findElement(viewer, node => node.type === rateComponents.ExchangeRateEditor).props.canManage, false)
+  const saved = { ...roundFixture, currentVersion: '1', ownCommitment: { status: 'active', currency: 'USD', amountMinor: '5000', version: '1', createdAt: '2026-10-03T00:01:00.000Z' } }
+  for (const stage of ['amount', 'summary']) { const html = renderStage(stage, saved); assert.equal(html.includes('Change rate'), false); assert.equal(html.includes('exchange-rate-inr'), false) }
+})
+test('saving a rate sends the value and current rate version, then updates admin and member figures without a reload', async () => {
+  const requests = []
+  const api = load('src/features/friends-family/api.ts', { '../../services/api': { API_URL: 'http://localhost:8080' } }, { crypto: { randomUUID: () => 'rate-operation' }, AbortSignal, fetch: async (url, options) => { requests.push({ url, options }); return { ok: true, json: async () => ({ ...targetSnapshot, replayed: false }) } } })
+  await api.executeExchangeRateCommand(api.createExchangeRateCommand('1', '8875'))
+  assert.equal(requests[0].url, 'http://localhost:8080/friends-and-family/admin/exchange-rate')
+  assert.equal(requests[0].options.method, 'PUT'); assert.equal(requests[0].options.credentials, 'include'); assert.equal(requests[0].options.cache, 'no-store')
+  assert.deepEqual(JSON.parse(requests[0].options.body), { operationId: 'rate-operation', expectedVersion: '1', inrMinorPerUsd: '8875' })
+  const result = { ...targetSnapshot, exchangeRate: { version: '2', updatedAt: '2026-10-03T01:00:00.000Z' }, config: { ...targetSnapshot.config, inrMinorPerUsd: '8875', inrPerUsd: '88.75', rateIsTemporary: false }, replayed: false }
+  const sent = []
+  const state = dashboardHarness(adminOverview, async command => { sent.push(command); return result })
+  const editor = findElement(state.tree, node => node.type === rateComponents.ExchangeRateEditor)
+  assert.equal(await editor.props.save({ operationId: 'rate-operation', expectedVersion: '1', inrMinorPerUsd: '8875' }), result)
+  assert.equal(sent.length, 1)
+  const set = state.calls.find(call => call[0] === 'set')
+  assert.deepEqual(Array.from(set[1]), ['private-friends-family', 'participants', 'admin-subject']); assert.equal(set[2], result)
+  assert.ok(state.calls.some(call => call[0] === 'invalidate' && call[1][1] === 'overview'))
+  const member = renderToStaticMarkup(React.createElement(moneyEditor.MoneyEditor, { config: result.config, initial: { currency: 'USD', amountMinor: '100' }, locked: false, pending: false, onSave: () => {} }))
+  assert.ok(member.includes('Conversion rate: US$1 = ₹88.75')); assert.ok(member.includes('About ₹88.75'))
+})
+function rateHarness() {
+  const slots = []; let cursor = 0; let count = 0; const commands = []; let response; let snapshot = targetSnapshot; let latest = targetSnapshot; const editing = []
+  const hooks = {
+    useState: (initial) => { const index = cursor++; if (!(index in slots)) slots[index] = typeof initial === 'function' ? initial() : initial; return [slots[index], (next) => { slots[index] = typeof next === 'function' ? next(slots[index]) : next }] },
+    useRef: (initial) => { const index = cursor++; if (!(index in slots)) slots[index] = { current: initial }; return slots[index] },
+  }
+  const api = { ...inertApi, createExchangeRateCommand: (expectedVersion, inrMinorPerUsd) => ({ operationId: `rate-operation-${++count}`, expectedVersion, inrMinorPerUsd }) }
+  const component = load('src/features/friends-family/ExchangeRateEditor.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, './api': api, './money': money, './exchangeRate': rateHelpers, './ui': ui })
+  const render = () => { cursor = 0; return component.ExchangeRateEditor({ snapshot, canManage: true, save: (command) => { commands.push(command); return new Promise((resolve, reject) => { response = { resolve, reject } }) }, refresh: async () => { snapshot = latest; return latest }, onAccessDenied: () => {}, onEditStateChange: next => editing.push(next) }) }
+  return { render, commands, editing, get response() { return response }, setSnapshot: next => { snapshot = next }, setLatest: next => { latest = next } }
+}
+const rateInput = node => node.type === 'input' && node.props.id === 'exchange-rate-inr'
+function openRate(state) {
+  findElement(state.render(), node => node.type === 'button' && node.props.children === 'Change rate').props.onClick()
+  return state.render()
+}
+function editRate(state, value) {
+  findElement(state.render(), rateInput).props.onChange({ target: { value } })
+  return state.render()
+}
+function submitRate(tree) { findElement(tree, node => node.type === 'form').props.onSubmit({ preventDefault() {} }) }
+test('the rate editor prefills the current rate and saves a two-decimal rate with the current version', async () => {
+  const state = rateHarness(); let tree = openRate(state)
+  assert.equal(findElement(tree, rateInput).props.value, '95')
+  const html = renderToStaticMarkup(tree)
+  for (const marker of ['for="exchange-rate-inr"', 'US$1 =', '₹', 'Save rate', 'Cancel']) assert.ok(html.includes(marker), marker)
+  tree = editRate(state, '88.75'); submitRate(tree)
+  assert.deepEqual(state.commands, [{ operationId: 'rate-operation-1', expectedVersion: '1', inrMinorPerUsd: '8875' }])
+  state.response.resolve({ ...targetSnapshot, replayed: false }); await new Promise(setImmediate)
+  assert.deepEqual(state.editing, [true, false])
+  assert.equal(findElement(state.render(), node => node.type === 'form'), undefined)
+  assert.ok(renderToStaticMarkup(state.render()).includes('The conversion rate is saved.'))
+})
+test('invalid rates show an error and send nothing', () => {
+  for (const value of ['', '0', '-1', 'abc', '88.755', '0.99', '1000.01', '1,000', ' 95']) {
+    const state = rateHarness(); openRate(state); const tree = editRate(state, value); submitRate(tree)
+    assert.equal(state.commands.length, 0, value)
+    const alert = findElement(state.render(), node => node.props?.id === 'exchange-rate-error')
+    assert.ok(alert, value); assert.equal(alert.props.role, 'alert')
+    assert.equal(findElement(state.render(), rateInput).props['aria-invalid'], true)
+  }
+})
+test('a rate conflict asks the admin to review the latest rate; an uncertain failure retries the same command', async () => {
+  const uncertain = rateHarness(); openRate(uncertain); submitRate(editRate(uncertain, '90'))
+  uncertain.response.reject(Error('Response lost')); await new Promise(setImmediate)
+  let tree = uncertain.render()
+  assert.equal(findElement(tree, rateInput).props.disabled, true)
+  findElement(tree, node => node.type === 'button' && node.props.children === 'Retry same rate change').props.onClick()
+  assert.equal(uncertain.commands.length, 2); assert.equal(uncertain.commands[0], uncertain.commands[1])
+
+  const state = rateHarness(); openRate(state); editRate(state, '90')
+  state.setLatest({ ...targetSnapshot, exchangeRate: { ...targetSnapshot.exchangeRate, version: '3' }, config: { ...targetSnapshot.config, inrMinorPerUsd: '8850' } })
+  submitRate(state.render())
+  state.response.reject(new inertApi.RoundApiError(409)); await new Promise(setImmediate)
+  tree = state.render()
+  const html = renderToStaticMarkup(tree)
+  assert.ok(html.includes('The conversion rate changed in another window. Review the latest rate before continuing.'))
+  assert.ok(html.includes('Latest rate:')); assert.ok(html.includes('US$1 = ₹88.50'))
+  assert.equal(findElement(tree, rateInput).props.value, '90'); assert.equal(findElement(tree, rateInput).props.disabled, true)
+  submitRate(tree); assert.equal(state.commands.length, 1)
+  findElement(tree, node => node.type === 'button' && node.props.children === 'I reviewed this, keep my draft').props.onClick()
+  submitRate(state.render())
+  assert.equal(state.commands[1].expectedVersion, '3'); assert.equal(state.commands[1].inrMinorPerUsd, '9000')
+  assert.notEqual(state.commands[1].operationId, state.commands[0].operationId)
 })

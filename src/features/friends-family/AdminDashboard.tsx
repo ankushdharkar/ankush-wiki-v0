@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { privateFetch, RoundApiError, executeRoundTargetCommand } from './api'
-import type { ParticipantsResponse, RoundOverview, RoundTargetCommand } from './contract'
+import { executeExchangeRateCommand, executeRoundTargetCommand, privateFetch, RoundApiError } from './api'
+import type { ExchangeRateCommand, ParticipantsResponse, RoundOverview, RoundTargetCommand, RoundTargetResult } from './contract'
 import { RoundProgress } from './RoundProgress'
-import { formatMoney } from './money'
+import { formatMoney, rateLine } from './money'
 import { participantsQueryPolicy, remainingUsdMinor, searchParticipants } from './participants'
 import { ParticipantList } from './ParticipantList'
 import { RoundTargetEditor } from './RoundTargetEditor'
+import { ExchangeRateEditor } from './ExchangeRateEditor'
 import { applyRoundSnapshot } from './roundTarget'
 import { compactButton, flushSheet, hairline, MessageSheet, Notice, pageTitle, SearchIcon, searchInput, secondaryText, sectionTitle, sheet, Stat, statRow, statusText } from './ui'
 
@@ -16,6 +17,9 @@ export function AdminDashboard({ overview, authId, login, onExitLockChange }: { 
   const [accessFailure, setAccessFailure] = useState<401 | 403 | null>(null)
   const queryPolicy = participantsQueryPolicy(overview, authId)
   const [search, setSearch] = useState('')
+  // Either editor holding a draft or an uncertain command keeps the view switch locked.
+  const editing = useRef({ target: false, rate: false })
+  const overviewKey = ['private-friends-family', 'overview', authId]
   const query = useQuery({
     ...queryPolicy, enabled: queryPolicy.enabled && accessFailure === null,
     queryFn: ({ signal }) => privateFetch<ParticipantsResponse>('/friends-and-family/admin/participants', { signal }),
@@ -37,6 +41,31 @@ export function AdminDashboard({ overview, authId, login, onExitLockChange }: { 
   if (query.isPending) return <p role="status" className={statusText}>Loading the round dashboard…</p>
   if (!query.data) return <MessageSheet message="The round dashboard could not be loaded." onAction={() => void query.refetch()} actionLabel="Try again" />
   const { config, round, summary, participants } = query.data
+  const canManage = overview.capabilities.canManageRound === true
+  function reportEditing(editor: 'target' | 'rate') {
+    return (next: boolean) => {
+      editing.current = { ...editing.current, [editor]: next }
+      onExitLockChange?.(editing.current.target || editing.current.rate)
+    }
+  }
+  // Both editors confirm through the same admin snapshot update and member overview refresh.
+  function managed<C>(execute: (command: C) => Promise<RoundTargetResult>) {
+    return async (command: C) => {
+      if (!overview.capabilities.canManageRound) throw new RoundApiError(403)
+      const result = await execute(command)
+      if (mounted.current) await applyRoundSnapshot(queryClient, queryPolicy.queryKey, overviewKey, result, () => mounted.current)
+      return result
+    }
+  }
+  async function refresh() {
+    const latest = await query.refetch(); if (latest.error) throw latest.error; if (!latest.data) throw new Error('No response'); return latest.data
+  }
+  function onAccessDenied(status: 401 | 403) {
+    setAccessFailure(status)
+    void queryClient.cancelQueries({ queryKey: queryPolicy.queryKey })
+    queryClient.removeQueries({ queryKey: queryPolicy.queryKey })
+    void queryClient.invalidateQueries({ queryKey: overviewKey }).catch(() => {})
+  }
   const filtered = searchParticipants(participants, search)
   // Both totals and list come from the same server response, including during background refresh.
   const snapshot = { ...overview, config, round, summary }
@@ -50,19 +79,10 @@ export function AdminDashboard({ overview, authId, login, onExitLockChange }: { 
         <Stat label="People committed" value={new Intl.NumberFormat('en-US').format(BigInt(summary.participantCount))} />
       </dl>
       <div className={`mt-6 border-t pt-6 ${hairline}`}>
-        <RoundTargetEditor snapshot={query.data} canManage={overview.capabilities.canManageRound === true} onEditStateChange={onExitLockChange} save={async (command: RoundTargetCommand) => {
-          if (!overview.capabilities.canManageRound) throw new RoundApiError(403)
-          const result = await executeRoundTargetCommand(command)
-          if (mounted.current) await applyRoundSnapshot(queryClient, queryPolicy.queryKey, ['private-friends-family', 'overview', authId], result, () => mounted.current)
-          return result
-        }} refresh={async () => {
-          const latest = await query.refetch(); if (latest.error) throw latest.error; if (!latest.data) throw new Error('No response'); return latest.data
-        }} onAccessDenied={(status) => {
-          setAccessFailure(status)
-          void queryClient.cancelQueries({ queryKey: queryPolicy.queryKey })
-          queryClient.removeQueries({ queryKey: queryPolicy.queryKey })
-          void queryClient.invalidateQueries({ queryKey: ['private-friends-family', 'overview', authId] }).catch(() => {})
-        }} />
+        <RoundTargetEditor snapshot={query.data} canManage={canManage} onEditStateChange={reportEditing('target')} save={managed<RoundTargetCommand>(executeRoundTargetCommand)} refresh={refresh} onAccessDenied={onAccessDenied} />
+      </div>
+      <div className={`mt-6 border-t pt-6 ${hairline}`}>
+        <ExchangeRateEditor snapshot={query.data} canManage={canManage} onEditStateChange={reportEditing('rate')} save={managed<ExchangeRateCommand>(executeExchangeRateCommand)} refresh={refresh} onAccessDenied={onAccessDenied} />
       </div>
     </div>
     <section aria-labelledby="participants-heading" className={flushSheet}>
@@ -71,7 +91,7 @@ export function AdminDashboard({ overview, authId, login, onExitLockChange }: { 
         {/* Search and the rate note only help once there is something to read. */}
         {participants.length > 0 && <>
           <div className="relative"><label htmlFor="participant-search" className="sr-only">Search by name or email</label><SearchIcon /><input id="participant-search" type="search" autoComplete="off" placeholder="Search by name or email" value={search} onChange={(event) => setSearch(event.target.value)} className={searchInput} /></div>
-          <p className={`text-sm leading-6 ${secondaryText}`}>{config.rateIsTemporary ? 'Temporary rate' : 'Conversion rate'}: US$1 = ₹{config.inrPerUsd}. USD equivalents are rounded per commitment.</p>
+          <p className={`text-sm leading-6 ${secondaryText}`}>{rateLine(config)}. USD equivalents are rounded per commitment.</p>
         </>}
         {filtered.length === 0 && <p role="status" className={`py-6 text-base leading-7 ${secondaryText}`}>{participants.length ? 'No commitments match your search.' : 'No commitments have been added yet.'}</p>}
       </div>

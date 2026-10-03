@@ -1,5 +1,5 @@
 import { API_URL } from '../../services/api'
-import type { RoundCommand, RoundOverview, RoundTargetCommand, RoundTargetResult } from './contract'
+import type { ExchangeRateCommand, ExchangeRateResult, RoundCommand, RoundOverview, RoundTargetCommand, RoundTargetResult } from './contract'
 
 export class RoundApiError extends Error {
   readonly status: number
@@ -32,6 +32,15 @@ export function createRoundTargetCommand(expectedVersion: string, targetUsdMinor
 }
 export function executeRoundTargetCommand(command: RoundTargetCommand): Promise<RoundTargetResult> {
   return privateFetch('/friends-and-family/admin/round-target', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(command),
+  })
+}
+
+export function createExchangeRateCommand(expectedVersion: string, inrMinorPerUsd: string): ExchangeRateCommand {
+  return { operationId: crypto.randomUUID(), expectedVersion, inrMinorPerUsd }
+}
+export function executeExchangeRateCommand(command: ExchangeRateCommand): Promise<ExchangeRateResult> {
+  return privateFetch('/friends-and-family/admin/exchange-rate', {
     method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(command),
   })
 }

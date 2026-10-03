@@ -1,5 +1,5 @@
 import type { Participant, RoundConfig } from './contract'
-import { convertMinor, formatMoney } from './money'
+import { convertMinor, formatMoney, inrMinorPerUsd } from './money'
 import { hairline, secondaryText } from './ui'
 
 const name = 'font-medium break-words text-stone-900 dark:text-stone-50'
@@ -10,7 +10,7 @@ const rowKey = (participant: Participant) => `${participant.email}:${participant
 function CommitmentAmount({ participant, config }: { participant: Participant; config: RoundConfig }) {
   const { currency, amountMinor } = participant.commitment
   if (!currency || !amountMinor) return <span>No active commitment</span>
-  return <><p className="font-semibold tabular-nums text-stone-900 dark:text-stone-50">{formatMoney(amountMinor, currency)}</p>{currency === 'INR' && <p className={`text-sm tabular-nums ${secondaryText}`}>About {formatMoney(convertMinor({ currency, amountMinor }, 'USD', config.inrPerUsd).toString(), 'USD')}</p>}</>
+  return <><p className="font-semibold tabular-nums text-stone-900 dark:text-stone-50">{formatMoney(amountMinor, currency)}</p>{currency === 'INR' && <p className={`text-sm tabular-nums ${secondaryText}`}>About {formatMoney(convertMinor({ currency, amountMinor }, 'USD', inrMinorPerUsd(config)).toString(), 'USD')}</p>}</>
 }
 function UpdatedTime({ participant }: { participant: Participant }) {
   const { createdAt } = participant.commitment
