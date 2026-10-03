@@ -7,9 +7,8 @@ import { activeCommitmentMoney, formatMoney } from './money'
 import { remainingUsdMinor } from './participants'
 import { firstNameFrom, hasMemberHistory, initialMemberStage, memberFlowReducer } from './memberFlow'
 import type { MemberStage } from './memberFlow'
-import { story } from './content'
 import { ankushPhoto, welcomeMedia } from './assets'
-import { compactButton, hairline, label, Notice, pageTitle, primaryButton, secondaryText, sectionTitle, sheet, Signature, Stat, statRow, textLink, voice } from './ui'
+import { compactButton, label, Notice, pageTitle, primaryButton, secondaryText, sheet, Signature, Stat, statRow, textLink, voice } from './ui'
 
 interface MemberRoundProps {
   overview: RoundOverview
@@ -50,17 +49,13 @@ export function MemberRoundContent({ stage, onNext, onSaveConfirmed, ...props }:
     <p className={`${voice} flex flex-wrap items-center gap-x-2`}><span>Questions? Call me or WhatsApp me.</span><a href="mailto:ankushdharkar@gmail.com" className={textLink}>Email me</a></p>
   </div>
 }
-// The first-time letter. Its text is Ankush's own; only the greeting line is added.
+// The first-time letter. Its text is Ankush's own, including the last two paragraphs; only the greeting line is added.
 function MemberWelcome({ firstName, onNext }: { firstName: string | null; onNext: () => void }) {
-  return <Letter title="Thank you for being here." firstName={firstName} onNext={onNext} after={<>
-    {story && <section aria-labelledby="why-i-am-raising" className={`mt-8 border-t pt-8 ${hairline}`}>
-      <h2 id="why-i-am-raising" className={sectionTitle}>Why I am raising</h2>
-      <div className={`mt-3 space-y-5 ${voice}`}>{story.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div>
-    </section>}
-    {welcomeMedia && <WelcomeMediaPlayer />}
-  </>}>
+  return <Letter title="Thank you for being here." firstName={firstName} onNext={onNext} after={welcomeMedia && <WelcomeMediaPlayer />}>
     <p>Thank you for being part of this friends and family round. It means the world to me to have your support.</p>
     <p>Building a global company is tough, very, very, very tough. But I am in it for the long game, and I am humbled and extremely grateful to have your support in this journey.</p>
+    <p>I have already built the MVP. This round helps me get it to more people, faster.</p>
+    <p>Please commit only what you are comfortable with. You are under no obligation, and I do not want you to feel that you have to.</p>
   </Letter>
 }
 // A returning member reads a short note instead of the first-time letter on every visit.

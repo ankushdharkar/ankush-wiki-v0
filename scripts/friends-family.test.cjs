@@ -164,13 +164,12 @@ const moneyEditor = load('src/features/friends-family/MoneyEditor.tsx', { react:
 const inertApi = load('src/features/friends-family/api.ts', { '../../services/api': { API_URL: '' } }, { AbortSignal, crypto: { randomUUID: () => 'synthetic-operation' } })
 const panel = load('src/features/friends-family/CommitmentPanel.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({}) }, './api': inertApi, './money': money, './MoneyEditor': moneyEditor, './ui': ui })
 const progress = load('src/features/friends-family/RoundProgress.tsx', { 'react/jsx-runtime': jsxRuntime, './money': money, './ui': ui })
-// The content and assets modules are stubbed: the committed ones hold nothing, and filled-in states are exercised here only.
-const emptyContent = { story: null }
+// The assets module is stubbed: the committed one holds nothing, and filled-in states are exercised here only.
 const emptyAssets = { ankushPhoto: null, welcomeMedia: null }
-function loadMember({ react = React, content = emptyContent, assets = emptyAssets } = {}) {
+function loadMember({ react = React, assets = emptyAssets } = {}) {
   return load('src/features/friends-family/MemberRound.tsx', {
     react, 'react/jsx-runtime': jsxRuntime, './CommitmentPanel': panel, './RoundProgress': progress,
-    './money': money, './participants': participantHelpers, './memberFlow': flow, './ui': ui, './content': content, './assets': assets,
+    './money': money, './participants': participantHelpers, './memberFlow': flow, './ui': ui, './assets': assets,
   })
 }
 const member = loadMember()
@@ -805,7 +804,7 @@ test('a rate conflict asks the admin to review the latest rate; an uncertain fai
   assert.notEqual(state.commands[1].operationId, state.commands[0].operationId)
 })
 
-// Personal touches: greeting, welcome-back letter, signature, photo, story, contact line and media slot.
+// Personal touches: greeting, welcome-back letter, signature, photo, contact line and media slot.
 const savedUsd = { ...roundFixture, currentVersion: '1', ownCommitment: { status: 'active', currency: 'USD', amountMinor: '5000', version: '1', createdAt: '2026-10-03T00:01:00.000Z' } }
 const savedInr = { ...roundFixture, currentVersion: '1', ownCommitment: { status: 'active', currency: 'INR', amountMinor: '250000000', version: '1', createdAt: '2026-10-03T00:01:00.000Z' } }
 const withdrawn = { ...roundFixture, currentVersion: '2', ownCommitment: { status: 'withdrawn', currency: null, amountMinor: null, version: '2', createdAt: '2026-10-03T00:02:00.000Z' } }
@@ -844,6 +843,20 @@ test('a member with a saved commitment sees a welcome-back letter with their rec
   assert.ok(fresh.includes('Thank you for being here.')); assert.ok(fresh.includes('It means the world to me')); assert.ok(fresh.includes('very, very, very tough'))
   assert.equal(fresh.includes('Welcome back.'), false)
 })
+test('the first-time letter adds the MVP and no-obligation paragraphs before the sign-off; the welcome-back letter does not', () => {
+  const lines = ['<p>I have already built the MVP. This round helps me get it to more people, faster.</p>', '<p>Please commit only what you are comfortable with. You are under no obligation, and I do not want you to feel that you have to.</p>']
+  const fresh = renderStage('welcome', roundFixture, { memberName: 'Asha Rao' })
+  for (const line of lines) {
+    assert.ok(fresh.includes(line), line)
+    assert.ok(fresh.indexOf('very, very, very tough') < fresh.indexOf(line))
+    assert.ok(fresh.indexOf(line) < fresh.indexOf('data-signature'))
+  }
+  assert.ok(fresh.indexOf(lines[0]) < fresh.indexOf(lines[1]))
+  for (const overview of [savedUsd, savedInr, withdrawn]) {
+    const back = renderStage('welcome', overview, { memberName: 'Asha Rao' })
+    for (const marker of ['already built the MVP', 'under no obligation']) assert.equal(back.includes(marker), false, marker)
+  }
+})
 test('both letters show the signature and the photo when one is present; a missing photo leaves no image or gap', () => {
   const withPhoto = loadMember({ assets: { ...emptyAssets, ankushPhoto: '/assets/synthetic-photo.jpg' } })
   for (const overview of [roundFixture, savedUsd, withdrawn]) {
@@ -856,16 +869,6 @@ test('both letters show the signature and the photo when one is present; a missi
     assert.ok(pictured.includes('src="/assets/synthetic-photo.jpg"'))
     assert.ok(pictured.includes('data-signature'))
   }
-})
-test('"Why I am raising" appears only when its text is filled in, as plain paragraphs', () => {
-  assert.equal(renderStage('welcome').includes('Why I am raising'), false)
-  const filled = loadMember({ content: { story: ['Synthetic first paragraph.', 'Synthetic <b>second</b> paragraph.'] } })
-  const html = renderStage('welcome', roundFixture, {}, filled)
-  assert.ok(html.includes('Why I am raising'))
-  assert.ok(html.includes('<p>Synthetic first paragraph.</p>'))
-  assert.ok(html.includes('Synthetic &lt;b&gt;second&lt;/b&gt; paragraph.'))
-  assert.equal(html.includes('<b>'), false)
-  assertNoRoundTotals(html)
 })
 test('the summary always shows "Call me or WhatsApp me." with an Email me link, and no number or address as visible text', () => {
   for (const overview of [savedUsd, roundFixture]) {
@@ -889,7 +892,7 @@ test('the video or voice-note player appears only when a media file is present, 
   for (const html of [video, audio]) { assert.equal(html.toLowerCase().includes('autoplay'), false); assertNoRoundTotals(html) }
 })
 test('the welcome letters and the amount step, with every personal touch filled in, still show no round figures', () => {
-  const full = loadMember({ content: { story: ['Synthetic paragraph.'] }, assets: { ankushPhoto: '/assets/synthetic-photo.jpg', welcomeMedia: { kind: 'video', src: '/assets/welcome.mp4', type: 'video/mp4' } } })
+  const full = loadMember({ assets: { ankushPhoto: '/assets/synthetic-photo.jpg', welcomeMedia: { kind: 'video', src: '/assets/welcome.mp4', type: 'video/mp4' } } })
   for (const overview of [roundFixture, savedUsd, savedInr, withdrawn]) {
     for (const stage of ['welcome', 'amount']) assertNoRoundTotals(renderStage(stage, overview, { memberName: 'Asha Rao' }, full))
   }

@@ -15,11 +15,10 @@ The frontend contract now includes round version/updatedAt, canManageRound, and 
 ## Letters, signature and personal content
 
 - **Greeting.** The page passes the signed-in session's `user.name` down as `memberName`. `firstNameFrom` in `memberFlow.ts` is the one derivation: the first word of the trimmed name, or no first name when the name is empty or contains `@`. With a first name both letters open "Dear <first name>," and the summary's thank-you line reads "Thank you for being part of this round, <first name>." Without one, the letter opens exactly as before and the line reads "Thank you for being part of this round."
-- **First-time letter.** A member without history (`hasMemberHistory` false) sees "Thank you for being here." with Ankush's original two paragraphs, unchanged apart from the greeting line.
+- **First-time letter.** A member without history (`hasMemberHistory` false) sees "Thank you for being here." with Ankush's original two paragraphs, then two short paragraphs of his own before the sign-off: "I have already built the MVP. This round helps me get it to more people, faster." and "Please commit only what you are comfortable with. You are under no obligation, and I do not want you to feel that you have to." They are styled like the paragraphs above them. The welcome-back letter does not carry them. Nothing else in the letter changes apart from the greeting line.
 - **Welcome-back letter.** A member with history sees "Welcome back.", the greeting, then "Thank you for coming back, and for your support of this round." With an active commitment it adds "Your commitment of <amount> is recorded.", in the currency they entered (`formatMoney`). After a withdrawal it adds "You withdrew your commitment, and that is completely fine. You are always welcome here." Next behaves exactly as before. Neither letter shows round figures; only the member's own amount may appear.
 - **Signature.** Both letters close with a drawn, decorative signature (`Signature` in `ui.tsx`): an inline SVG path in `currentColor`, so it follows light and dark. It is not Ankush's real signature. The name stays available to screen readers as visually hidden text. No font or third-party request is involved.
 - **Photo.** When a photo file is present it sits beside the signature as a 56px circle. Without one, nothing renders and no gap is left.
-- **Why I am raising.** When `story` is filled in, the first-time letter shows a "Why I am raising" section after its paragraphs and before the sign-off, as plain text paragraphs (never HTML). Hidden while `story` is `null`.
 - **Video or voice note.** When a media file is present, the first-time letter shows a native player (video with `controls`, `preload="metadata"`, `playsInline`; audio with `controls`, `preload="none"`), captioned "A short video from me" or "A short voice note from me", with an accessible label. It never autoplays.
 - **Contact line.** The summary always ends with "Questions? Call me or WhatsApp me." and an **Email me** link to Ankush's email address. No phone number appears, and the address appears only in the link, never as visible text.
 - **Wording.** Member-facing labels were warmed: "Remaining" became "Still to go", "People committed" became "Friends and family so far", and the conflict line's "No active commitment" became "None at the moment".
@@ -28,9 +27,8 @@ The frontend contract now includes round version/updatedAt, canManageRound, and 
 
 1. **Photo:** put a square-ish photo at `src/assets/friends-family/ankush-photo.jpg` (`.jpeg`, `.png` or `.webp` also work). Keep it small: about 256px square and well under 50 KB (for example `sips -Z 256` on a square crop).
 2. **Video or voice note:** put one file at `src/assets/friends-family/welcome.mp4` or `welcome.webm` (video), or `welcome.m4a` or `welcome.mp3` (audio). If several are present, the order of preference is mp4, webm, m4a, mp3.
-3. **Story:** set `story` in `src/features/friends-family/content.ts` to a list of paragraphs, for example `['First paragraph.', 'Second paragraph.']`.
 
-Files are picked up by `import.meta.glob` in `assets.ts` at build time, so no code change is needed. **Everything built into the page is public:** the photo, media file and story text are part of the site's built assets and can be fetched without signing in, even though the page itself asks for sign-in. Only add what is fine for anyone to see.
+Files are picked up by `import.meta.glob` in `assets.ts` at build time, so no code change is needed. **Everything built into the page is public:** the photo and media file are part of the site's built assets and can be fetched without signing in, even though the page itself asks for sign-in. Only add what is fine for anyone to see.
 
 ## Amounts and mutations
 
