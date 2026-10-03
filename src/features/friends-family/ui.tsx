@@ -25,6 +25,8 @@ export const iconButton = `inline-flex size-11 items-center justify-center round
 export const pageTitle = 'font-serif text-2xl leading-8 font-medium text-balance text-stone-900 sm:text-3xl sm:leading-10 dark:text-stone-50'
 export const sectionTitle = 'text-lg leading-7 font-semibold text-stone-900 dark:text-stone-50'
 export const voice = 'font-serif text-base leading-7 text-stone-700 sm:text-lg sm:leading-8 dark:text-stone-300'
+// A heading over Ankush's own words. Smaller than a page title, serif like the words it heads.
+export const voiceTitle = 'font-serif text-xl leading-7 font-medium text-stone-900 dark:text-stone-50'
 export const label = 'text-sm leading-6 font-medium text-stone-600 dark:text-stone-400'
 export const secondaryText = 'text-stone-600 dark:text-stone-400'
 export const figure = 'font-semibold tracking-tight tabular-nums text-stone-900 dark:text-stone-50'
@@ -40,12 +42,12 @@ export const inset = 'rounded-md bg-stone-50 p-4 ring-1 ring-inset ring-stone-20
 // Fields. A group holds one input plus its attached selects or unit, read as one control.
 const controlFocus = 'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-teal-700 dark:focus-visible:outline-teal-400'
 export const fieldLabel = 'block text-sm leading-6 font-medium text-stone-800 dark:text-stone-200'
-export const fieldGroup = 'flex min-w-0 items-stretch overflow-hidden rounded-md border border-stone-300 bg-white dark:border-stone-700 dark:bg-stone-950'
+export const fieldGroup = 'flex min-w-0 items-stretch overflow-hidden rounded-md border border-stone-500 bg-white dark:border-stone-500 dark:bg-stone-950'
 export const fieldGroupInvalid = 'flex min-w-0 items-stretch overflow-hidden rounded-md border border-red-700 bg-white dark:border-red-400 dark:bg-stone-950'
 export const fieldInput = `min-w-0 flex-1 bg-transparent px-4 text-stone-900 placeholder:text-stone-500 disabled:cursor-not-allowed dark:text-stone-50 dark:placeholder:text-stone-400 ${controlFocus}`
 export const fieldSelect = `h-full appearance-none bg-white py-2 pr-9 pl-3.5 text-base font-medium text-stone-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-stone-950 dark:text-stone-100 dark:scheme-dark ${controlFocus}`
 export const fieldError = 'flex items-start gap-2 text-sm leading-6 text-red-700 dark:text-red-300'
-export const searchInput = `min-h-11 w-full rounded-md border border-stone-300 bg-white py-2 pr-3.5 pl-10 text-base text-stone-900 placeholder:text-stone-500 dark:border-stone-700 dark:bg-stone-950 dark:text-stone-50 dark:placeholder:text-stone-400 ${controlFocus}`
+export const searchInput = `min-h-11 w-full rounded-md border border-stone-500 bg-white py-2 pr-3.5 pl-10 text-base text-stone-900 placeholder:text-stone-500 dark:border-stone-500 dark:bg-stone-950 dark:text-stone-50 dark:placeholder:text-stone-400 ${controlFocus}`
 
 function Icon({ path, className }: { path: string; className: string }) {
   return <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className={className}><path d={path} /></svg>
@@ -130,6 +132,6 @@ export function Notice({ tone, role, className = '', children }: {
 export function MessageSheet({ message, actionLabel, onAction }: { message: string; actionLabel: string; onAction: () => void }) {
   return <div role="alert" className={`mx-auto max-w-xl ${sheet}`}>
     <p className="text-base leading-7 text-stone-800 dark:text-stone-200">{message}</p>
-    <button type="button" onClick={onAction} className={`${primaryButton} mt-6`}>{actionLabel}</button>
+    <div className={`${actions} mt-6`}><button type="button" onClick={onAction} className={primaryButton}>{actionLabel}</button></div>
   </div>
 }

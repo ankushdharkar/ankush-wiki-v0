@@ -4,7 +4,7 @@ import type { Money, RoundCommand, RoundOverview } from './contract'
 import { createCommand, executeCommand, RoundApiError } from './api'
 import { activeCommitmentMoney, formatMoney } from './money'
 import { MoneyEditor } from './MoneyEditor'
-import { actions, dangerButton, figure, inset, Notice, pageTitle, primaryButton, quietButton, secondaryButton, secondaryText, sectionTitle, sheet } from './ui'
+import { actions, dangerButton, figure, inset, Notice, pageTitle, primaryButton, quietButton, secondaryButton, secondaryText, sectionTitle, sheet, voice } from './ui'
 
 export function CommitmentPanel({ overview, queryKey, refresh, onUnauthorized, entry = false, onSaveConfirmed, firstName = null }: {
   overview: RoundOverview; queryKey: readonly string[]
@@ -75,7 +75,6 @@ export function CommitmentPanel({ overview, queryKey, refresh, onUnauthorized, e
     {/* On the entry step the question is the page title and sits above the sheet. */}
     {entry && <header><Heading className={pageTitle}>{title}</Heading><p className={`mt-3 text-base leading-7 ${secondaryText}`}>{intro}</p></header>}
     <div className={`${sheet} space-y-6`}>
-      {!entry && showEditor && <header><Heading className={sectionTitle}>{title}</Heading><p className={`mt-1 text-base leading-7 ${secondaryText}`}>{intro}</p></header>}
       {message && <Notice tone="success" role="status">{message}</Notice>}
       {error && <Notice tone="warning" role="alert"><p>{error}</p>
         {command && !busy && <button onClick={() => void submit(command)} className={primaryButton}>Retry same change</button>}
@@ -87,13 +86,15 @@ export function CommitmentPanel({ overview, queryKey, refresh, onUnauthorized, e
           }} className={secondaryButton}>I reviewed this, continue with my change</button> : <button onClick={() => void review()} disabled={busy} className={secondaryButton}>Load latest commitment</button>}
         </>}
       </Notice>}
+      {/* The outcome and any warning come first; the editor's heading follows them. */}
+      {!entry && showEditor && <Heading className={sectionTitle}>{title}</Heading>}
       {showEditor ? <MoneyEditor config={overview.config} initial={draft?.initial ?? null} pending={busy} locked={busy || !!command || conflict} onSave={(money) => {
         // Freeze the version when a new member starts a command too.
         void submit(createCommand(draft?.version ?? overview.currentVersion, money))
       }} onCancel={!entry && draft && own && !command && !conflict ? () => { setDraft(null); setError('') } : undefined} /> : <>
         <div>
           <p className={`${figure} text-3xl leading-9 break-words`}>{formatMoney(own.amountMinor, own.currency)}</p>
-          <p className={`mt-2 text-base leading-7 ${secondaryText}`}>{intro}</p>
+          <p className={`${voice} mt-2`}>{intro}</p>
         </div>
         <div className={actions}><button disabled={busy || !!command || conflict} onClick={() => { setDraft({ initial: own, version: overview.currentVersion }); setMessage(''); setError(''); setConfirmWithdraw(false) }} className={secondaryButton}>Change commitment</button><button disabled={busy || !!command || conflict} onClick={() => { setConfirmWithdraw(true); withdrawVersion.current = overview.currentVersion; setMessage('') }} className={quietButton}>Withdraw commitment</button></div>
         {confirmWithdraw && <div className={inset}><p className="text-base leading-7 text-stone-900 dark:text-stone-100">Withdraw your {formatMoney(own.amountMinor, own.currency)} commitment?</p><div className={`${actions} mt-3`}><button disabled={busy || !!command || conflict} onClick={() => void submit(createCommand(withdrawVersion.current))} className={dangerButton}>{busy ? 'Withdrawing…' : 'Yes, withdraw'}</button><button disabled={busy || !!command || conflict} onClick={() => setConfirmWithdraw(false)} className={quietButton}>Keep commitment</button></div></div>}

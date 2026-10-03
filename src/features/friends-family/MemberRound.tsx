@@ -6,7 +6,7 @@ import { activeCommitmentMoney, formatMoney } from './money'
 import { firstNameFrom, initialMemberStage, letterVariant, memberFlowReducer } from './memberFlow'
 import type { LetterVariant, MemberStage } from './memberFlow'
 import { ankushPhoto, welcomeMedia } from './assets'
-import { compactButton, cornerLink, Disclosure, hairline, label, Notice, pageTitle, primaryButton, secondaryText, sectionTitle, sheet, Signature, textLink, voice } from './ui'
+import { actions, compactButton, cornerLink, Disclosure, hairline, label, Notice, pageTitle, primaryButton, secondaryText, sheet, Signature, textLink, voice, voiceTitle } from './ui'
 
 interface MemberRoundProps {
   overview: RoundOverview
@@ -31,15 +31,20 @@ export function MemberRoundContent({ stage, onNext, onSaveConfirmed, ...props }:
   const refreshNotice = props.refreshFailed && <Notice tone="warning" role="status"><p>The latest update could not be loaded.</p><button type="button" onClick={() => void props.refresh().catch(() => {})} className={compactButton}>Retry</button></Notice>
   if (stage === 'amount') return <div className="mx-auto max-w-xl space-y-6">{panel}{refreshNotice}</div>
   // No round figures here, for any member or the admin: the round card lives only in the admin overview.
-  // The TrueHuman block comes first as its own section; "Your commitment" then heads only the commitment part below it.
-  return <div className="mx-auto max-w-xl space-y-12">
-    <TrueHumanBlock />
+  // The commitment comes first. "What I am building" and the contact line follow as one quiet postscript under a hairline.
+  // The amount step stays its own branch above, so no saved notice carries over into the summary after a first save.
+  const hasActive = activeCommitmentMoney(props.overview) !== null
+  return <div className="mx-auto max-w-xl space-y-10">
     <div className="space-y-8">
       <header>
         <h1 className={pageTitle}>Your commitment</h1>
-        <p className={`mt-3 text-base leading-7 ${secondaryText}`}>Your commitment stays yours to manage. You can change it or withdraw it here.</p>
+        {/* Only an active commitment can be changed or withdrawn, so the line appears only then. */}
+        {hasActive && <p className={`mt-3 text-base leading-7 ${secondaryText}`}>Your commitment stays yours to manage. You can change it or withdraw it here.</p>}
       </header>
       <div className="min-w-0 space-y-6">{panel}{refreshNotice}</div>
+    </div>
+    <div className={`space-y-4 border-t pt-8 ${hairline}`}>
+      <TrueHumanBlock />
       {/* The address lives only in the link; the people on this page already have Ankush's number. */}
       <p className={`${voice} flex flex-wrap items-center gap-x-2`}><span>Questions? Call me or WhatsApp me.</span><a href="mailto:ankushdharkar@gmail.com" className={textLink}>Email me</a></p>
     </div>
@@ -51,18 +56,19 @@ const trueHumanLinks: [string, string][] = [
   ['Paul Graham on X', 'https://x.com/paulg/status/2103050328270946328'],
   ['Nikita Bier on X', 'https://x.com/nikitabier/status/2102432368158245252'],
 ]
-// Ankush's own two lines, in his voice, on the member summary only.
+// Ankush's own two lines, in his voice, on the member summary only. No sheet: it reads as a postscript to the commitment.
 function TrueHumanBlock() {
-  return <section aria-labelledby="truehuman-heading" className={sheet}>
-    <h2 id="truehuman-heading" className={sectionTitle}>What I am building</h2>
-    <div className={`mt-4 space-y-4 ${voice}`}>
+  return <section aria-labelledby="truehuman-heading">
+    <h2 id="truehuman-heading" className={voiceTitle}>What I am building</h2>
+    <div className={`mt-3 space-y-4 ${voice}`}>
       <p>Online, it is getting harder to know who is real and who to trust.</p>
       <p>TrueHuman fixes that. Think of it as what a CIBIL or FICO score does for credit, but for trust between people online.</p>
     </div>
-    <div className={`mt-6 border-t pt-2 ${hairline}`}>
+    <div className="mt-2">
       <Disclosure summary="Why this matters now">
+        <p id="truehuman-links-note" className={`text-sm leading-6 ${secondaryText}`}>Two posts on X. Each opens in a new tab.</p>
         <ul className="flex flex-col items-start pb-1 sm:flex-row sm:gap-x-6">
-          {trueHumanLinks.map(([name, href]) => <li key={href}><a href={href} target="_blank" rel="noopener noreferrer" className={textLink}>{name}</a></li>)}
+          {trueHumanLinks.map(([name, href]) => <li key={href}><a href={href} target="_blank" rel="noopener noreferrer" aria-describedby="truehuman-links-note" className={textLink}>{name}</a></li>)}
         </ul>
       </Disclosure>
     </div>
@@ -107,10 +113,10 @@ function Letter({ title, firstName, onNext, corner, children, after }: LetterPro
     <div className={`mt-6 space-y-5 ${voice}`}>{firstName && <p>Dear {firstName},</p>}{children}</div>
     {after}
     <div className="mt-8 flex items-center gap-4 text-stone-800 dark:text-stone-200">
-      {ankushPhoto && <img data-photo src={ankushPhoto} alt="" width={56} height={56} className="size-14 shrink-0 rounded-full bg-stone-100 object-cover ring-1 ring-stone-900/10 dark:bg-stone-800 dark:ring-white/10" />}
+      {ankushPhoto && <img data-photo src={ankushPhoto} alt="" width={56} height={56} className="size-14 shrink-0 rounded-full bg-stone-100 object-cover ring-1 ring-stone-900/10 dark:bg-stone-800 dark:ring-white/10 dark:brightness-80" />}
       <Signature className="h-12 sm:h-14" />
     </div>
-    <button type="button" onClick={onNext} className={`${primaryButton} mt-8`}>Next</button>
+    <div className={`${actions} mt-8`}><button type="button" onClick={onNext} className={primaryButton}>Next</button></div>
   </section>
 }
 // Never autoplays. The caption names what it is; the label repeats it for assistive technology.

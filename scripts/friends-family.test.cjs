@@ -1180,19 +1180,22 @@ const trueHumanLinks = [
 ]
 // Every member state that reaches the summary: with a commitment (USD and INR), after a withdrawal, and the admin's own member view.
 const summaryStates = [savedUsd, savedInr, withdrawn, adminWith(savedUsd), adminWith(withdrawn)]
-test('the member summary carries the TrueHuman block, its heading and two paragraphs in order, before the commitment title and panel', () => {
+test('the member summary carries the TrueHuman block, its heading and two paragraphs in order, after the commitment title and panel', () => {
   for (const overview of summaryStates) {
     const html = renderStage('summary', overview, { memberName: 'Asha Rao' })
+    const active = overview.ownCommitment?.status === 'active'
     const heading = html.indexOf('>What I am building</h2>')
     const first = html.indexOf(`>${trueHumanLines[0]}</p>`)
     const second = html.indexOf(`>${trueHumanLines[1]}</p>`)
     const title = html.indexOf('>Your commitment</h1>')
     const subtitle = html.indexOf('Your commitment stays yours to manage.')
-    const panel = html.indexOf(overview.ownCommitment?.status === 'active' ? 'Change commitment' : 'Make your commitment')
+    const panel = html.indexOf(active ? 'Change commitment' : 'Make your commitment')
     const contact = html.indexOf('Call me or WhatsApp me.')
-    for (const [name, at] of Object.entries({ heading, first, second, title, subtitle, panel, contact })) assert.ok(at >= 0, name)
-    // The block comes first, then "Your commitment" heads the subtitle and the panel, and the contact line stays last.
-    assert.ok(heading < first && first < second && second < title && title < subtitle && subtitle < panel && panel < contact)
+    for (const [name, at] of Object.entries({ heading, first, second, title, panel, contact })) assert.ok(at >= 0, name)
+    // The subtitle offers to change or withdraw, so it appears only while there is an active commitment.
+    assert.equal(subtitle >= 0, active, 'subtitle only with an active commitment')
+    // "Your commitment" heads the subtitle and the panel, then the block follows as a postscript, and the contact line stays last.
+    assert.ok(title < panel && (!active || (title < subtitle && subtitle < panel)) && panel < heading && heading < first && first < second && second < contact)
     // The block's paragraphs use Ankush's serif voice, and the block is labelled by its own heading, not by "Your commitment".
     const block = html.match(/<section aria-labelledby="([^"]+)"[^>]*>[\s\S]*?<\/section>/)
     assert.ok(block, 'block section')
