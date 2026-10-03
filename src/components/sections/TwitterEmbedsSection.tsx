@@ -1,11 +1,16 @@
 import RevealAnimation from '../ui/RevealAnimation'
 import { useEffect } from 'react'
 import { BsTwitter } from 'react-icons/bs'
+import type { IconType } from 'react-icons'
 import { TWITTER_EMBEDS } from '../../config/links'
 
 declare global {
   interface Window {
-    twttr: any;
+    twttr?: {
+      widgets?: {
+        load: () => void;
+      };
+    };
   }
 }
 
@@ -19,7 +24,7 @@ type TweetType = {
   description: string;
   url: string;
   embedId: string;
-  icon: any;
+  icon: IconType;
   color: string;
 }
 
