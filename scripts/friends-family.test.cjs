@@ -973,3 +973,101 @@ test('the admin overview shows the "Yours" line with the amount and percent of t
   assert.ok(html.includes('data-own-swatch'))
   assert.equal(renderToStaticMarkup(dashboardWith(adminOverview, targetSnapshot)).includes('of the target'), false)
 })
+
+// Admin letter preview: the admin can read each welcome letter as a member in that state would, without writing anything.
+test('one derivation names the letter variant, including history without an active or withdrawn commitment', () => {
+  assert.equal(flow.letterVariant(roundFixture), 'new')
+  assert.equal(flow.letterVariant(savedUsd), 'returning')
+  assert.equal(flow.letterVariant(withdrawn), 'withdrawn')
+  assert.equal(flow.letterVariant({ ...roundFixture, currentVersion: '1' }), 'returning')
+  assert.equal(flow.letterVariant({ ...roundFixture, ownCommitment: { status: 'active' } }), 'returning')
+  for (const overview of [roundFixture, savedUsd, withdrawn, ...historyFixtures]) assert.equal(flow.letterVariant(overview) !== 'new', flow.hasMemberHistory(overview))
+  // History without a recorded or withdrawn commitment keeps the short thank-you note.
+  const bare = renderStage('welcome', { ...roundFixture, currentVersion: '1' })
+  assert.ok(bare.includes('Welcome back.')); assert.ok(bare.includes('Thank you for coming back'))
+  for (const marker of ['is recorded', 'You withdrew']) assert.equal(bare.includes(marker), false, marker)
+})
+// Walk into function components too, so controls rendered inside the letter can be pressed.
+function findDeep(node, predicate) {
+  if (Array.isArray(node)) { for (const child of node) { const match = findDeep(child, predicate); if (match) return match } return undefined }
+  if (!node || typeof node !== 'object') return undefined
+  if (typeof node.type === 'function') return findDeep(node.type(node.props), predicate)
+  if (predicate(node)) return node
+  return findDeep(node.props?.children, predicate)
+}
+function previewHarness(overview) {
+  let stage; let mounted = false; const slots = []; let cursor = 0; const dispatched = []
+  const hooks = {
+    useReducer: (reducer, arg, init) => { if (!mounted) { stage = init ? init(arg) : arg; mounted = true } return [stage, event => { dispatched.push(event); stage = reducer(stage, event) }] },
+    useState: initial => { const index = cursor++; if (!(index in slots)) slots[index] = typeof initial === 'function' ? initial() : initial; return [slots[index], next => { slots[index] = typeof next === 'function' ? next(slots[index]) : next }] },
+  }
+  const component = loadMember({ react: hooks })
+  const props = { ...memberProps, overview, memberName: 'Admin Example' }
+  const button = name => { cursor = 0; return findDeep(component.MemberRound(props), node => node.type === 'button' && node.props.children === name) }
+  return {
+    html: () => { cursor = 0; return renderToStaticMarkup(React.createElement(component.MemberRound, props)) },
+    button, press: name => button(name).props.onClick(), dispatched, get stage() { return stage },
+  }
+}
+const previewLabels = ['New', 'Returning', 'Withdrawn']
+const adminWith = overview => ({ ...overview, capabilities: { canViewParticipants: true, canManageRound: true } })
+test('a member who cannot manage the round never sees the letter preview links', () => {
+  for (const overview of [roundFixture, savedUsd, withdrawn, { ...roundFixture, capabilities: { canViewParticipants: true, canManageRound: false } }]) {
+    const state = previewHarness(overview)
+    for (const name of previewLabels) assert.equal(state.button(name), undefined, name)
+    const html = state.html()
+    assert.equal(html.includes('Preview the letter'), false)
+    for (const name of previewLabels) assert.equal(html.includes(`>${name}</button>`), false, name)
+  }
+})
+test('the admin sees New, Returning and Withdrawn on the welcome letter, with the real state selected', () => {
+  for (const [overview, real] of [[adminOverview, 'New'], [adminWith(savedUsd), 'Returning'], [adminWith(withdrawn), 'Withdrawn']]) {
+    const state = previewHarness(overview)
+    const html = state.html()
+    assert.ok(html.includes('Preview the letter'))
+    for (const name of previewLabels) {
+      assert.ok(html.includes(`>${name}</button>`), name)
+      assert.equal(state.button(name).props['aria-pressed'], name === real, `${real}: ${name}`)
+    }
+  }
+  assertNoRoundTotals(previewHarness(adminWith(savedUsd)).html())
+})
+test('pressing New shows the first-time letter even when the admin has history', () => {
+  const state = previewHarness(adminWith(savedUsd))
+  assert.ok(state.html().includes('Welcome back.'))
+  state.press('New')
+  const html = state.html()
+  assert.ok(html.includes('Thank you for being here.')); assert.ok(html.includes('It means the world to me'))
+  assert.equal(html.includes('Welcome back.'), false)
+  assert.equal(state.button('New').props['aria-pressed'], true)
+  assert.equal(state.button('Returning').props['aria-pressed'], false)
+})
+test('pressing Returning shows the recorded-commitment line, with the admin amount or a sample one', () => {
+  const own = previewHarness(adminWith(withdrawn)); own.press('Returning')
+  assert.ok(own.html().includes('Welcome back.'))
+  assert.ok(own.html().includes('Your commitment of ₹5,00,000 is recorded.'))
+  assert.equal(own.html().includes('You withdrew'), false)
+  const fresh = previewHarness(adminOverview); fresh.press('Returning')
+  assert.ok(fresh.html().includes('Your commitment of ₹5,00,000 is recorded.'))
+  const saved = previewHarness(adminWith(savedUsd)); saved.press('New'); saved.press('Returning')
+  assert.ok(saved.html().includes('Your commitment of US$50 is recorded.'))
+})
+test('pressing Withdrawn shows the withdrew line without any amount', () => {
+  for (const overview of [adminOverview, adminWith(savedUsd)]) {
+    const state = previewHarness(overview); state.press('Withdrawn')
+    const html = state.html()
+    assert.ok(html.includes('Welcome back.'))
+    assert.ok(html.includes('You withdrew your commitment, and that is completely fine. You are always welcome here.'))
+    for (const marker of ['is recorded', 'It means the world to me']) assert.equal(html.includes(marker), false, marker)
+  }
+})
+test('Next after a preview follows the admin real history and sends the real overview, writing nothing', () => {
+  const fresh = adminOverview
+  const state = previewHarness(fresh); state.press('Withdrawn'); state.press('Next')
+  assert.equal(state.stage, 'amount')
+  assert.equal(state.dispatched.length, 1); assert.equal(state.dispatched[0].overview, fresh)
+  const saved = adminWith(savedUsd)
+  const back = previewHarness(saved); back.press('New'); back.press('Next')
+  assert.equal(back.stage, 'summary')
+  assert.equal(back.dispatched[0].overview, saved)
+})

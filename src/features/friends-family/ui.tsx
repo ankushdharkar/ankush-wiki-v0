@@ -17,6 +17,8 @@ export const dangerButton = `${buttonBase} bg-red-50 px-4 text-base text-red-800
 export const actions = 'flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3'
 // A link inside running text. Underlined, so color is not its only signal, and 44px tall to tap.
 export const textLink = `inline-flex min-h-11 items-center rounded-sm font-medium text-teal-800 underline decoration-teal-800/40 underline-offset-4 hover:decoration-teal-800 dark:text-teal-300 dark:decoration-teal-300/50 dark:hover:decoration-teal-300 ${focusRing}`
+// Quiet admin chrome: small secondary text, underlined while it is the chosen option.
+export const cornerLink = `rounded-sm text-xs leading-5 font-medium text-stone-500 underline-offset-4 hover:text-stone-800 aria-pressed:text-stone-900 aria-pressed:underline dark:text-stone-400 dark:hover:text-stone-100 dark:aria-pressed:text-stone-50 ${focusRing}`
 export const iconButton = `inline-flex size-11 items-center justify-center rounded-md text-stone-600 transition-[color,background-color] duration-150 motion-reduce:transition-none hover:bg-stone-200/70 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-100 ${focusRing}`
 
 // Text. Serif is reserved for page titles and for Ankush's own first-person words.

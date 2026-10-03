@@ -7,6 +7,12 @@ export type MemberFlowEvent = { type: 'next'; overview: RoundOverview } | { type
 export function hasMemberHistory(overview: RoundOverview): boolean {
   return overview.ownCommitment !== null || BigInt(overview.currentVersion) > 0n
 }
+export type LetterVariant = 'new' | 'returning' | 'withdrawn'
+// The one authority for which welcome letter an overview produces. History without an active or withdrawn commitment reads as returning.
+export function letterVariant(overview: RoundOverview): LetterVariant {
+  if (!hasMemberHistory(overview)) return 'new'
+  return overview.ownCommitment?.status === 'withdrawn' ? 'withdrawn' : 'returning'
+}
 // Every page load starts at the welcome letter, for every signed-in member.
 export function initialMemberStage(): MemberStage {
   return 'welcome'

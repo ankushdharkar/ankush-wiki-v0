@@ -1,14 +1,14 @@
-import { useReducer } from 'react'
+import { useReducer, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { RoundOverview } from './contract'
+import type { Money, RoundOverview } from './contract'
 import { CommitmentPanel } from './CommitmentPanel'
 import { RoundProgress } from './RoundProgress'
 import { activeCommitmentMoney, formatMoney } from './money'
 import { remainingUsdMinor } from './participants'
-import { firstNameFrom, hasMemberHistory, initialMemberStage, memberFlowReducer } from './memberFlow'
-import type { MemberStage } from './memberFlow'
+import { firstNameFrom, initialMemberStage, letterVariant, memberFlowReducer } from './memberFlow'
+import type { LetterVariant, MemberStage } from './memberFlow'
 import { ankushPhoto, welcomeMedia } from './assets'
-import { compactButton, label, Notice, pageTitle, primaryButton, secondaryText, sheet, Signature, Stat, statRow, textLink, voice } from './ui'
+import { compactButton, cornerLink, label, Notice, pageTitle, primaryButton, secondaryText, sheet, Signature, Stat, statRow, textLink, voice } from './ui'
 
 interface MemberRoundProps {
   overview: RoundOverview
@@ -28,7 +28,7 @@ export function MemberRoundContent({ stage, onNext, onSaveConfirmed, ...props }:
   stage: MemberStage; onNext: () => void; onSaveConfirmed: () => void
 }) {
   const firstName = firstNameFrom(props.memberName)
-  if (stage === 'welcome') return hasMemberHistory(props.overview) ? <WelcomeBack overview={props.overview} firstName={firstName} onNext={onNext} /> : <MemberWelcome firstName={firstName} onNext={onNext} />
+  if (stage === 'welcome') return <WelcomeLetter overview={props.overview} firstName={firstName} onNext={onNext} />
   const panel = <CommitmentPanel overview={props.overview} queryKey={props.queryKey} refresh={props.refresh} onUnauthorized={props.onUnauthorized} entry={stage === 'amount'} onSaveConfirmed={onSaveConfirmed} firstName={firstName} />
   const refreshNotice = props.refreshFailed && <Notice tone="warning" role="status"><p>The latest update could not be loaded.</p><button type="button" onClick={() => void props.refresh().catch(() => {})} className={compactButton}>Retry</button></Notice>
   if (stage === 'amount') return <div className="mx-auto max-w-xl space-y-6">{panel}{refreshNotice}</div>
@@ -49,9 +49,24 @@ export function MemberRoundContent({ stage, onNext, onSaveConfirmed, ...props }:
     <p className={`${voice} flex flex-wrap items-center gap-x-2`}><span>Questions? Call me or WhatsApp me.</span><a href="mailto:ankushdharkar@gmail.com" className={textLink}>Email me</a></p>
   </div>
 }
+const previewVariants: [LetterVariant, string][] = [['new', 'New'], ['returning', 'Returning'], ['withdrawn', 'Withdrawn']]
+// Shown in a previewed returning letter when the admin has no active commitment of their own.
+const sampleMoney: Money = { currency: 'INR', amountMinor: '50000000' }
+// The admin can read any letter as a member in that state would. Local only: nothing is sent, and Next still judges the real overview.
+function WelcomeLetter({ overview, firstName, onNext }: { overview: RoundOverview; firstName: string | null; onNext: () => void }) {
+  const [preview, setPreview] = useState<LetterVariant | null>(null)
+  const own = activeCommitmentMoney(overview)
+  const variant = preview ?? letterVariant(overview)
+  const corner = overview.capabilities.canManageRound === true && <div role="group" aria-label="Preview the letter as" className="absolute top-1 right-6 flex gap-3 opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-within:opacity-100 motion-reduce:transition-none sm:right-8">
+    {previewVariants.map(([value, name]) => <button key={value} type="button" aria-pressed={value === variant} onClick={() => setPreview(value)} className={cornerLink}>{name}</button>)}
+  </div>
+  if (variant === 'new') return <MemberWelcome firstName={firstName} onNext={onNext} corner={corner} />
+  return <WelcomeBack money={preview ? own ?? sampleMoney : own} withdrawn={variant === 'withdrawn'} firstName={firstName} onNext={onNext} corner={corner} />
+}
+interface LetterProps { firstName: string | null; onNext: () => void; corner?: ReactNode }
 // The first-time letter. Its text is Ankush's own, including the last two paragraphs; only the greeting line is added.
-function MemberWelcome({ firstName, onNext }: { firstName: string | null; onNext: () => void }) {
-  return <Letter title="Thank you for being here." firstName={firstName} onNext={onNext} after={welcomeMedia && <WelcomeMediaPlayer />}>
+function MemberWelcome({ firstName, onNext, corner }: LetterProps) {
+  return <Letter title="Thank you for being here." firstName={firstName} onNext={onNext} corner={corner} after={welcomeMedia && <WelcomeMediaPlayer />}>
     <p>Thank you for being part of this friends and family round. It means the world to me to have your support.</p>
     <p>Building a global company is tough, very, very, very tough. But I am in it for the long game, and I am humbled and extremely grateful to have your support in this journey.</p>
     <p>I have already built the MVP. This round helps me get it to more people, faster.</p>
@@ -59,16 +74,16 @@ function MemberWelcome({ firstName, onNext }: { firstName: string | null; onNext
   </Letter>
 }
 // A returning member reads a short note instead of the first-time letter on every visit.
-function WelcomeBack({ overview, firstName, onNext }: { overview: RoundOverview; firstName: string | null; onNext: () => void }) {
-  const own = activeCommitmentMoney(overview)
-  return <Letter title="Welcome back." firstName={firstName} onNext={onNext}>
+function WelcomeBack({ money, withdrawn, firstName, onNext, corner }: LetterProps & { money: Money | null; withdrawn: boolean }) {
+  return <Letter title="Welcome back." firstName={firstName} onNext={onNext} corner={corner}>
     <p>Thank you for coming back, and for your support of this round.</p>
-    {own ? <p>Your commitment of {formatMoney(own.amountMinor, own.currency)} is recorded.</p>
-      : overview.ownCommitment?.status === 'withdrawn' && <p>You withdrew your commitment, and that is completely fine. You are always welcome here.</p>}
+    {withdrawn ? <p>You withdrew your commitment, and that is completely fine. You are always welcome here.</p>
+      : money && <p>Your commitment of {formatMoney(money.amountMinor, money.currency)} is recorded.</p>}
   </Letter>
 }
-function Letter({ title, firstName, onNext, children, after }: { title: string; firstName: string | null; onNext: () => void; children: ReactNode; after?: ReactNode }) {
-  return <section className={`mx-auto max-w-xl ${sheet}`}>
+function Letter({ title, firstName, onNext, corner, children, after }: LetterProps & { title: string; children: ReactNode; after?: ReactNode }) {
+  return <section className={`group relative mx-auto max-w-xl ${sheet}`}>
+    {corner}
     <h1 className={pageTitle}>{title}</h1>
     <div className={`mt-6 space-y-5 ${voice}`}>{firstName && <p>Dear {firstName},</p>}{children}</div>
     {after}
