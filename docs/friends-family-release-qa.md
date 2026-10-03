@@ -4,7 +4,7 @@ Reviewed on 2026-10-02 UTC (2026-10-03 Asia/Kolkata). The feature is implemented
 
 ## Scope and decisions
 
-- Hidden authenticated `/friends-and-family`, absent from public navigation. Anyone signed in with the link can participate; there is no invitation list.
+- Hidden authenticated `/invest`, absent from public navigation. Anyone signed in with the link can participate; there is no invitation list.
 - The round starts with a US$2,000,000 target; the verified admin can change it through append-only target events. New members see the thank-you welcome, then an empty INR/Crore amount step. Only a confirmed explicit save reveals round totals. Returning members with active or withdrawn history go directly to the summary. Lakh/Crore controls and USD input remain available, with no lakh minimum. Exact integer paise/cents are used throughout.
 - The server owns the temporary INR 95 per USD rate. Future rate management is deferred. Aggregate USD cents round once after exact summation.
 - Members receive only aggregates and their own commitment. The server separately grants the participant dashboard to `ankushdharkar@gmail.com` only when the issuer-verified session email claim is true.

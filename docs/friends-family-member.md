@@ -1,6 +1,6 @@
 # Private member page
 
-`/friends-and-family` (including trailing slash) renders an unlisted private shell, with no global navigation or transition wrapper. The page is noindex/nofollow/noarchive. Anonymous visitors see only Google sign-in; the login and logout return to this route. Every account, including the admin, starts in the regular FnF view. No participant endpoint is fetched before explicitly opening the capability-gated Admin View.
+`/invest` (including trailing slash) renders an unlisted private shell, with no global navigation or transition wrapper. The page is noindex/nofollow/noarchive. Anonymous visitors see only Google sign-in; the login and logout return to this route. Every account, including the admin, starts in the regular FnF view. No participant endpoint is fetched before explicitly opening the capability-gated Admin View.
 
 ## Current member flow
 

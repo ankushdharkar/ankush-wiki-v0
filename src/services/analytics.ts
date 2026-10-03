@@ -1,5 +1,5 @@
 import posthog from 'posthog-js'
-import { isPrivateAnalyticsPath, isPrivateAnalyticsUrl } from './analyticsPrivacy'
+import { isPrivateAnalyticsPath, isPrivateAnalyticsUrl, isPrivateNetworkUrl } from './analyticsPrivacy'
 export { isPrivateAnalyticsPath } from './analyticsPrivacy'
 
 // PostHog configuration
@@ -67,7 +67,7 @@ export function initAnalytics() {
     session_recording: {
       blockSelector: '[data-private-round]', maskTextSelector: '[data-private-round]', maskAllInputs: true,
       // Drop financial request/response capture even if it completes after leaving this route.
-      maskCapturedNetworkRequestFn: (request) => isPrivateAnalyticsUrl(request.name) ? null : request,
+      maskCapturedNetworkRequestFn: (request) => isPrivateNetworkUrl(request.name) ? null : request,
     },
     api_host: POSTHOG_HOST,
     // Capture pageviews manually via usePageTracking hook for SPA

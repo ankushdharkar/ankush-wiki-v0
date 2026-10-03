@@ -78,9 +78,10 @@ test('authentication and stale versions retain distinct typed error statuses', a
   }
 })
 test('private path matching covers trailing slash, descendants and URLs without blocking unrelated pages', () => {
-  for (const item of ['/friends-and-family', '/friends-and-family/', '/friends-and-family/admin']) assert.equal(privacy.isPrivateAnalyticsPath(item), true)
-  assert.equal(privacy.isPrivateAnalyticsUrl('https://ankush.wiki/friends-and-family?x=1'), true)
-  assert.equal(privacy.isPrivateAnalyticsPath('/friends-and-family-public'), false)
+  for (const item of ['/invest', '/invest/', '/invest/admin']) assert.equal(privacy.isPrivateAnalyticsPath(item), true)
+  assert.equal(privacy.isPrivateAnalyticsUrl('https://ankush.wiki/invest?x=1'), true)
+  for (const item of ['/investors', '/invest-public']) assert.equal(privacy.isPrivateAnalyticsPath(item), false)
+  assert.equal(privacy.isPrivateAnalyticsPath('/friends-and-family'), false)
   assert.equal(privacy.isPrivateAnalyticsPath('/new'), false)
 })
 
@@ -96,7 +97,7 @@ function analyticsHarness(initialPath) {
   return { calls, callbacks, configs, window, module }
 }
 test('direct private load does not initialize analytics or identify the member', () => {
-  const state = analyticsHarness('/friends-and-family/')
+  const state = analyticsHarness('/invest/')
   state.module.installAnalyticsPrivacyGuard(); state.module.syncAnalyticsRoute()
   state.module.identifyUser('synthetic-member', { email: 'synthetic@example.test' }); state.module.trackEvent('financial-edit')
   assert.equal(state.configs.length, 0); assert.equal(state.calls.length, 0)
@@ -106,19 +107,19 @@ test('SPA entry stops recording before navigation, blocks delayed callbacks, and
   state.module.installAnalyticsPrivacyGuard(); state.module.syncAnalyticsRoute()
   assert.equal(state.configs.length, 1)
   state.module.trackEvent('public-event'); assert.equal(state.calls.filter(call => call[0] === 'capture').length, 1)
-  state.window.history.pushState(null, '', '/friends-and-family')
+  state.window.history.pushState(null, '', '/invest')
   assert.ok(state.calls.some(call => call[0] === 'stop'))
   state.module.identifyUser('member', { email: 'synthetic@example.test' }); state.module.trackEvent('financial-edit')
   for (const callback of state.callbacks.error ?? []) callback({ message: 'private financial data' })
   assert.equal(state.calls.filter(call => call[0] === 'capture').length, 1)
   assert.equal(state.calls.filter(call => call[0] === 'identify').length, 0)
-  assert.equal(state.configs[0].before_send({ properties: { $current_url: 'https://ankush.wiki/friends-and-family' } }), null)
+  assert.equal(state.configs[0].before_send({ properties: { $current_url: 'https://ankush.wiki/invest' } }), null)
   assert.equal(state.configs[0].session_recording.maskCapturedNetworkRequestFn({ name: 'https://api.example.test/friends-and-family/commitment' }), null)
   state.window.history.pushState(null, '', '/new'); state.module.syncAnalyticsRoute(); state.module.trackEvent('public-again')
   assert.equal(state.calls.filter(call => call[0] === 'capture').length, 2)
-  assert.equal(state.configs[0].before_send({ properties: { path: '/friends-and-family/' } }), null)
+  assert.equal(state.configs[0].before_send({ properties: { path: '/invest/' } }), null)
   assert.ok(state.configs[0].before_send({ properties: { path: '/new' } }))
-  state.window.location.pathname = '/friends-and-family/'
+  state.window.location.pathname = '/invest/'
   for (const callback of state.callbacks.popstate ?? []) callback()
   state.module.trackEvent('private-back-navigation')
   assert.equal(state.calls.filter(call => call[0] === 'capture').length, 2)
@@ -523,6 +524,17 @@ test('the actual page keys the shared experience by authenticated subject when a
     assert.equal(experience.key.endsWith(`$${authId}`), true)
     assert.equal(experience.props.authId, authId)
     assert.equal(experience.props.queryKey[2], authId)
+  }
+})
+test('login and logout return to the private /invest page', async () => {
+  for (const user of [null, { authId: 'member-subject' }]) {
+    const window = { location: { href: '' } }
+    const hooks = { useState: initial => [initial, () => {}] }
+    const page = load('src/pages/FriendsAndFamily.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({ cancelQueries: () => Promise.resolve(), removeQueries: () => {} }), useQuery: options => ({ data: options.queryKey[1] === 'session' ? { user } : roundFixture, isPending: false, isError: false }) }, '../components/ThemeToggle': { ThemeToggle: () => null }, '../services/api': { API_URL: 'https://api.example.test' }, '../features/friends-family/api': inertApi, '../features/friends-family/RoundViews': views, '../features/friends-family/MoneyEditor': moneyEditor }, { window })
+    const label = user ? 'Sign out' : 'Continue with Google'
+    findElement(page.default(), node => node.type === 'button' && node.props.children === label).props.onClick()
+    await new Promise(resolve => setImmediate(resolve))
+    assert.equal(window.location.href, `https://api.example.test/auth/${user ? 'logout' : 'login'}?returnTo=%2Finvest`)
   }
 })
 test('late target result cannot repopulate participant cache after account or view cleanup', async () => {

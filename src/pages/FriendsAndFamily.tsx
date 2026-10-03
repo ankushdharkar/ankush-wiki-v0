@@ -24,13 +24,13 @@ export default function FriendsAndFamily() {
     retry: false, staleTime: 0, gcTime: 0, refetchInterval: 15_000, refetchOnWindowFocus: true,
   })
   const unauthorized = expired || session.error instanceof RoundApiError && session.error.status === 401 || overview.error instanceof RoundApiError && overview.error.status === 401
-  const login = () => { window.location.href = `${API_URL}/auth/login?returnTo=${encodeURIComponent('/friends-and-family')}` }
+  const login = () => { window.location.href = `${API_URL}/auth/login?returnTo=${encodeURIComponent('/invest')}` }
   async function signout() {
     setExpired(true)
     await queryClient.cancelQueries({ queryKey: ['private-friends-family'] })
     queryClient.removeQueries({ queryKey: ['private-friends-family'] })
     queryClient.removeQueries({ queryKey: ['session'] })
-    window.location.href = `${API_URL}/auth/logout?returnTo=${encodeURIComponent('/friends-and-family')}`
+    window.location.href = `${API_URL}/auth/logout?returnTo=${encodeURIComponent('/invest')}`
   }
   const anonymous = unauthorized || !session.isPending && !session.isError && !user
   const hasSessionFailure = session.isError && !unauthorized
