@@ -107,3 +107,7 @@ To use any Aceternity UI component:
 - `clsx` - For conditional classes
 - `tailwind-merge` - For merging Tailwind classes
 - `lucide-react` - For icons (some components)
+
+## Mandatory check-output guidance
+
+Before any implementation or verification, read `../CLAUDE.md` relative to this file (the repository-root `CLAUDE.md`) and follow its **Check output and worktree ownership** section. This requirement applies to every worktree owner and delegated subagent, and to every test, build, typecheck and lint check. Never run checks unredirected or add verbose flags; inspect a failed saved log instead of rerunning for more output.
