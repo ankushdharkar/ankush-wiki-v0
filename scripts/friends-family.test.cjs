@@ -164,16 +164,22 @@ const moneyEditor = load('src/features/friends-family/MoneyEditor.tsx', { react:
 const inertApi = load('src/features/friends-family/api.ts', { '../../services/api': { API_URL: '' } }, { AbortSignal, crypto: { randomUUID: () => 'synthetic-operation' } })
 const panel = load('src/features/friends-family/CommitmentPanel.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({}) }, './api': inertApi, './money': money, './MoneyEditor': moneyEditor, './ui': ui })
 const progress = load('src/features/friends-family/RoundProgress.tsx', { 'react/jsx-runtime': jsxRuntime, './money': money, './ui': ui })
-const member = load('src/features/friends-family/MemberRound.tsx', {
-  react: React, 'react/jsx-runtime': jsxRuntime, './CommitmentPanel': panel, './RoundProgress': progress,
-  './money': money, './participants': participantHelpers, './memberFlow': flow, './ui': ui,
-})
+// The content and assets modules are stubbed: the committed ones hold nothing, and filled-in states are exercised here only.
+const emptyContent = { story: null }
+const emptyAssets = { ankushPhoto: null, welcomeMedia: null }
+function loadMember({ react = React, content = emptyContent, assets = emptyAssets } = {}) {
+  return load('src/features/friends-family/MemberRound.tsx', {
+    react, 'react/jsx-runtime': jsxRuntime, './CommitmentPanel': panel, './RoundProgress': progress,
+    './money': money, './participants': participantHelpers, './memberFlow': flow, './ui': ui, './content': content, './assets': assets,
+  })
+}
+const member = loadMember()
 const memberProps = { overview: roundFixture, queryKey: ['private-friends-family', 'overview', 'synthetic-member'], refresh: async () => roundFixture, onUnauthorized: () => {}, refreshFailed: false }
-function renderStage(stage, overview = roundFixture) {
-  return renderToStaticMarkup(React.createElement(member.MemberRoundContent, { ...memberProps, overview, stage, onNext: () => {}, onSaveConfirmed: () => {} }))
+function renderStage(stage, overview = roundFixture, extra = {}, component = member) {
+  return renderToStaticMarkup(React.createElement(component.MemberRoundContent, { ...memberProps, overview, stage, onNext: () => {}, onSaveConfirmed: () => {}, ...extra }))
 }
 function assertNoRoundTotals(html) {
-  for (const marker of ['Round progress', 'progressbar', 'US$2,000,000', 'US$1,000', 'of the target', 'People committed', 'Remaining']) assert.equal(html.includes(marker), false, marker)
+  for (const marker of ['Round progress', 'progressbar', 'US$2,000,000', 'US$1,000', 'of the target', 'Friends and family so far', 'Still to go']) assert.equal(html.includes(marker), false, marker)
 }
 const historyFixtures = [
   { ...roundFixture, currentVersion: '1' },
@@ -184,10 +190,7 @@ const historyFixtures = [
 function memberFlowHarness(overview) {
   let stage; let mounted = false
   const hooks = { useReducer: (reducer, arg, init) => { if (!mounted) { stage = init ? init(arg) : arg; mounted = true } return [stage, event => { stage = reducer(stage, event) }] } }
-  const component = load('src/features/friends-family/MemberRound.tsx', {
-    react: hooks, 'react/jsx-runtime': jsxRuntime, './CommitmentPanel': panel, './RoundProgress': progress,
-    './money': money, './participants': participantHelpers, './memberFlow': flow, './ui': ui,
-  })
+  const component = loadMember({ react: hooks })
   const render = () => component.MemberRound({ ...memberProps, overview })
   return { render, next: () => render().props.onNext(), get stage() { return render().props.stage }, setOverview: next => { overview = next } }
 }
@@ -195,7 +198,7 @@ test('every signed-in member starts at the welcome letter, with or without a com
   for (const overview of [roundFixture, ...historyFixtures]) {
     assert.equal(memberFlowHarness(overview).stage, 'welcome')
     const html = renderToStaticMarkup(React.createElement(member.MemberRound, { ...memberProps, overview }))
-    assert.ok(html.includes('Thank you for being here.'))
+    assert.ok(html.includes(flow.hasMemberHistory(overview) ? 'Welcome back.' : 'Thank you for being here.'))
     assert.ok(html.includes('>Next</button>'))
   }
 })
@@ -251,7 +254,7 @@ test('polling a remote commitment cannot expose totals before explicit local sav
 test('summary exposes goal/progress, own amount/share, remaining and participant count after confirmation', () => {
   const saved = { ...roundFixture, currentVersion: '1', ownCommitment: { status: 'active', currency: 'USD', amountMinor: '5000', version: '1', createdAt: '2026-10-03T00:01:00.000Z' } }
   const html = renderStage('summary', saved)
-  for (const marker of ['Round progress', 'US$2,000,000', 'US$50', 'of the target', 'Remaining', 'US$1,999,000', 'People committed', 'Change commitment']) assert.ok(html.includes(marker), marker)
+  for (const marker of ['Round progress', 'US$2,000,000', 'US$50', 'of the target', 'Still to go', 'US$1,999,000', 'Friends and family so far', 'Change commitment']) assert.ok(html.includes(marker), marker)
 })
 // Exercise the panel's real handlers with a small hook store. No DOM or network dependency is needed.
 function findElement(element, predicate) {
@@ -513,7 +516,7 @@ test('a member or the admin with a saved commitment still lands on the welcome w
     [{ authId: 'member-subject', name: 'Member Example', email: 'member@example.test' }, { ...roundFixture, currentVersion: '1', ownCommitment: saved }],
   ]) {
     const state = pageHarness(user, overview)
-    assert.ok(state.html.includes('Thank you for being here.'), user.authId)
+    assert.ok(state.html.includes('Welcome back.'), user.authId)
     assert.equal(state.html.includes('Change commitment'), false, user.authId)
     assertNoRoundTotals(state.html)
   }
@@ -800,4 +803,94 @@ test('a rate conflict asks the admin to review the latest rate; an uncertain fai
   submitRate(state.render())
   assert.equal(state.commands[1].expectedVersion, '3'); assert.equal(state.commands[1].inrMinorPerUsd, '9000')
   assert.notEqual(state.commands[1].operationId, state.commands[0].operationId)
+})
+
+// Personal touches: greeting, welcome-back letter, signature, photo, story, contact line and media slot.
+const savedUsd = { ...roundFixture, currentVersion: '1', ownCommitment: { status: 'active', currency: 'USD', amountMinor: '5000', version: '1', createdAt: '2026-10-03T00:01:00.000Z' } }
+const savedInr = { ...roundFixture, currentVersion: '1', ownCommitment: { status: 'active', currency: 'INR', amountMinor: '250000000', version: '1', createdAt: '2026-10-03T00:01:00.000Z' } }
+const withdrawn = { ...roundFixture, currentVersion: '2', ownCommitment: { status: 'withdrawn', currency: null, amountMinor: null, version: '2', createdAt: '2026-10-03T00:02:00.000Z' } }
+const visibleText = html => html.replace(/<[^>]*>/g, ' ')
+test('the letter greets the member by first name, and keeps the current opening when no name is available', () => {
+  assert.equal(flow.firstNameFrom('  Asha   Rao '), 'Asha')
+  assert.equal(flow.firstNameFrom('Kabir'), 'Kabir')
+  for (const name of ['', '   ', undefined, null, 'asha.rao@example.test', ' someone@example.test ']) assert.equal(flow.firstNameFrom(name), null, String(name))
+  const named = renderStage('welcome', roundFixture, { memberName: 'Asha Rao' })
+  assert.ok(named.includes('Dear Asha,'))
+  assert.ok(named.indexOf('Dear Asha,') < named.indexOf('It means the world to me'))
+  for (const memberName of [undefined, '', 'asha.rao@example.test']) {
+    const html = renderStage('welcome', roundFixture, { memberName })
+    assert.equal(html.includes('Dear'), false, String(memberName))
+    assert.ok(html.includes('Thank you for being here.'))
+    assert.ok(html.includes('It means the world to me'))
+  }
+  // The page hands the signed-in session's name down to the letter.
+  assert.ok(pageHarness({ authId: 'member-subject', name: 'Member Example', email: 'member@example.test' }, roundFixture).html.includes('Dear Member,'))
+  // The summary thanks them by name on the existing thank-you line.
+  assert.ok(renderStage('summary', savedUsd, { memberName: 'Asha Rao' }).includes('Thank you for being part of this round, Asha.'))
+  assert.ok(renderStage('summary', savedUsd).includes('Thank you for being part of this round.'))
+})
+test('a member with a saved commitment sees a welcome-back letter with their recorded amount; one who withdrew sees it without an amount; a new member sees the original letter', () => {
+  const usd = renderStage('welcome', savedUsd, { memberName: 'Asha Rao' })
+  assert.ok(usd.includes('Welcome back.')); assert.ok(usd.includes('Dear Asha,'))
+  assert.ok(usd.includes('Your commitment of US$50 is recorded.'))
+  assert.equal(usd.includes('It means the world to me'), false)
+  assert.ok(usd.includes('>Next</button>'))
+  assert.ok(renderStage('welcome', savedInr).includes('Your commitment of ₹25,00,000 is recorded.'))
+  const gone = renderStage('welcome', withdrawn, { memberName: 'Asha Rao' })
+  assert.ok(gone.includes('Welcome back.')); assert.ok(gone.includes('Dear Asha,'))
+  assert.ok(gone.includes('You withdrew your commitment, and that is completely fine.'))
+  for (const marker of ['US$', '₹', 'is recorded']) assert.equal(gone.includes(marker), false, marker)
+  const fresh = renderStage('welcome', roundFixture, { memberName: 'Asha Rao' })
+  assert.ok(fresh.includes('Thank you for being here.')); assert.ok(fresh.includes('It means the world to me')); assert.ok(fresh.includes('very, very, very tough'))
+  assert.equal(fresh.includes('Welcome back.'), false)
+})
+test('both letters show the signature and the photo when one is present; a missing photo leaves no image or gap', () => {
+  const withPhoto = loadMember({ assets: { ...emptyAssets, ankushPhoto: '/assets/synthetic-photo.jpg' } })
+  for (const overview of [roundFixture, savedUsd, withdrawn]) {
+    const bare = renderStage('welcome', overview)
+    assert.ok(bare.includes('data-signature'), 'signature drawn')
+    assert.ok(bare.includes('<span class="sr-only">Ankush</span>'), 'name kept for screen readers')
+    assert.equal(bare.includes('<img'), false)
+    assert.equal(bare.includes('data-photo'), false)
+    const pictured = renderStage('welcome', overview, {}, withPhoto)
+    assert.ok(pictured.includes('src="/assets/synthetic-photo.jpg"'))
+    assert.ok(pictured.includes('data-signature'))
+  }
+})
+test('"Why I am raising" appears only when its text is filled in, as plain paragraphs', () => {
+  assert.equal(renderStage('welcome').includes('Why I am raising'), false)
+  const filled = loadMember({ content: { story: ['Synthetic first paragraph.', 'Synthetic <b>second</b> paragraph.'] } })
+  const html = renderStage('welcome', roundFixture, {}, filled)
+  assert.ok(html.includes('Why I am raising'))
+  assert.ok(html.includes('<p>Synthetic first paragraph.</p>'))
+  assert.ok(html.includes('Synthetic &lt;b&gt;second&lt;/b&gt; paragraph.'))
+  assert.equal(html.includes('<b>'), false)
+  assertNoRoundTotals(html)
+})
+test('the summary always shows "Call me or WhatsApp me." with an Email me link, and no number or address as visible text', () => {
+  for (const overview of [savedUsd, roundFixture]) {
+    const html = renderStage('summary', overview)
+    assert.ok(html.includes('Call me or WhatsApp me.'))
+    assert.ok(/<a [^>]*href="mailto:ankushdharkar@gmail.com"[^>]*>Email me<\/a>/.test(html))
+    for (const marker of ['tel:', 'wa.me']) assert.equal(html.includes(marker), false, marker)
+    const text = visibleText(html)
+    assert.equal(text.includes('@'), false)
+    assert.equal(/\+?\d[\d\s-]{8,}\d/.test(text.replace(/US\$[\d,.]+|₹[\d,.]+/g, '')), false)
+  }
+  for (const stage of ['welcome', 'amount']) assert.equal(renderStage(stage).includes('Call me or WhatsApp me.'), false, stage)
+})
+test('the video or voice-note player appears only when a media file is present, never autoplaying', () => {
+  for (const html of [renderStage('welcome'), renderStage('welcome', savedUsd)]) { assert.equal(html.includes('<video'), false); assert.equal(html.includes('<audio'), false) }
+  const video = renderStage('welcome', roundFixture, {}, loadMember({ assets: { ...emptyAssets, welcomeMedia: { kind: 'video', src: '/assets/welcome.mp4', type: 'video/mp4' } } }))
+  assert.ok(/<video [^>]*controls=""/.test(video)); assert.ok(video.includes('preload="metadata"')); assert.ok(video.includes('playsInline=""'))
+  assert.ok(/<video [^>]*aria-label="[^"]+"/.test(video)); assert.ok(video.includes('src="/assets/welcome.mp4"'))
+  const audio = renderStage('welcome', roundFixture, {}, loadMember({ assets: { ...emptyAssets, welcomeMedia: { kind: 'audio', src: '/assets/welcome.m4a', type: 'audio/mp4' } } }))
+  assert.ok(/<audio [^>]*controls=""/.test(audio)); assert.ok(audio.includes('preload="none"')); assert.ok(/<audio [^>]*aria-label="[^"]+"/.test(audio))
+  for (const html of [video, audio]) { assert.equal(html.toLowerCase().includes('autoplay'), false); assertNoRoundTotals(html) }
+})
+test('the welcome letters and the amount step, with every personal touch filled in, still show no round figures', () => {
+  const full = loadMember({ content: { story: ['Synthetic paragraph.'] }, assets: { ankushPhoto: '/assets/synthetic-photo.jpg', welcomeMedia: { kind: 'video', src: '/assets/welcome.mp4', type: 'video/mp4' } } })
+  for (const overview of [roundFixture, savedUsd, savedInr, withdrawn]) {
+    for (const stage of ['welcome', 'amount']) assertNoRoundTotals(renderStage(stage, overview, { memberName: 'Asha Rao' }, full))
+  }
 })

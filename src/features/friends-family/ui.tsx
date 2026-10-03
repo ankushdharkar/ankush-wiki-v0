@@ -15,6 +15,8 @@ export const quietButton = `${buttonBase} px-3 text-base text-stone-700 underlin
 export const dangerButton = `${buttonBase} bg-red-50 px-4 text-base text-red-800 ring-1 ring-inset ring-red-200 enabled:hover:bg-red-100 dark:bg-red-950 dark:text-red-200 dark:ring-red-900 dark:enabled:hover:bg-red-900`
 // Action rows stack full width on a phone and sit inline from the sm breakpoint up.
 export const actions = 'flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3'
+// A link inside running text. Underlined, so color is not its only signal, and 44px tall to tap.
+export const textLink = `inline-flex min-h-11 items-center rounded-sm font-medium text-teal-800 underline decoration-teal-800/40 underline-offset-4 hover:decoration-teal-800 dark:text-teal-300 dark:decoration-teal-300/50 dark:hover:decoration-teal-300 ${focusRing}`
 export const iconButton = `inline-flex size-11 items-center justify-center rounded-md text-stone-600 transition-[color,background-color] duration-150 motion-reduce:transition-none hover:bg-stone-200/70 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-100 ${focusRing}`
 
 // Text. Serif is reserved for page titles and for Ankush's own first-person words.
@@ -65,6 +67,16 @@ export function AlertIcon() {
 }
 export function ThemeIcon({ theme }: { theme: 'light' | 'dark' }) {
   return <Icon path={theme === 'dark' ? paths.sun : paths.moon} className="size-5" />
+}
+
+// Ankush's sign-off: a drawn, decorative signature (not his real one) in the current text color.
+// The svg is hidden from assistive technology; the name stays available as text.
+const signaturePath = 'M6 68C15 55 25 31 33 11C35 6 39 7 39 13C40 30 42 48 46 63M21 43C29 40 39 39 49 40M46 63C48 66 51 63 53 58C55 52 57 47 59 45C61 44 61 48 60 52L58 62C60 54 64 45 69 44C73 44 72 50 71 54C70 58 70 62 73 62C75 62 77 60 79 57C84 47 89 30 91 18C92 12 88 12 87 18C85 30 82 48 80 62M82 53C86 46 93 44 93 49C93 53 87 55 83 54C88 56 90 62 94 62C96 62 98 60 100 57C101 52 102 48 103 45C102 52 101 58 103 61C105 63 109 58 111 50L112 45C111 52 110 58 112 61C114 63 116 61 118 57L123 44C127 50 131 54 129 59C127 63 121 63 119 59C124 62 130 60 134 56C139 46 143 30 145 18C146 12 142 12 141 18C139 30 136 48 134 62C137 54 141 46 146 45C150 45 149 52 148 56C147 60 148 63 151 62C157 60 164 53 171 47'
+export function Signature({ className = '' }: { className?: string }) {
+  return <span className={`inline-flex ${className}`}>
+    <span className="sr-only">Ankush</span>
+    <svg data-signature aria-hidden="true" viewBox="0 2 180 72" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" className="h-full w-auto overflow-visible"><path transform="translate(12 0) skewX(-12)" d={signaturePath} /></svg>
+  </span>
 }
 
 // A label and its figure. Used for every round number that is not the headline total.

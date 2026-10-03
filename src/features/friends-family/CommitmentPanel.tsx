@@ -6,10 +6,10 @@ import { activeCommitmentMoney, formatMoney } from './money'
 import { MoneyEditor } from './MoneyEditor'
 import { actions, dangerButton, figure, inset, label, Notice, pageTitle, primaryButton, quietButton, secondaryButton, secondaryText, sectionTitle, sheet } from './ui'
 
-export function CommitmentPanel({ overview, queryKey, refresh, onUnauthorized, entry = false, onSaveConfirmed }: {
+export function CommitmentPanel({ overview, queryKey, refresh, onUnauthorized, entry = false, onSaveConfirmed, firstName = null }: {
   overview: RoundOverview; queryKey: readonly string[]
   refresh: () => Promise<RoundOverview>; onUnauthorized: () => void
-  entry?: boolean; onSaveConfirmed?: () => void
+  entry?: boolean; onSaveConfirmed?: () => void; firstName?: string | null
 }) {
   const queryClient = useQueryClient()
   const own = activeCommitmentMoney(overview)
@@ -69,7 +69,7 @@ export function CommitmentPanel({ overview, queryKey, refresh, onUnauthorized, e
   const canReview = reviewReady && reviewedVersion.current === overview.currentVersion
   const Heading = entry ? 'h1' : 'h2'
   const title = entry ? 'What amount are you comfortable investing?' : showEditor ? draft && own ? 'Change your commitment' : 'Make your commitment' : 'Your commitment'
-  const intro = showEditor ? 'Choose an amount that feels right for you.' : 'Thank you for being part of this round.'
+  const intro = showEditor ? 'Choose an amount that feels right for you.' : `Thank you for being part of this round${firstName ? `, ${firstName}` : ''}.`
   return <section className="space-y-6">
     {/* On the entry step the question is the page title and sits above the sheet. */}
     {entry && <header><Heading className={pageTitle}>{title}</Heading><p className={`mt-3 text-base leading-7 ${secondaryText}`}>{intro}</p></header>}
@@ -78,7 +78,7 @@ export function CommitmentPanel({ overview, queryKey, refresh, onUnauthorized, e
       {message && <Notice tone="success" role="status">{message}</Notice>}
       {error && <Notice tone="warning" role="alert"><p>{error}</p>
         {command && !busy && <button onClick={() => void submit(command)} className={primaryButton}>Retry same change</button>}
-        {conflict && <><p>Latest commitment: <strong className="font-semibold tabular-nums">{own ? formatMoney(own.amountMinor, own.currency) : 'No active commitment'}</strong></p>
+        {conflict && <><p>Latest commitment: <strong className="font-semibold tabular-nums">{own ? formatMoney(own.amountMinor, own.currency) : 'None at the moment'}</strong></p>
           {canReview ? <button onClick={() => {
             if (!reviewedVersion.current) return
             if (draft) setDraft({ ...draft, version: reviewedVersion.current })

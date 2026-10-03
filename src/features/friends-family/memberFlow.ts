@@ -16,3 +16,10 @@ export function memberFlowReducer(stage: MemberStage, event: MemberFlowEvent): M
   if (stage !== 'welcome') return stage
   return hasMemberHistory(event.overview) ? 'summary' : 'amount'
 }
+// The one derivation of the name a letter greets: the first word of the signed-in name.
+// An empty name, or one that looks like an email address, gives no first name.
+export function firstNameFrom(name: string | null | undefined): string | null {
+  const trimmed = name?.trim() ?? ''
+  if (!trimmed || trimmed.includes('@')) return null
+  return trimmed.split(/\s+/)[0]
+}
