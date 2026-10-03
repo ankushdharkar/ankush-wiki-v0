@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "motion/react";
 import { cn } from "../../lib/utils";
 
@@ -20,6 +20,10 @@ export const BoxesCore = ({ className, ...rest }: { className?: string }) => {
   const getRandomColor = () => {
     return colors[Math.floor(Math.random() * colors.length)];
   };
+  // Pick each box's hover color once, not on every render
+  const [hoverColors] = useState(() =>
+    rows.map(() => cols.map(() => getRandomColor())),
+  );
 
   return (
     <div
@@ -40,7 +44,7 @@ export const BoxesCore = ({ className, ...rest }: { className?: string }) => {
           {cols.map((_, j) => (
             <motion.div
               whileHover={{
-                backgroundColor: `${getRandomColor()}`,
+                backgroundColor: hoverColors[i][j],
                 transition: { duration: 0 },
               }}
               transition={{

@@ -19,6 +19,7 @@ export default function AskAnkush() {
   const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null)
   const [activeTopic, setActiveTopic] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [now, setNow] = useState(() => Date.now())
 
   const isAuthenticated = !authLoading && !!user
 
@@ -39,6 +40,12 @@ export default function AskAnkush() {
 
   useEffect(() => {
     document.title = 'Ask Ankush'
+  }, [])
+
+  // Keep relative question times ("5m ago") current
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 60_000)
+    return () => clearInterval(interval)
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,7 +95,7 @@ export default function AskAnkush() {
   const totalQuestions = topics.reduce((sum, t) => sum + t.count, 0)
 
   const formatTime = (timestamp: string) => {
-    const diff = Date.now() - new Date(timestamp).getTime()
+    const diff = now - new Date(timestamp).getTime()
     const minutes = Math.floor(diff / 60000)
     const hours = Math.floor(diff / 3600000)
     const days = Math.floor(diff / 86400000)

@@ -78,7 +78,10 @@ export const FollowPointer = ({
     "#ec4899"
   ];
 
-  const bgColor = colors[Math.floor(Math.random() * colors.length)];
+  // Pick once per appearance so the label keeps its color while the pointer moves
+  const [bgColor] = useState(
+    () => colors[Math.floor(Math.random() * colors.length)]
+  );
 
   return (
     <motion.div
