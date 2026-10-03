@@ -588,3 +588,19 @@ test('late own-command results after account unmount cannot expire a new session
     assert.deepEqual(state.cache, [])
   }
 })
+test('unknown paths, including the retired /friends-and-family link, reach Not found while /invest still opens the private page', async () => {
+  const { MemoryRouter, ...router } = require('react-router-dom')
+  const pending = []
+  const lazy = factory => { let page; pending.push(factory().then(loaded => { page = loaded })); return props => page.default(props) }
+  const pages = Object.fromEntries(['Portfolio', 'AceShowcase', 'Chillouts', 'JsTsGuild', 'RealDevSquad', 'RealDSA', 'ImportantLinks', 'Dev', 'AskAnkush', 'FriendsAndFamily', 'NotFound'].map(name => [`./pages/${name}`, { default: () => `page:${name}` }]))
+  const app = load('src/App.tsx', { react: { ...React, lazy }, 'react/jsx-runtime': jsxRuntime, 'react-router-dom': router, './components/layout/Navigation': { default: () => null }, './components/layout/PageTransition': { default: ({ children }) => children }, './services/analytics': { isPrivateAnalyticsPath: privacy.isPrivateAnalyticsPath }, './hooks/usePageTracking': { usePageTracking: () => {} }, ...pages })
+  await Promise.allSettled(pending)
+  const render = pathname => renderToStaticMarkup(React.createElement(MemoryRouter, { initialEntries: [pathname] }, React.createElement(app.default)))
+  for (const pathname of ['/friends-and-family', '/friends-and-family/', '/some-unknown-page']) {
+    const html = render(pathname)
+    assert.ok(html.includes('page:NotFound'), pathname)
+    assert.equal(html.includes('page:FriendsAndFamily'), false, pathname)
+  }
+  assert.equal(render('/invest'), 'page:FriendsAndFamily')
+  assert.equal(render('/').includes('page:NotFound'), false)
+})

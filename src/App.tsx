@@ -14,6 +14,7 @@ const RealDSA = lazy(() => import('./pages/RealDSA'))
 const ImportantLinks = lazy(() => import('./pages/ImportantLinks'))
 const Dev = lazy(() => import('./pages/Dev'))
 const AskAnkush = lazy(() => import('./pages/AskAnkush'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 
 const FriendsAndFamily = lazy(() => import('./pages/FriendsAndFamily'))
 
@@ -41,6 +42,7 @@ function App() {
             <Route path="/important-links" element={<ImportantLinks />} />
             <Route path="/dev" element={<Dev />} />
             <Route path="/new" element={<AskAnkush />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </PageTransition>
