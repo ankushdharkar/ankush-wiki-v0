@@ -206,6 +206,8 @@ LOG=/tmp/test-results/ankush-wiki/$(date +%Y%m%d-%H%M%S)-web-lint.log
 pnpm --config.verify-deps-before-run=false lint > "$LOG" 2>&1; rc=$?; tail -n 20 "$LOG"; echo "exit=$rc · full log: $LOG"; exit $rc
 ```
 
+On 2026-10-03, branch `fix-eslint-react-hooks-flat` switched the lint config to the plugin's documented flat preset (`reactHooks.configs.flat.recommended`, eslint-plugin-react-hooks 7.0.1) and ignored the committed `.vite` and `Old-Backup` folders. Plain `pnpm lint` now loads and passes on the whole repository (`20261003-115721-web-lint.log`), so the temporary adapter config referenced in the earlier evidence is no longer needed.
+
 ## Local closeout evidence preservation
 
 On 2026-10-03 Asia/Kolkata, all 43 regular browser QA images were copied without following symlinks to `/Users/ankush/Workspaces/People/Ankush/ankush-wiki/.artifacts/friends-family-qa/2026-10-03/`. Every copied image has an identical SHA-256 digest to its original. `SHA256SUMS` in that directory lists the archived filenames and hashes. The historical `qa/` references above map to the same relative filenames there, so removing the feature worktree will not remove this evidence. Dependency symlinks and generated build outputs are disposable; test logs remain under `/tmp/test-results/ankush-wiki/`.
