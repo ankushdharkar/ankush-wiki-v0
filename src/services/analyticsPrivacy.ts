@@ -6,10 +6,11 @@ export function isPrivateAnalyticsUrl(value: unknown): boolean {
   try { return isPrivateAnalyticsPath(new URL(value, 'https://ankush.wiki').pathname) }
   catch { return false }
 }
-// The private page lives at /invest, but its backend API keeps the /friends-and-family path. Recorded network requests to either stay masked.
+// The private page lives at /invest, but its backend API keeps the /friends-and-family path, with admin endpoints under
+// /admin/friends-and-family. Recorded network requests to any of these stay masked. Other /admin/ paths are not masked here.
 export function isPrivateNetworkUrl(value: unknown): boolean {
   if (isPrivateAnalyticsUrl(value)) return true
   if (typeof value !== 'string') return false
-  try { return /^\/friends-and-family(?:\/|$)/.test(new URL(value, 'https://ankush.wiki').pathname) }
+  try { return /^\/(?:admin\/)?friends-and-family(?:\/|$)/.test(new URL(value, 'https://ankush.wiki').pathname) }
   catch { return false }
 }

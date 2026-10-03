@@ -1,5 +1,12 @@
 import { API_URL } from '../../services/api'
-import type { ExchangeRateCommand, ExchangeRateResult, RoundCommand, RoundOverview, RoundTargetCommand, RoundTargetResult } from './contract'
+import type { ExchangeRateCommand, ExchangeRateResult, ParticipantsResponse, RoundCommand, RoundOverview, RoundTargetCommand, RoundTargetResult } from './contract'
+
+// The only place the admin endpoint paths are written. Views call the functions below.
+export const ADMIN_PATHS = {
+  participants: '/admin/friends-and-family/participants',
+  roundTarget: '/admin/friends-and-family/round-target',
+  exchangeRate: '/admin/friends-and-family/exchange-rate',
+} as const
 
 export class RoundApiError extends Error {
   readonly status: number
@@ -27,11 +34,15 @@ export function createCommand(expectedVersion: string, money?: { currency: 'INR'
   return money ? { ...base, kind: 'save', ...money } : { ...base, kind: 'withdraw' }
 }
 
+export function fetchParticipants(signal?: AbortSignal): Promise<ParticipantsResponse> {
+  return privateFetch(ADMIN_PATHS.participants, { signal })
+}
+
 export function createRoundTargetCommand(expectedVersion: string, targetUsdMinor: string): RoundTargetCommand {
   return { operationId: crypto.randomUUID(), expectedVersion, targetUsdMinor }
 }
 export function executeRoundTargetCommand(command: RoundTargetCommand): Promise<RoundTargetResult> {
-  return privateFetch('/friends-and-family/admin/round-target', {
+  return privateFetch(ADMIN_PATHS.roundTarget, {
     method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(command),
   })
 }
@@ -40,7 +51,7 @@ export function createExchangeRateCommand(expectedVersion: string, inrMinorPerUs
   return { operationId: crypto.randomUUID(), expectedVersion, inrMinorPerUsd }
 }
 export function executeExchangeRateCommand(command: ExchangeRateCommand): Promise<ExchangeRateResult> {
-  return privateFetch('/friends-and-family/admin/exchange-rate', {
+  return privateFetch(ADMIN_PATHS.exchangeRate, {
     method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(command),
   })
 }

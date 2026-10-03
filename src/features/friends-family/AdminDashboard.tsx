@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { executeExchangeRateCommand, executeRoundTargetCommand, privateFetch, RoundApiError } from './api'
-import type { ExchangeRateCommand, ParticipantsResponse, RoundOverview, RoundTargetCommand, RoundTargetResult } from './contract'
+import { executeExchangeRateCommand, executeRoundTargetCommand, fetchParticipants, RoundApiError } from './api'
+import type { ExchangeRateCommand, RoundOverview, RoundTargetCommand, RoundTargetResult } from './contract'
 import { RoundProgress } from './RoundProgress'
 import { formatMoney, rateLine } from './money'
 import { participantsQueryPolicy, remainingUsdMinor, searchParticipants } from './participants'
@@ -22,7 +22,7 @@ export function AdminDashboard({ overview, authId, login, onExitLockChange }: { 
   const overviewKey = ['private-friends-family', 'overview', authId]
   const query = useQuery({
     ...queryPolicy, enabled: queryPolicy.enabled && accessFailure === null,
-    queryFn: ({ signal }) => privateFetch<ParticipantsResponse>('/friends-and-family/admin/participants', { signal }),
+    queryFn: ({ signal }) => fetchParticipants(signal),
   })
   const accessStatus = accessFailure ?? (query.error instanceof RoundApiError ? query.error.status : null)
   useEffect(() => {

@@ -124,6 +124,15 @@ test('SPA entry stops recording before navigation, blocks delayed callbacks, and
   state.module.trackEvent('private-back-navigation')
   assert.equal(state.calls.filter(call => call[0] === 'capture').length, 2)
 })
+test('session replay masks the /admin/friends-and-family API paths without masking every /admin/ path', () => {
+  for (const item of ['https://api.example.test/admin/friends-and-family', 'https://api.example.test/admin/friends-and-family/', 'https://api.example.test/admin/friends-and-family/participants', 'https://api.example.test/admin/friends-and-family/round-target', 'https://api.example.test/admin/friends-and-family/exchange-rate', '/admin/friends-and-family/participants?x=1']) assert.equal(privacy.isPrivateNetworkUrl(item), true, item)
+  for (const item of ['https://api.example.test/admin', 'https://api.example.test/admin/', 'https://api.example.test/admin/other', 'https://api.example.test/admin/friends-and-family-public', 'https://api.example.test/x/admin/friends-and-family']) assert.equal(privacy.isPrivateNetworkUrl(item), false, item)
+  const state = analyticsHarness('/')
+  state.module.installAnalyticsPrivacyGuard(); state.module.syncAnalyticsRoute()
+  const mask = state.configs[0].session_recording.maskCapturedNetworkRequestFn
+  for (const name of ['https://api.example.test/admin/friends-and-family/participants', 'https://api.example.test/admin/friends-and-family/round-target', 'https://api.example.test/admin/friends-and-family/exchange-rate']) assert.equal(mask({ name }), null, name)
+  assert.deepEqual(mask({ name: 'https://api.example.test/admin/other' }), { name: 'https://api.example.test/admin/other' })
+})
 const participantHelpers = load('src/features/friends-family/participants.ts')
 test('participants fetch policy allows only server-enabled admin capability and isolates account keys', () => {
   const member = { capabilities: { canViewParticipants: false } }
@@ -348,7 +357,7 @@ test('target mutation uses independent round version and exact authenticated pay
   const api = load('src/features/friends-family/api.ts', { '../../services/api': { API_URL: 'http://localhost:8080' } }, { crypto: { randomUUID: () => 'round-operation' }, AbortSignal, fetch: async (url, options) => { requests.push({ url, options }); return { ok: true, json: async () => ({ ...targetSnapshot, replayed: false }) } } })
   const command = api.createRoundTargetCommand('7', '100000000')
   await api.executeRoundTargetCommand(command)
-  assert.equal(requests[0].url, 'http://localhost:8080/friends-and-family/admin/round-target')
+  assert.equal(requests[0].url, 'http://localhost:8080/admin/friends-and-family/round-target')
   assert.equal(requests[0].options.method, 'PUT')
   assert.equal(requests[0].options.credentials, 'include')
   assert.equal(requests[0].options.cache, 'no-store')
@@ -615,6 +624,17 @@ test('dashboard unmount cancels and removes its account-specific participant que
   assert.equal(calls[1][0], 'cancel'); assert.equal(calls[2][0], 'remove')
   assert.deepEqual(Array.from(calls[2][1]), ['private-friends-family', 'participants', 'admin-subject'])
 })
+test('the admin dashboard fetches participants from the /admin/friends-and-family path', async () => {
+  const requests = []; let queryOptions
+  const api = load('src/features/friends-family/api.ts', { '../../services/api': { API_URL: 'http://localhost:8080' } }, { AbortSignal, crypto: { randomUUID: () => 'unused' }, fetch: async (url, options) => { requests.push({ url, options }); return { ok: true, json: async () => targetSnapshot } } })
+  const hooks = { useState: initial => [initial, () => {}], useRef: initial => ({ current: initial }), useEffect: () => {} }
+  const dashboard = load('src/features/friends-family/AdminDashboard.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({}), useQuery: options => { queryOptions = options; return { data: targetSnapshot, dataUpdatedAt: 1 } } }, './api': api, './RoundProgress': progress, './money': money, './participants': participantHelpers, './ParticipantList': { ParticipantList: () => null }, './RoundTargetEditor': targetComponents, './ExchangeRateEditor': rateComponents, './roundTarget': targetHelpers, './ui': ui })
+  dashboard.AdminDashboard({ overview: adminOverview, authId: 'admin-subject', login: () => {} })
+  assert.equal(await queryOptions.queryFn({ signal: new AbortController().signal }), targetSnapshot)
+  assert.equal(requests.length, 1)
+  assert.equal(requests[0].url, 'http://localhost:8080/admin/friends-and-family/participants')
+  assert.equal(requests[0].options.credentials, 'include'); assert.equal(requests[0].options.cache, 'no-store')
+})
 test('revoking target management permits FnF return even when participant viewing remains allowed', () => {
   const state = viewsHarness(); toggleViews(state, 'Admin view')
   findElement(state.render(), node => node.type === state.dashboard).props.onExitLockChange(true)
@@ -723,7 +743,7 @@ test('saving a rate sends the value and current rate version, then updates admin
   const requests = []
   const api = load('src/features/friends-family/api.ts', { '../../services/api': { API_URL: 'http://localhost:8080' } }, { crypto: { randomUUID: () => 'rate-operation' }, AbortSignal, fetch: async (url, options) => { requests.push({ url, options }); return { ok: true, json: async () => ({ ...targetSnapshot, replayed: false }) } } })
   await api.executeExchangeRateCommand(api.createExchangeRateCommand('1', '8875'))
-  assert.equal(requests[0].url, 'http://localhost:8080/friends-and-family/admin/exchange-rate')
+  assert.equal(requests[0].url, 'http://localhost:8080/admin/friends-and-family/exchange-rate')
   assert.equal(requests[0].options.method, 'PUT'); assert.equal(requests[0].options.credentials, 'include'); assert.equal(requests[0].options.cache, 'no-store')
   assert.deepEqual(JSON.parse(requests[0].options.body), { operationId: 'rate-operation', expectedVersion: '1', inrMinorPerUsd: '8875' })
   const result = { ...targetSnapshot, exchangeRate: { version: '2', updatedAt: '2026-10-03T01:00:00.000Z' }, config: { ...targetSnapshot.config, inrMinorPerUsd: '8875', inrPerUsd: '88.75', rateIsTemporary: false }, replayed: false }
