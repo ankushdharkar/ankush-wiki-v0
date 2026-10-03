@@ -1,16 +1,74 @@
 import posthog from 'posthog-js'
+import { isPrivateAnalyticsPath, isPrivateAnalyticsUrl } from './analyticsPrivacy'
+export { isPrivateAnalyticsPath } from './analyticsPrivacy'
 
 // PostHog configuration
 const POSTHOG_KEY = import.meta.env.VITE_PUBLIC_POSTHOG_KEY
 const POSTHOG_HOST = import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://eu.i.posthog.com'
 
+let initialized = false
+let routeSuspended = isPrivateAnalyticsPath(window.location.pathname)
+let lifecycleInitialized = false
+
+function canCapture() {
+  return !!POSTHOG_KEY && initialized && !routeSuspended && !isPrivateAnalyticsPath(window.location.pathname)
+}
+function capture(eventName: string, properties?: Record<string, unknown>) {
+  if (canCapture()) posthog.capture(eventName, properties)
+}
+function suspendPrivateRoute() {
+  routeSuspended = true
+  if (!initialized) return
+  posthog.stopSessionRecording()
+  posthog.set_config({ autocapture: false, disable_session_recording: true, capture_pageleave: false })
+  sectionObserver?.disconnect()
+}
+// Install before React Router. Entering a private route stops recording before its DOM mounts.
+export function installAnalyticsPrivacyGuard() {
+  for (const method of ['pushState', 'replaceState'] as const) {
+    const original = window.history[method].bind(window.history)
+    window.history[method] = (data, unused, url) => {
+      if (url != null && isPrivateAnalyticsUrl(String(url))) suspendPrivateRoute()
+      original(data, unused, url)
+    }
+  }
+  window.addEventListener('popstate', () => {
+    if (isPrivateAnalyticsPath(window.location.pathname)) suspendPrivateRoute()
+  })
+  window.addEventListener('pageshow', () => {
+    if (isPrivateAnalyticsPath(window.location.pathname)) suspendPrivateRoute()
+  })
+}
+// Called after the public page has committed, so private DOM is gone before recording resumes.
+export function syncAnalyticsRoute() {
+  if (isPrivateAnalyticsPath(window.location.pathname)) { suspendPrivateRoute(); return }
+  routeSuspended = false
+  if (initialized) posthog.set_config({ autocapture: true, disable_session_recording: false, capture_pageleave: true })
+  else initAnalytics()
+  if (!lifecycleInitialized && initialized) {
+    lifecycleInitialized = true
+    trackPageLoadTime(); initScrollDepthTracking(); initErrorTracking()
+  }
+}
+
 export function initAnalytics() {
+  if (routeSuspended || isPrivateAnalyticsPath(window.location.pathname) || initialized) return
   if (!POSTHOG_KEY) {
     console.warn('[Analytics] PostHog key not found. Set VITE_PUBLIC_POSTHOG_KEY in .env')
     return
   }
 
+  initialized = true
   posthog.init(POSTHOG_KEY, {
+    before_send: (event) => {
+      if (!canCapture() || isPrivateAnalyticsUrl(event?.properties?.$current_url) || isPrivateAnalyticsUrl(event?.properties?.path)) return null
+      return event
+    },
+    session_recording: {
+      blockSelector: '[data-private-round]', maskTextSelector: '[data-private-round]', maskAllInputs: true,
+      // Drop financial request/response capture even if it completes after leaving this route.
+      maskCapturedNetworkRequestFn: (request) => isPrivateAnalyticsUrl(request.name) ? null : request,
+    },
     api_host: POSTHOG_HOST,
     // Capture pageviews manually via usePageTracking hook for SPA
     capture_pageview: false,
@@ -28,8 +86,8 @@ export function initAnalytics() {
 
 // Track page views (called by usePageTracking hook)
 export function trackPageView(path: string) {
-  if (!POSTHOG_KEY) return
-  posthog.capture('$pageview', {
+  if (!canCapture()) return
+  capture('$pageview', {
     $current_url: window.location.href,
     path,
   })
@@ -37,8 +95,8 @@ export function trackPageView(path: string) {
 
 // Track custom events
 export function trackEvent(eventName: string, properties?: Record<string, unknown>) {
-  if (!POSTHOG_KEY) return
-  posthog.capture(eventName, properties)
+  if (!canCapture()) return
+  capture(eventName, properties)
 }
 
 // Track external link clicks
@@ -60,19 +118,19 @@ export function trackNavigation(destination: string, source?: string) {
 
 // Identify user (optional - for future use)
 export function identifyUser(userId: string, properties?: Record<string, unknown>) {
-  if (!POSTHOG_KEY) return
+  if (!canCapture()) return
   posthog.identify(userId, properties)
 }
 
 // Reset user identity (on logout)
 export function resetUser() {
-  if (!POSTHOG_KEY) return
+  if (!initialized) return
   posthog.reset()
 }
 
 // Track page load performance
 export function trackPageLoadTime() {
-  if (!POSTHOG_KEY) return
+  if (!canCapture()) return
 
   // Wait for the page to fully load
   if (document.readyState === 'complete') {
@@ -105,7 +163,7 @@ function capturePerformanceMetrics() {
 
   // Only track if we have valid data
   if (metrics.pageLoadTime > 0) {
-    posthog.capture('page_load_performance', metrics)
+    capture('page_load_performance', metrics)
   }
 
   // Track Core Web Vitals if available
@@ -117,7 +175,7 @@ function trackWebVitals() {
   const lcpObserver = new PerformanceObserver((list) => {
     const entries = list.getEntries()
     const lastEntry = entries[entries.length - 1]
-    posthog.capture('web_vital_lcp', {
+    capture('web_vital_lcp', {
       value: Math.round(lastEntry.startTime),
       rating: lastEntry.startTime < 2500 ? 'good' : lastEntry.startTime < 4000 ? 'needs-improvement' : 'poor',
     })
@@ -134,7 +192,7 @@ function trackWebVitals() {
     const entries = list.getEntries()
     entries.forEach((entry) => {
       const fidEntry = entry as PerformanceEventTiming
-      posthog.capture('web_vital_fid', {
+      capture('web_vital_fid', {
         value: Math.round(fidEntry.processingStart - fidEntry.startTime),
         rating: fidEntry.processingStart - fidEntry.startTime < 100 ? 'good' : fidEntry.processingStart - fidEntry.startTime < 300 ? 'needs-improvement' : 'poor',
       })
@@ -164,7 +222,7 @@ function trackWebVitals() {
     // Report CLS when page is hidden
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden' && clsValue > 0) {
-        posthog.capture('web_vital_cls', {
+        capture('web_vital_cls', {
           value: clsValue.toFixed(4),
           rating: clsValue < 0.1 ? 'good' : clsValue < 0.25 ? 'needs-improvement' : 'poor',
         })
@@ -183,7 +241,7 @@ const scrollDepthThresholds = [25, 50, 75, 100]
 const scrollDepthReached = new Set<number>()
 
 export function initScrollDepthTracking() {
-  if (!POSTHOG_KEY) return
+  if (!canCapture()) return
 
   // Reset on page change
   scrollDepthReached.clear()
@@ -197,7 +255,7 @@ export function initScrollDepthTracking() {
     for (const threshold of scrollDepthThresholds) {
       if (scrollPercent >= threshold && !scrollDepthReached.has(threshold)) {
         scrollDepthReached.add(threshold)
-        posthog.capture('scroll_depth', {
+        capture('scroll_depth', {
           depth: threshold,
           path: window.location.pathname,
         })
@@ -231,7 +289,7 @@ const sectionsViewed = new Set<string>()
 let sectionObserver: IntersectionObserver | null = null
 
 export function initSectionVisibilityTracking() {
-  if (!POSTHOG_KEY) return
+  if (!canCapture()) return
 
   // Disconnect previous observer if exists
   if (sectionObserver) {
@@ -247,7 +305,7 @@ export function initSectionVisibilityTracking() {
           const sectionId = entry.target.id || entry.target.getAttribute('data-section')
           if (sectionId && !sectionsViewed.has(sectionId)) {
             sectionsViewed.add(sectionId)
-            posthog.capture('section_viewed', {
+            capture('section_viewed', {
               section: sectionId,
               path: window.location.pathname,
               viewportPercent: Math.round(entry.intersectionRatio * 100),
@@ -281,11 +339,12 @@ export function refreshSectionObserver() {
 // ============================================
 
 export function initErrorTracking() {
-  if (!POSTHOG_KEY) return
+  if (!canCapture()) return
 
   // Track JavaScript errors
   window.addEventListener('error', (event) => {
-    posthog.capture('js_error', {
+    if (!canCapture()) return
+    capture('js_error', {
       message: event.message,
       filename: event.filename,
       lineno: event.lineno,
@@ -298,8 +357,9 @@ export function initErrorTracking() {
 
   // Track unhandled promise rejections
   window.addEventListener('unhandledrejection', (event) => {
+    if (!canCapture()) return
     const reason = event.reason
-    posthog.capture('unhandled_promise_rejection', {
+    capture('unhandled_promise_rejection', {
       message: reason?.message || String(reason),
       stack: reason?.stack?.slice(0, 1000),
       path: window.location.pathname,

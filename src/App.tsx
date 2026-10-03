@@ -1,7 +1,8 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import Navigation from './components/layout/Navigation'
 import PageTransition from './components/layout/PageTransition'
+import { isPrivateAnalyticsPath } from './services/analytics'
 import { usePageTracking } from './hooks/usePageTracking'
 
 const Portfolio = lazy(() => import('./pages/Portfolio'))
@@ -14,9 +15,16 @@ const ImportantLinks = lazy(() => import('./pages/ImportantLinks'))
 const Dev = lazy(() => import('./pages/Dev'))
 const AskAnkush = lazy(() => import('./pages/AskAnkush'))
 
+const FriendsAndFamily = lazy(() => import('./pages/FriendsAndFamily'))
+
 function App() {
+  const location = useLocation()
   // Track page views on route changes
   usePageTracking()
+
+  if (isPrivateAnalyticsPath(location.pathname)) {
+    return <Suspense fallback={<div data-private-round className="ph-no-capture ph-no-record min-h-screen bg-slate-50 p-8 text-slate-600 dark:bg-slate-950 dark:text-slate-300">Loading…</div>}><FriendsAndFamily /></Suspense>
+  }
 
   return (
     <>

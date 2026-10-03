@@ -1,0 +1,14 @@
+import type { Participant, RoundConfig } from './contract'
+import { convertMinor, formatMoney } from './money'
+
+function CommitmentAmount({ participant, config }: { participant: Participant; config: RoundConfig }) {
+  const { currency, amountMinor } = participant.commitment
+  if (!currency || !amountMinor) return <span>No active commitment</span>
+  return <><p className="font-semibold tabular-nums text-slate-900 dark:text-white">{formatMoney(amountMinor, currency)}</p>{currency === 'INR' && <p className="mt-1 text-xs tabular-nums text-slate-500 dark:text-slate-400">About {formatMoney(convertMinor({ currency, amountMinor }, 'USD', config.inrPerUsd).toString(), 'USD')}</p>}<p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Updated <time dateTime={participant.commitment.createdAt} title={new Date(participant.commitment.createdAt).toLocaleString()}>{new Date(participant.commitment.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</time></p></>
+}
+export function ParticipantList({ participants, config }: { participants: Participant[]; config: RoundConfig }) {
+  return <>
+    <div className="hidden sm:block"><table className="w-full table-fixed text-left text-sm"><caption className="sr-only">Active commitments with signed-in name and email snapshots</caption><thead className="border-b border-slate-100 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400"><tr><th scope="col" className="w-3/5 px-6 py-4 font-medium">Member</th><th scope="col" className="px-6 py-4 text-right font-medium">Commitment</th></tr></thead><tbody className="divide-y divide-slate-100 dark:divide-slate-800">{participants.map((participant) => <tr key={`${participant.email}:${participant.commitment.createdAt}:${participant.commitment.version}`}><td className="px-6 py-5 align-top"><p className="break-words font-medium text-slate-900 dark:text-white">{participant.name || 'Name not provided'}</p><p className="mt-1 break-all text-xs text-slate-500 dark:text-slate-400">{participant.email}</p></td><td className="break-words px-6 py-5 text-right align-top"><CommitmentAmount participant={participant} config={config} /></td></tr>)}</tbody></table></div>
+    <ul className="divide-y divide-slate-100 px-5 sm:hidden dark:divide-slate-800">{participants.map((participant) => <li key={`${participant.email}:${participant.commitment.createdAt}:${participant.commitment.version}`} className="space-y-4 py-5"><div><p className="break-words font-medium text-slate-900 dark:text-white">{participant.name || 'Name not provided'}</p><p className="mt-1 break-all text-xs text-slate-500 dark:text-slate-400">{participant.email}</p></div><div className="text-sm"><CommitmentAmount participant={participant} config={config} /></div></li>)}</ul>
+  </>
+}

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import {
   trackPageView,
+  syncAnalyticsRoute,
   resetScrollDepthTracking,
   initSectionVisibilityTracking,
 } from '../services/analytics'
@@ -13,6 +14,7 @@ export function usePageTracking() {
   const location = useLocation()
 
   useEffect(() => {
+    syncAnalyticsRoute()
     // Track page view
     trackPageView(location.pathname)
 
