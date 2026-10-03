@@ -1,6 +1,8 @@
 import type { CommitmentConfig, Currency, Money, RoundConfig, RoundOverview } from './contract'
 
 export type RupeeUnit = 'Lakh' | 'Crore'
+// The one default unit: an empty editor starts here, and a prefilled amount is shown in it.
+export const DEFAULT_RUPEE_UNIT: RupeeUnit = 'Lakh'
 export const unitScale = (currency: Currency, unit: RupeeUnit): bigint =>
   currency === 'USD' ? 100n : unit === 'Lakh' ? 10_000_000n : 1_000_000_000n
 

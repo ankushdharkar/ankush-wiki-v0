@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { CommitmentConfig, Money } from './contract'
-import { amountError, convertMinor, decimalForScale, formatMoney, inrMinorPerUsd, parseAmount, rateLine, selectedMoney, unitScale } from './money'
+import { amountError, convertMinor, DEFAULT_RUPEE_UNIT, decimalForScale, formatMoney, inrMinorPerUsd, parseAmount, rateLine, selectedMoney, unitScale } from './money'
 import type { RupeeUnit } from './money'
 import { actions, AlertIcon, compactButton, fieldError, fieldGroup, fieldGroupInvalid, fieldInput, fieldLabel, fieldSelect, hairline, primaryButton, quietButton, secondaryText, SelectChevron } from './ui'
 
@@ -9,9 +9,9 @@ export function MoneyEditor({ config, initial, locked, pending, onSave, onCancel
   onSave: (money: Money) => void; onCancel?: () => void
 }) {
   const [currency, setCurrency] = useState<Money['currency']>(initial?.currency ?? 'INR')
-  const [unit, setUnit] = useState<RupeeUnit>('Crore')
+  const [unit, setUnit] = useState<RupeeUnit>(DEFAULT_RUPEE_UNIT)
   const [canonical, setCanonical] = useState<Money | null>(initial)
-  const [value, setValue] = useState(initial ? decimalForScale(BigInt(initial.amountMinor), unitScale(initial.currency, 'Crore')) : '')
+  const [value, setValue] = useState(initial ? decimalForScale(BigInt(initial.amountMinor), unitScale(initial.currency, DEFAULT_RUPEE_UNIT)) : '')
   const [showError, setShowError] = useState(false)
   const rate = inrMinorPerUsd(config)
   const selected = selectedMoney(canonical, currency, rate)

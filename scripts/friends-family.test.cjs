@@ -255,13 +255,13 @@ test('welcome renders personal gratitude and Next without aggregate information'
   assert.equal(html.includes('commitment-amount'), false)
   assertNoRoundTotals(html)
 })
-test('amount stage renders an empty INR/Crore editor and explicit-save CTA without aggregate DOM', () => {
+test('amount stage renders an empty INR/Lakh editor and explicit-save CTA without aggregate DOM', () => {
   const html = renderStage('amount')
   assert.ok(html.includes('What amount are you comfortable investing?'))
   assert.ok(html.includes('>Save commitment</button>'))
   assert.equal(html.includes('view round'), false)
   assert.ok(html.includes('<option selected="">INR</option>'))
-  assert.ok(html.includes('<option selected="">Crore</option>'))
+  assert.ok(html.includes('<option selected="">Lakh</option>'))
   assert.ok(html.includes('value=""'))
   assert.ok(html.includes('US$1 = ₹95'))
   assertNoRoundTotals(html)
