@@ -467,7 +467,7 @@ export default function AskAnkush() {
                     animate={{ opacity: 1, y: 0, transition: { delay: index * 0.05 } }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ layout: { type: 'spring', stiffness: 350, damping: 30 } }}
-                    className="bg-white dark:bg-gray-800/30 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700/40 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.15)] hover:shadow-md dark:hover:shadow-[0_8px_24px_rgba(0,0,0,0.25)] hover:border-gray-300 dark:hover:border-gray-700/60 transition-all"
+                    className="bg-white dark:bg-gray-800/30 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700/40 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.15)] hover:shadow-md dark:hover:shadow-[0_8px_24px_rgba(0,0,0,0.25)] hover:border-gray-300 dark:hover:border-gray-700/60 transition-[box-shadow,border-color]"
                   >
                     <div className="p-6">
                       {/* Question Header */}
