@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useLocation } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 
 interface PageTransitionProps {
@@ -50,26 +50,27 @@ const getRouteColor = (pathname: string): string => {
 
 export default function PageTransition({ children }: PageTransitionProps) {
   const location = useLocation();
+  const [prevPathname, setPrevPathname] = useState(location.pathname);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [overlayColor, setOverlayColor] = useState('bg-black');
-  const hasNavigated = useRef(false);
 
-  useEffect(() => {
-    // Skip transition on initial page load
-    if (!hasNavigated.current) {
-      hasNavigated.current = true;
-      return;
-    }
-
+  // Start the overlay when the route changes, but not on the initial page load
+  if (location.pathname !== prevPathname) {
+    setPrevPathname(location.pathname);
     setIsTransitioning(true);
     setOverlayColor(getRouteColor(location.pathname));
-    
+  }
+
+  // Hide the overlay 800ms after the latest route change
+  useEffect(() => {
+    if (!isTransitioning) return;
+
     const timer = setTimeout(() => {
       setIsTransitioning(false);
     }, 800);
 
     return () => clearTimeout(timer);
-  }, [location.pathname]);
+  }, [isTransitioning, location.pathname]);
 
   return (
     <>
@@ -87,20 +88,19 @@ export default function PageTransition({ children }: PageTransitionProps) {
         </motion.div>
       </AnimatePresence>
       
-      {/* Transition Overlay - only render after first navigation */}
-      {hasNavigated.current && (
-        <motion.div
-          className={`fixed inset-0 z-50 ${overlayColor} origin-top pointer-events-none`}
-          animate={{
-            scaleY: isTransitioning ? [0, 1, 0] : 0,
-          }}
-          transition={{
-            duration: 0.8,
-            times: [0, 0.5, 1],
-            ease: "easeInOut"
-          }}
-        />
-      )}
+      {/* Transition Overlay - starts collapsed so the initial page load shows nothing */}
+      <motion.div
+        className={`fixed inset-0 z-50 ${overlayColor} origin-top pointer-events-none`}
+        initial={false}
+        animate={{
+          scaleY: isTransitioning ? [0, 1, 0] : 0,
+        }}
+        transition={{
+          duration: 0.8,
+          times: [0, 0.5, 1],
+          ease: "easeInOut"
+        }}
+      />
     </>
   );
 }
