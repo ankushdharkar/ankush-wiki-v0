@@ -1168,3 +1168,90 @@ test('the admin overview shows the full round card with the own-share segment, r
   const without = adminDashboardHtml(tripwire(adminOverview), targetSnapshot)
   assert.ok(without.includes('data-segment="total"')); assert.equal(without.includes('data-segment="own"'), false)
 })
+
+// The TrueHuman block: Ankush's two lines and a closed collapsible of two links, on the member summary only.
+const trueHumanLines = [
+  'Online, it is getting harder to know who is real and who to trust.',
+  'TrueHuman fixes that. Think of it as what a CIBIL or FICO score does for credit, but for trust between people online.',
+]
+const trueHumanLinks = [
+  ['Paul Graham on X', 'https://x.com/paulg/status/2103050328270946328'],
+  ['Nikita Bier on X', 'https://x.com/nikitabier/status/2102432368158245252'],
+]
+// Every member state that reaches the summary: with a commitment (USD and INR), after a withdrawal, and the admin's own member view.
+const summaryStates = [savedUsd, savedInr, withdrawn, adminWith(savedUsd), adminWith(withdrawn)]
+test('the member summary carries the TrueHuman block, its heading and two paragraphs in order, before the commitment title and panel', () => {
+  for (const overview of summaryStates) {
+    const html = renderStage('summary', overview, { memberName: 'Asha Rao' })
+    const heading = html.indexOf('>What I am building</h2>')
+    const first = html.indexOf(`>${trueHumanLines[0]}</p>`)
+    const second = html.indexOf(`>${trueHumanLines[1]}</p>`)
+    const title = html.indexOf('>Your commitment</h1>')
+    const subtitle = html.indexOf('Your commitment stays yours to manage.')
+    const panel = html.indexOf(overview.ownCommitment?.status === 'active' ? 'Change commitment' : 'Make your commitment')
+    const contact = html.indexOf('Call me or WhatsApp me.')
+    for (const [name, at] of Object.entries({ heading, first, second, title, subtitle, panel, contact })) assert.ok(at >= 0, name)
+    // The block comes first, then "Your commitment" heads the subtitle and the panel, and the contact line stays last.
+    assert.ok(heading < first && first < second && second < title && title < subtitle && subtitle < panel && panel < contact)
+    // The block's paragraphs use Ankush's serif voice, and the block is labelled by its own heading, not by "Your commitment".
+    const block = html.match(/<section aria-labelledby="([^"]+)"[^>]*>[\s\S]*?<\/section>/)
+    assert.ok(block, 'block section')
+    assert.ok(block[0].includes(`id="${block[1]}"`) && block[0].includes('>What I am building</h2>'))
+    assert.equal(block[0].includes('Your commitment'), false)
+    const voiced = block[0].match(/<div class="[^"]*font-serif[^"]*">([\s\S]*?)<\/div>/)
+    assert.ok(voiced, 'serif voice wrapper')
+    for (const line of trueHumanLines) assert.ok(voiced[1].includes(`<p>${line}</p>`), line)
+  }
+})
+test('a collapsible, closed by default, holds two links with exactly those addresses, each opening in a new tab', () => {
+  for (const overview of summaryStates) {
+    const html = renderStage('summary', overview)
+    const details = html.match(/<details([^>]*)>([\s\S]*?)<\/details>/)
+    assert.ok(details, 'details')
+    assert.equal(/\bopen\b/.test(details[1]), false, 'closed by default')
+    assert.equal(html.split('<details').length - 1, 1)
+    assert.ok(/^<summary[^>]*>[\s\S]*Why this matters now[\s\S]*?<\/summary>/.test(details[2]), 'summary first, with its text')
+    const anchors = [...details[2].matchAll(/<a ([^>]*)>([^<]*)<\/a>/g)]
+    assert.deepEqual(anchors.map(anchor => anchor[2]), trueHumanLinks.map(([name]) => name))
+    anchors.forEach((anchor, index) => {
+      const href = anchor[1].match(/href="([^"]*)"/)[1]
+      assert.equal(href, trueHumanLinks[index][1])
+      assert.equal(/[?#]/.test(href), false, href)
+      assert.ok(anchor[1].includes('target="_blank"'), href)
+      assert.ok(anchor[1].includes('rel="noopener noreferrer"'), href)
+    })
+    // The block is the only place that names either link.
+    for (const [, href] of trueHumanLinks) assert.equal(html.split(href).length - 1, 1, href)
+  }
+})
+test('nothing from X is embedded or loaded on the summary: no script, iframe, image or other remote source', () => {
+  for (const overview of summaryStates) {
+    const html = renderStage('summary', overview)
+    for (const tag of ['<script', '<iframe', '<embed', '<object', '<link', '<img', '<blockquote', '<video', '<audio']) assert.equal(html.includes(tag), false, tag)
+    assert.equal(/\ssrc(set)?="(https?:)?\/\//.test(html), false, 'no remote src')
+    for (const marker of ['twitter', 'widgets.js', 'platform.x.com', 'pbs.twimg.com']) assert.equal(html.toLowerCase().includes(marker), false, marker)
+    // x.com appears only inside the two anchors' href attributes.
+    assert.equal(html.split('x.com').length - 1, 2)
+    for (const match of html.matchAll(/x\.com/g)) assert.ok(/href="https:\/\/$/.test(html.slice(0, match.index)), 'x.com outside an href')
+  }
+})
+test('the letters, the amount step, the signed-out landing and the admin overview do not carry the block', () => {
+  const markers = ['What I am building', 'TrueHuman', trueHumanLines[0], 'Why this matters now', 'x.com', '<details']
+  const screens = []
+  for (const overview of [roundFixture, savedUsd, withdrawn, adminOverview, adminWith(savedUsd)]) {
+    for (const stage of ['welcome', 'amount']) screens.push([stage, renderStage(stage, overview, { memberName: 'Asha Rao' })])
+  }
+  screens.push(['landing', pageHarness(null, roundFixture).html])
+  screens.push(['admin overview', adminDashboardHtml({ ...adminOverview, currentVersion: '1', ownCommitment: ownActive }, targetSnapshot)])
+  for (const [name, html] of screens) for (const marker of markers) assert.equal(html.includes(marker), false, `${name}: ${marker}`)
+})
+test('member screens with the TrueHuman block still show no round figures, with or without figures in the response', () => {
+  for (const base of summaryStates) {
+    for (const overview of [base, withheld(base), tripwire(base)]) {
+      const html = renderStage('summary', overview, { memberName: 'Asha Rao' })
+      assert.ok(html.includes('>What I am building</h2>'))
+      assertNoRoundTotals(html)
+      for (const marker of ['US$1,999,000', 'US$1,000,000', 'data-segment']) assert.equal(html.includes(marker), false, marker)
+    }
+  }
+})

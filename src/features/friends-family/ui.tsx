@@ -89,6 +89,18 @@ export function OwnSwatch() {
   return <span data-own-swatch aria-hidden="true" className={`mr-2 inline-block size-2.5 rounded-xs ${ownShare}`} />
 }
 
+// A native disclosure, closed until the reader opens it. No script state and no animation.
+// The chevron points right when closed and down when open, so the state never rests on colour.
+export function Disclosure({ summary, children }: { summary: string; children: ReactNode }) {
+  return <details className="group">
+    <summary className={`flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-sm text-base leading-6 font-medium text-stone-800 hover:text-stone-950 dark:text-stone-200 dark:hover:text-white [&::-webkit-details-marker]:hidden ${focusRing}`}>
+      <Icon path={paths.chevron} className="size-4 shrink-0 -rotate-90 text-stone-500 group-open:rotate-0 dark:text-stone-400" />
+      {summary}
+    </summary>
+    <div className="pl-6">{children}</div>
+  </details>
+}
+
 // A label and its figure. Used for every round number that is not the headline total.
 export function Stat({ label: name, value }: { label: string; value: string }) {
   return <div className="min-w-0">

@@ -6,7 +6,7 @@ import { activeCommitmentMoney, formatMoney } from './money'
 import { firstNameFrom, initialMemberStage, letterVariant, memberFlowReducer } from './memberFlow'
 import type { LetterVariant, MemberStage } from './memberFlow'
 import { ankushPhoto, welcomeMedia } from './assets'
-import { compactButton, cornerLink, label, Notice, pageTitle, primaryButton, secondaryText, sheet, Signature, textLink, voice } from './ui'
+import { compactButton, cornerLink, Disclosure, hairline, label, Notice, pageTitle, primaryButton, secondaryText, sectionTitle, sheet, Signature, textLink, voice } from './ui'
 
 interface MemberRoundProps {
   overview: RoundOverview
@@ -31,15 +31,42 @@ export function MemberRoundContent({ stage, onNext, onSaveConfirmed, ...props }:
   const refreshNotice = props.refreshFailed && <Notice tone="warning" role="status"><p>The latest update could not be loaded.</p><button type="button" onClick={() => void props.refresh().catch(() => {})} className={compactButton}>Retry</button></Notice>
   if (stage === 'amount') return <div className="mx-auto max-w-xl space-y-6">{panel}{refreshNotice}</div>
   // No round figures here, for any member or the admin: the round card lives only in the admin overview.
-  return <div className="mx-auto max-w-xl space-y-8">
-    <header>
-      <h1 className={pageTitle}>Your commitment</h1>
-      <p className={`mt-3 text-base leading-7 ${secondaryText}`}>Your commitment stays yours to manage. You can change it or withdraw it here.</p>
-    </header>
-    <div className="min-w-0 space-y-6">{panel}{refreshNotice}</div>
-    {/* The address lives only in the link; the people on this page already have Ankush's number. */}
-    <p className={`${voice} flex flex-wrap items-center gap-x-2`}><span>Questions? Call me or WhatsApp me.</span><a href="mailto:ankushdharkar@gmail.com" className={textLink}>Email me</a></p>
+  // The TrueHuman block comes first as its own section; "Your commitment" then heads only the commitment part below it.
+  return <div className="mx-auto max-w-xl space-y-12">
+    <TrueHumanBlock />
+    <div className="space-y-8">
+      <header>
+        <h1 className={pageTitle}>Your commitment</h1>
+        <p className={`mt-3 text-base leading-7 ${secondaryText}`}>Your commitment stays yours to manage. You can change it or withdraw it here.</p>
+      </header>
+      <div className="min-w-0 space-y-6">{panel}{refreshNotice}</div>
+      {/* The address lives only in the link; the people on this page already have Ankush's number. */}
+      <p className={`${voice} flex flex-wrap items-center gap-x-2`}><span>Questions? Call me or WhatsApp me.</span><a href="mailto:ankushdharkar@gmail.com" className={textLink}>Email me</a></p>
+    </div>
   </div>
+}
+// Plain links only: nothing from X is embedded, previewed or loaded until a link is clicked.
+// The labels name the posts' authors and nothing more; the page does not describe or quote the posts.
+const trueHumanLinks: [string, string][] = [
+  ['Paul Graham on X', 'https://x.com/paulg/status/2103050328270946328'],
+  ['Nikita Bier on X', 'https://x.com/nikitabier/status/2102432368158245252'],
+]
+// Ankush's own two lines, in his voice, on the member summary only.
+function TrueHumanBlock() {
+  return <section aria-labelledby="truehuman-heading" className={sheet}>
+    <h2 id="truehuman-heading" className={sectionTitle}>What I am building</h2>
+    <div className={`mt-4 space-y-4 ${voice}`}>
+      <p>Online, it is getting harder to know who is real and who to trust.</p>
+      <p>TrueHuman fixes that. Think of it as what a CIBIL or FICO score does for credit, but for trust between people online.</p>
+    </div>
+    <div className={`mt-6 border-t pt-2 ${hairline}`}>
+      <Disclosure summary="Why this matters now">
+        <ul className="flex flex-col items-start pb-1 sm:flex-row sm:gap-x-6">
+          {trueHumanLinks.map(([name, href]) => <li key={href}><a href={href} target="_blank" rel="noopener noreferrer" className={textLink}>{name}</a></li>)}
+        </ul>
+      </Disclosure>
+    </div>
+  </section>
 }
 const previewVariants: [LetterVariant, string][] = [['new', 'New'], ['returning', 'Returning'], ['withdrawn', 'Withdrawn']]
 // Shown in a previewed returning letter when the admin has no active commitment of their own.
