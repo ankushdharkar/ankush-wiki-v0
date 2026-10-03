@@ -175,17 +175,55 @@ function renderStage(stage, overview = roundFixture) {
 function assertNoRoundTotals(html) {
   for (const marker of ['Round progress', 'progressbar', 'US$2,000,000', 'US$1,000', 'of the target', 'People committed', 'Remaining']) assert.equal(html.includes(marker), false, marker)
 }
-test('new accounts start at welcome, while any active or withdrawn history starts at management', () => {
-  assert.equal(flow.initialMemberStage(roundFixture), 'welcome')
-  assert.equal(flow.initialMemberStage({ ...roundFixture, currentVersion: '1' }), 'summary')
-  assert.equal(flow.initialMemberStage({ ...roundFixture, ownCommitment: { status: 'withdrawn' } }), 'summary')
-  assert.equal(flow.initialMemberStage({ ...roundFixture, ownCommitment: { status: 'active' } }), 'summary')
+const historyFixtures = [
+  { ...roundFixture, currentVersion: '1' },
+  { ...roundFixture, ownCommitment: { status: 'withdrawn' } },
+  { ...roundFixture, ownCommitment: { status: 'active' } },
+]
+// Mount the real MemberRound with a small useReducer store, so Next can be pressed between renders.
+function memberFlowHarness(overview) {
+  let stage; let mounted = false
+  const hooks = { useReducer: (reducer, arg, init) => { if (!mounted) { stage = init ? init(arg) : arg; mounted = true } return [stage, event => { stage = reducer(stage, event) }] } }
+  const component = load('src/features/friends-family/MemberRound.tsx', {
+    react: hooks, 'react/jsx-runtime': jsxRuntime, './CommitmentPanel': panel, './RoundProgress': progress,
+    './money': money, './participants': participantHelpers, './memberFlow': flow, './ui': ui,
+  })
+  const render = () => component.MemberRound({ ...memberProps, overview })
+  return { render, next: () => render().props.onNext(), get stage() { return render().props.stage }, setOverview: next => { overview = next } }
+}
+test('every signed-in member starts at the welcome letter, with or without a commitment', () => {
+  for (const overview of [roundFixture, ...historyFixtures]) {
+    assert.equal(memberFlowHarness(overview).stage, 'welcome')
+    const html = renderToStaticMarkup(React.createElement(member.MemberRound, { ...memberProps, overview }))
+    assert.ok(html.includes('Thank you for being here.'))
+    assert.ok(html.includes('>Next</button>'))
+  }
 })
-test('next opens amount entry; only confirmed-save event opens summary', () => {
-  assert.equal(flow.memberFlowReducer('welcome', 'next'), 'amount')
-  assert.equal(flow.memberFlowReducer('amount', 'next'), 'amount')
-  assert.equal(flow.memberFlowReducer('amount', 'save-confirmed'), 'summary')
-  assert.equal(flow.memberFlowReducer('summary', 'next'), 'summary')
+test('next opens amount entry for a member without history; only confirmed-save event opens summary from there', () => {
+  assert.equal(flow.memberFlowReducer('welcome', { type: 'next', overview: roundFixture }), 'amount')
+  assert.equal(flow.memberFlowReducer('amount', { type: 'next', overview: roundFixture }), 'amount')
+  assert.equal(flow.memberFlowReducer('amount', { type: 'save-confirmed' }), 'summary')
+  assert.equal(flow.memberFlowReducer('summary', { type: 'next', overview: roundFixture }), 'summary')
+})
+test('next goes to the summary for a member with history and to the amount step for a member with none, judged when pressed', () => {
+  assert.equal(flow.hasMemberHistory(roundFixture), false)
+  for (const overview of historyFixtures) {
+    assert.equal(flow.hasMemberHistory(overview), true)
+    const state = memberFlowHarness(overview); state.next()
+    assert.equal(state.stage, 'summary')
+  }
+  const fresh = memberFlowHarness(roundFixture); fresh.next()
+  assert.equal(fresh.stage, 'amount')
+  // Polling never moves the stage, and Next reads the latest overview at the moment it is pressed.
+  const polled = memberFlowHarness(roundFixture)
+  polled.setOverview(historyFixtures[2])
+  assert.equal(polled.stage, 'welcome')
+  polled.next()
+  assert.equal(polled.stage, 'summary')
+  const reverted = memberFlowHarness(historyFixtures[2])
+  reverted.setOverview(roundFixture)
+  reverted.next()
+  assert.equal(reverted.stage, 'amount')
 })
 test('welcome renders personal gratitude and Next without aggregate information', () => {
   const html = renderStage('welcome')
@@ -467,6 +505,18 @@ test('admin first load uses the regular welcome and owner overview without fetch
   assert.equal(state.queries.length, 2)
   assert.equal(state.queries[1].queryKey[2], 'admin-subject')
   assert.equal(state.queries.some(query => query.queryKey[1] === 'participants'), false)
+})
+test('a member or the admin with a saved commitment still lands on the welcome without round figures', () => {
+  const saved = { status: 'active', currency: 'USD', amountMinor: '5000', version: '1', createdAt: '2026-10-03T00:01:00.000Z' }
+  for (const [user, overview] of [
+    [{ authId: 'admin-subject', name: 'Admin Example', email: 'admin@example.test' }, { ...adminOverview, currentVersion: '1', ownCommitment: saved }],
+    [{ authId: 'member-subject', name: 'Member Example', email: 'member@example.test' }, { ...roundFixture, currentVersion: '1', ownCommitment: saved }],
+  ]) {
+    const state = pageHarness(user, overview)
+    assert.ok(state.html.includes('Thank you for being here.'), user.authId)
+    assert.equal(state.html.includes('Change commitment'), false, user.authId)
+    assertNoRoundTotals(state.html)
+  }
 })
 test('ordinary members have the same welcome and no Admin view action', () => {
   const state = pageHarness({ authId: 'member-subject', name: 'Member Example', email: 'member@example.test' }, roundFixture)

@@ -16,9 +16,9 @@ interface MemberRoundProps {
   refreshFailed: boolean
 }
 export function MemberRound(props: MemberRoundProps) {
-  // This initializer runs only when the account-keyed component mounts. Polling cannot advance it.
-  const [stage, dispatch] = useReducer(memberFlowReducer, props.overview, initialMemberStage)
-  return <MemberRoundContent {...props} stage={stage} onNext={() => dispatch('next')} onSaveConfirmed={() => dispatch('save-confirmed')} />
+  // Every account-keyed mount starts at the welcome. Polling cannot advance it; Next judges history from the latest overview.
+  const [stage, dispatch] = useReducer(memberFlowReducer, undefined, initialMemberStage)
+  return <MemberRoundContent {...props} stage={stage} onNext={() => dispatch({ type: 'next', overview: props.overview })} onSaveConfirmed={() => dispatch({ type: 'save-confirmed' })} />
 }
 export function MemberRoundContent({ stage, onNext, onSaveConfirmed, ...props }: MemberRoundProps & {
   stage: MemberStage; onNext: () => void; onSaveConfirmed: () => void
