@@ -1,33 +1,8 @@
-import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-
-type Theme = 'light' | 'dark'
-
-function getInitialTheme(): Theme {
-  if (typeof window === 'undefined') return 'dark'
-
-  const stored = localStorage.getItem('theme') as Theme | null
-  if (stored === 'light' || stored === 'dark') return stored
-
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
+import { useTheme } from '../hooks/useTheme'
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme)
-
-  useEffect(() => {
-    const root = document.documentElement
-    if (theme === 'dark') {
-      root.classList.add('dark')
-    } else {
-      root.classList.remove('dark')
-    }
-    localStorage.setItem('theme', theme)
-  }, [theme])
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark')
-  }
+  const { theme, toggleTheme } = useTheme()
 
   return (
     <motion.button

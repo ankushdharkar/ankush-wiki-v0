@@ -23,7 +23,7 @@ function App() {
   usePageTracking()
 
   if (isPrivateAnalyticsPath(location.pathname)) {
-    return <Suspense fallback={<div data-private-round className="ph-no-capture ph-no-record min-h-screen bg-slate-50 p-8 text-slate-600 dark:bg-slate-950 dark:text-slate-300">Loading…</div>}><FriendsAndFamily /></Suspense>
+    return <Suspense fallback={<div data-private-round className="ph-no-capture ph-no-record min-h-screen bg-stone-50 p-8 text-stone-600 dark:bg-stone-950 dark:text-stone-400">Loading…</div>}><FriendsAndFamily /></Suspense>
   }
 
   return (

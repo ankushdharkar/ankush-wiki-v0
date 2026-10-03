@@ -159,13 +159,14 @@ const roundFixture = {
   summary: { participantCount: '3', totalInrMinor: '9500000', totalUsdMinor: '100000', exactUsdMinor: { numerator: '9500000', denominator: '95' }, progressBasisPoints: '5' },
   ownCommitment: null, currentVersion: '0', capabilities: { canViewParticipants: false, canManageRound: false },
 }
-const moneyEditor = load('src/features/friends-family/MoneyEditor.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, './money': money })
+const ui = load('src/features/friends-family/ui.tsx', { 'react/jsx-runtime': jsxRuntime })
+const moneyEditor = load('src/features/friends-family/MoneyEditor.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, './money': money, './ui': ui })
 const inertApi = load('src/features/friends-family/api.ts', { '../../services/api': { API_URL: '' } }, { AbortSignal, crypto: { randomUUID: () => 'synthetic-operation' } })
-const panel = load('src/features/friends-family/CommitmentPanel.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({}) }, './api': inertApi, './money': money, './MoneyEditor': moneyEditor })
-const progress = load('src/features/friends-family/RoundProgress.tsx', { 'react/jsx-runtime': jsxRuntime, './money': money })
+const panel = load('src/features/friends-family/CommitmentPanel.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({}) }, './api': inertApi, './money': money, './MoneyEditor': moneyEditor, './ui': ui })
+const progress = load('src/features/friends-family/RoundProgress.tsx', { 'react/jsx-runtime': jsxRuntime, './money': money, './ui': ui })
 const member = load('src/features/friends-family/MemberRound.tsx', {
   react: React, 'react/jsx-runtime': jsxRuntime, './CommitmentPanel': panel, './RoundProgress': progress,
-  './money': money, './MoneyEditor': moneyEditor, './participants': participantHelpers, './memberFlow': flow,
+  './money': money, './MoneyEditor': moneyEditor, './participants': participantHelpers, './memberFlow': flow, './ui': ui,
 })
 const memberProps = { overview: roundFixture, queryKey: ['private-friends-family', 'overview', 'synthetic-member'], refresh: async () => roundFixture, onUnauthorized: () => {}, refreshFailed: false }
 function renderStage(stage, overview = roundFixture) {
@@ -230,7 +231,7 @@ function panelHarness() {
     useRef: (initial) => { const index = cursor++; if (!(index in slots)) slots[index] = { current: initial }; return slots[index] },
   }
   const api = { ...inertApi, createCommand: (version, amount) => ({ operationId: `operation-${++commandCount}`, expectedVersion: version, kind: 'save', ...amount }), executeCommand: (command) => { commands.push(command); return new Promise((resolve, reject) => { response = { resolve, reject } }) } }
-  const testPanel = load('src/features/friends-family/CommitmentPanel.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({ cancelQueries: async () => {}, setQueryData: (...args) => cache.push(args) }) }, './api': api, './money': money, './MoneyEditor': moneyEditor })
+  const testPanel = load('src/features/friends-family/CommitmentPanel.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({ cancelQueries: async () => {}, setQueryData: (...args) => cache.push(args) }) }, './api': api, './money': money, './MoneyEditor': moneyEditor, './ui': ui })
   let overview = roundFixture
   function render() { cursor = 0; return testPanel.CommitmentPanel({ overview, queryKey: memberProps.queryKey, refresh: async () => overview, onUnauthorized: () => expired++, entry: true, onSaveConfirmed: () => confirmed++ }) }
   return { render, commands, cache, get response() { return response }, get confirmed() { return confirmed }, get expired() { return expired }, unmount: () => cleanup?.(), setOverview: (next) => { overview = next } }
@@ -283,7 +284,7 @@ test('member conflict review cannot adopt a newer polling version without loadin
   assert.notEqual(state.commands[0].operationId, state.commands[1].operationId)
 })
 const targetHelpers = load('src/features/friends-family/roundTarget.ts', { './money': money })
-const targetComponents = load('src/features/friends-family/RoundTargetEditor.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, './api': inertApi, './money': money, './MoneyEditor': moneyEditor, './roundTarget': targetHelpers })
+const targetComponents = load('src/features/friends-family/RoundTargetEditor.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, './api': inertApi, './money': money, './MoneyEditor': moneyEditor, './roundTarget': targetHelpers, './ui': ui })
 const targetSnapshot = { config: roundFixture.config, round: { version: '1', updatedAt: '2026-10-03T00:00:00.000Z' }, summary: { ...roundFixture.summary, totalUsdMinor: '50000000', totalInrMinor: '4750000000', progressBasisPoints: '2500', participantCount: '2' }, participants: [] }
 test('million USD entry produces exact canonical cents and rejects fractional cents/invalid formats', () => {
   assert.equal(targetHelpers.parseTargetMillions('2'), '200000000')
@@ -366,7 +367,7 @@ function targetHarness() {
     useRef: (initial) => { const index = cursor++; if (!(index in slots)) slots[index] = { current: initial }; return slots[index] },
   }
   const api = { ...inertApi, createRoundTargetCommand: (expectedVersion, targetUsdMinor) => ({ operationId: `target-operation-${++count}`, expectedVersion, targetUsdMinor }) }
-  const component = load('src/features/friends-family/RoundTargetEditor.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, './api': api, './money': money, './MoneyEditor': moneyEditor, './roundTarget': targetHelpers })
+  const component = load('src/features/friends-family/RoundTargetEditor.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, './api': api, './money': money, './MoneyEditor': moneyEditor, './roundTarget': targetHelpers, './ui': ui })
   const render = () => { cursor = 0; return component.RoundTargetEditor({ snapshot, canManage: manage, save: (command) => { commands.push(command); return new Promise((resolve, reject) => { response = { resolve, reject } }) }, refresh: async () => { snapshot = latest; return latest }, onAccessDenied: status => denied.push(status), onEditStateChange: next => editing.push(next) }) }
   return { render, commands, denied, editing, get response() { return response }, setSnapshot: next => { snapshot = next }, setLatest: next => { latest = next }, setManage: next => { manage = next } }
 }
@@ -442,7 +443,7 @@ test('target access failures are handed to dashboard privacy feedback and revoke
   assert.equal(findElement(state.render(), node => node.type === 'form'), undefined)
 })
 
-const views = load('src/features/friends-family/RoundViews.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, './MemberRound': member, './AdminDashboard': { AdminDashboard: () => { throw Error('Dashboard must be explicitly opened') } }, './MoneyEditor': moneyEditor })
+const views = load('src/features/friends-family/RoundViews.tsx', { react: React, 'react/jsx-runtime': jsxRuntime, './MemberRound': member, './AdminDashboard': { AdminDashboard: () => { throw Error('Dashboard must be explicitly opened') } }, './MoneyEditor': moneyEditor, './ui': ui })
 const adminOverview = { ...roundFixture, capabilities: { canViewParticipants: true, canManageRound: true } }
 function pageHarness(user, overview) {
   const queries = []
@@ -451,6 +452,7 @@ function pageHarness(user, overview) {
     '@tanstack/react-query': { useQueryClient: () => ({}), useQuery: (options) => { queries.push(options); return { data: options.queryKey[1] === 'session' ? { user } : overview, isPending: false, isError: false } } },
     '../components/ThemeToggle': { ThemeToggle: () => null }, '../services/api': { API_URL: 'https://example.com' },
     '../features/friends-family/api': inertApi, '../features/friends-family/RoundViews': views, '../features/friends-family/MoneyEditor': moneyEditor,
+    '../features/friends-family/ThemeSwitch': { ThemeSwitch: () => null }, '../features/friends-family/ui': ui,
   })
   const html = renderToStaticMarkup(React.createElement(page.default))
   return { html, queries }
@@ -473,7 +475,7 @@ function viewsHarness(overview = adminOverview) {
   const slots = []; let cursor = 0
   const hooks = { useState: (initial) => { const index = cursor++; if (!(index in slots)) slots[index] = initial; return [slots[index], next => { slots[index] = typeof next === 'function' ? next(slots[index]) : next }] } }
   const dashboard = { AdminDashboard: function Dashboard() {} }
-  const component = load('src/features/friends-family/RoundViews.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, './MemberRound': member, './AdminDashboard': dashboard, './MoneyEditor': moneyEditor })
+  const component = load('src/features/friends-family/RoundViews.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, './MemberRound': member, './AdminDashboard': dashboard, './MoneyEditor': moneyEditor, './ui': ui })
   const render = () => { cursor = 0; return component.RoundViews({ ...memberProps, overview, authId: 'admin-subject', login: () => {} }) }
   return { render, dashboard: dashboard.AdminDashboard, setOverview: next => { overview = next } }
 }
@@ -519,7 +521,7 @@ test('capability removal immediately hides dashboard and restoration stays in Fn
 test('the actual page keys the shared experience by authenticated subject when accounts change', () => {
   for (const authId of ['admin-one', 'admin-two']) {
     const hooks = { useState: initial => [initial, () => {}] }
-    const page = load('src/pages/FriendsAndFamily.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({}), useQuery: options => ({ data: options.queryKey[1] === 'session' ? { user: { authId } } : adminOverview, isPending: false, isError: false }) }, '../components/ThemeToggle': { ThemeToggle: () => null }, '../services/api': { API_URL: '' }, '../features/friends-family/api': inertApi, '../features/friends-family/RoundViews': views, '../features/friends-family/MoneyEditor': moneyEditor })
+    const page = load('src/pages/FriendsAndFamily.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({}), useQuery: options => ({ data: options.queryKey[1] === 'session' ? { user: { authId } } : adminOverview, isPending: false, isError: false }) }, '../components/ThemeToggle': { ThemeToggle: () => null }, '../services/api': { API_URL: '' }, '../features/friends-family/api': inertApi, '../features/friends-family/RoundViews': views, '../features/friends-family/MoneyEditor': moneyEditor, '../features/friends-family/ThemeSwitch': { ThemeSwitch: () => null }, '../features/friends-family/ui': ui })
     const experience = findElement(page.default(), node => node.type === views.RoundViews)
     assert.equal(experience.key.endsWith(`$${authId}`), true)
     assert.equal(experience.props.authId, authId)
@@ -530,7 +532,7 @@ test('login and logout return to the private /invest page', async () => {
   for (const user of [null, { authId: 'member-subject' }]) {
     const window = { location: { href: '' } }
     const hooks = { useState: initial => [initial, () => {}] }
-    const page = load('src/pages/FriendsAndFamily.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({ cancelQueries: () => Promise.resolve(), removeQueries: () => {} }), useQuery: options => ({ data: options.queryKey[1] === 'session' ? { user } : roundFixture, isPending: false, isError: false }) }, '../components/ThemeToggle': { ThemeToggle: () => null }, '../services/api': { API_URL: 'https://api.example.test' }, '../features/friends-family/api': inertApi, '../features/friends-family/RoundViews': views, '../features/friends-family/MoneyEditor': moneyEditor }, { window })
+    const page = load('src/pages/FriendsAndFamily.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({ cancelQueries: () => Promise.resolve(), removeQueries: () => {} }), useQuery: options => ({ data: options.queryKey[1] === 'session' ? { user } : roundFixture, isPending: false, isError: false }) }, '../components/ThemeToggle': { ThemeToggle: () => null }, '../services/api': { API_URL: 'https://api.example.test' }, '../features/friends-family/api': inertApi, '../features/friends-family/RoundViews': views, '../features/friends-family/MoneyEditor': moneyEditor, '../features/friends-family/ThemeSwitch': { ThemeSwitch: () => null }, '../features/friends-family/ui': ui }, { window })
     const label = user ? 'Sign out' : 'Continue with Google'
     findElement(page.default(), node => node.type === 'button' && node.props.children === label).props.onClick()
     await new Promise(resolve => setImmediate(resolve))
@@ -552,7 +554,7 @@ test('canceling an editable target releases the view-exit lock without recording
 test('dashboard unmount cancels and removes its account-specific participant query', () => {
   const cleanups = []; const calls = []
   const hooks = { useState: initial => [initial, () => {}], useRef: initial => ({ current: initial }), useEffect: effect => { const cleanup = effect(); if (cleanup) cleanups.push(cleanup) } }
-  const dashboard = load('src/features/friends-family/AdminDashboard.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({ cancelQueries: options => { calls.push(['cancel', options.queryKey]); return Promise.resolve() }, removeQueries: options => calls.push(['remove', options.queryKey]) }), useQuery: options => { calls.push(['query', options.queryKey]); return { data: targetSnapshot, dataUpdatedAt: 1 } } }, './api': inertApi, './RoundProgress': progress, './money': money, './participants': participantHelpers, './ParticipantList': { ParticipantList: () => null }, './RoundTargetEditor': targetComponents, './roundTarget': targetHelpers, './MoneyEditor': moneyEditor })
+  const dashboard = load('src/features/friends-family/AdminDashboard.tsx', { react: hooks, 'react/jsx-runtime': jsxRuntime, '@tanstack/react-query': { useQueryClient: () => ({ cancelQueries: options => { calls.push(['cancel', options.queryKey]); return Promise.resolve() }, removeQueries: options => calls.push(['remove', options.queryKey]) }), useQuery: options => { calls.push(['query', options.queryKey]); return { data: targetSnapshot, dataUpdatedAt: 1 } } }, './api': inertApi, './RoundProgress': progress, './money': money, './participants': participantHelpers, './ParticipantList': { ParticipantList: () => null }, './RoundTargetEditor': targetComponents, './roundTarget': targetHelpers, './MoneyEditor': moneyEditor, './ui': ui })
   dashboard.AdminDashboard({ overview: adminOverview, authId: 'admin-subject', login: () => {} })
   assert.deepEqual(Array.from(calls[0][1]), ['private-friends-family', 'participants', 'admin-subject'])
   for (const cleanup of cleanups) cleanup()

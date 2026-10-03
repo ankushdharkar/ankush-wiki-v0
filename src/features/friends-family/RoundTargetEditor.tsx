@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import type { ParticipantsResponse, RoundTargetCommand, RoundTargetResult } from './contract'
 import { createRoundTargetCommand, RoundApiError } from './api'
 import { convertMinor, decimalForScale, formatMoney } from './money'
-import { primaryButton, quietButton } from './MoneyEditor'
+import { actions, AlertIcon, fieldError, fieldGroup, fieldGroupInvalid, fieldInput, fieldLabel, figure, hairline, label, Notice, primaryButton, quietButton, secondaryButton, secondaryText } from './ui'
 import { parseTargetMillions, targetError, USD_MILLION_SCALE } from './roundTarget'
 
 export function RoundTargetEditor({ snapshot, canManage, save, refresh, onAccessDenied, onEditStateChange }: {
@@ -56,25 +56,29 @@ export function RoundTargetEditor({ snapshot, canManage, save, refresh, onAccess
     setDraft(null); setConflict(false); setReviewReady(false); setError(''); setShowError(false)
     onEditStateChange?.(false)
   }
-  return <section aria-labelledby="round-target-heading" className="rounded-2xl bg-white p-5 shadow-sm shadow-slate-900/5 dark:bg-slate-900 sm:p-6">
-    <div className="flex flex-wrap items-start justify-between gap-3"><div><h2 id="round-target-heading" className="text-xs font-medium text-slate-500 dark:text-slate-400">Round target</h2><p className="mt-1 break-words text-xl font-semibold tracking-tight tabular-nums text-slate-900 dark:text-white">{formatMoney(snapshot.config.targetUsdMinor, 'USD')}</p><p className="mt-2 text-xs text-slate-500 dark:text-slate-400">Target updated <time dateTime={snapshot.round.updatedAt} title={new Date(snapshot.round.updatedAt).toLocaleString()}>{new Date(snapshot.round.updatedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</time></p></div>
-      {canManage && !draft && <button type="button" onClick={() => { onEditStateChange?.(true); setDraft({ value: decimalForScale(BigInt(snapshot.config.targetUsdMinor), USD_MILLION_SCALE), version: snapshot.round.version }); setMessage(''); setError('') }} className={quietButton}>Change target</button>}
+  const invalid = showError && !!validation
+  return <section aria-labelledby="round-target-heading">
+    <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3"><div className="min-w-0"><h2 id="round-target-heading" className={label}>Round target</h2><p className={`${figure} mt-1 text-lg leading-7 break-words`}>{formatMoney(snapshot.config.targetUsdMinor, 'USD')}</p><p className={`mt-1 text-sm leading-6 ${secondaryText}`}>Target updated <time dateTime={snapshot.round.updatedAt} title={new Date(snapshot.round.updatedAt).toLocaleString()}>{new Date(snapshot.round.updatedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</time></p></div>
+      {canManage && !draft && <button type="button" onClick={() => { onEditStateChange?.(true); setDraft({ value: decimalForScale(BigInt(snapshot.config.targetUsdMinor), USD_MILLION_SCALE), version: snapshot.round.version }); setMessage(''); setError('') }} className={secondaryButton}>Change target</button>}
     </div>
-    {message && <p role="status" className="mt-4 text-sm font-medium text-teal-800 dark:text-teal-300">{message}</p>}
-    {draft && canManage && <form className="mt-6 space-y-5" onSubmit={(event) => {
+    {message && <Notice tone="success" role="status" className="mt-4">{message}</Notice>}
+    {draft && canManage && <form className="mt-6 max-w-xl space-y-5" onSubmit={(event) => {
       event.preventDefault(); if (locked) return; setShowError(true)
       if (amount !== null && !validation) void submit(createRoundTargetCommand(draft.version, amount))
     }}>
-      {error && <div role="alert" className="space-y-3 rounded-xl bg-amber-50 p-4 text-sm text-amber-950 dark:bg-amber-950 dark:text-amber-100"><p>{error}</p>{command && !busy && <button type="button" onClick={() => void submit(command)} className={primaryButton}>Retry same target change</button>}
-        {conflict && <><p>Latest target: <strong>{formatMoney(snapshot.config.targetUsdMinor, 'USD')}</strong></p>{canReview ? <button type="button" onClick={() => {
+      {error && <Notice tone="warning" role="alert"><p>{error}</p>{command && !busy && <button type="button" onClick={() => void submit(command)} className={primaryButton}>Retry same target change</button>}
+        {conflict && <><p>Latest target: <strong className="font-semibold tabular-nums">{formatMoney(snapshot.config.targetUsdMinor, 'USD')}</strong></p>{canReview ? <button type="button" onClick={() => {
           if (reviewedVersion.current) setDraft({ ...draft, version: reviewedVersion.current })
           setConflict(false); setError(''); setReviewReady(false)
-        }} className={quietButton}>I reviewed this, keep my draft</button> : <button type="button" disabled={busy} onClick={() => void reviewLatest()} className={quietButton}>Load latest target</button>}</>}
-      </div>}
-      <div><label htmlFor="round-target-millions" className="text-sm font-semibold text-slate-900 dark:text-white">Target in USD millions</label><div className="mt-2 flex min-w-0 items-center gap-3 rounded-xl bg-slate-50 px-4 dark:bg-slate-950"><input id="round-target-millions" inputMode="decimal" autoComplete="off" value={draft.value} disabled={locked} onChange={(event) => setDraft({ ...draft, value: event.target.value })} aria-invalid={showError && !!validation} aria-describedby="round-target-help round-target-error" className="h-16 min-w-0 w-full bg-transparent text-3xl font-medium tracking-tight tabular-nums text-slate-900 outline-none focus-visible:ring-2 focus-visible:ring-teal-600 disabled:opacity-50 dark:text-white" /><span className="shrink-0 text-sm text-slate-500 dark:text-slate-400">million USD</span></div></div>
-      <div id="round-target-help" className="break-words text-sm text-slate-500 dark:text-slate-400">{amount !== null && <><p className="font-medium text-slate-700 dark:text-slate-200">{formatMoney(amount, 'USD')}</p><p className="mt-1">{formatMoney(convertMinor({ currency: 'USD', amountMinor: amount }, 'INR', snapshot.config.inrPerUsd).toString(), 'INR')}</p></>}<p className="mt-2">{snapshot.config.rateIsTemporary ? 'Temporary rate' : 'Conversion rate'}: US$1 = ₹{snapshot.config.inrPerUsd}</p></div>
-      {showError && validation && <p id="round-target-error" role="alert" className="text-sm text-red-700 dark:text-red-300">{validation}</p>}
-      <div className="flex flex-wrap gap-3"><button type="submit" disabled={locked} className={primaryButton}>{busy ? 'Saving…' : 'Save target'}</button><button type="button" disabled={busy || !!command} onClick={cancel} className={quietButton}>Cancel</button></div>
+        }} className={secondaryButton}>I reviewed this, keep my draft</button> : <button type="button" disabled={busy} onClick={() => void reviewLatest()} className={secondaryButton}>Load latest target</button>}</>}
+      </Notice>}
+      <div className="space-y-3">
+        <label htmlFor="round-target-millions" className={fieldLabel}>Target in USD millions</label>
+        <div className={`${invalid ? fieldGroupInvalid : fieldGroup} ${locked ? 'opacity-60' : ''}`}><input id="round-target-millions" inputMode="decimal" autoComplete="off" value={draft.value} disabled={locked} onChange={(event) => setDraft({ ...draft, value: event.target.value })} aria-invalid={invalid} aria-describedby="round-target-help round-target-error" className={`${fieldInput} h-14 w-full text-2xl font-medium tabular-nums`} /><span className={`flex shrink-0 items-center border-l px-3.5 text-base ${hairline} ${secondaryText}`}>million USD</span></div>
+        {invalid && <p id="round-target-error" role="alert" className={fieldError}><AlertIcon />{validation}</p>}
+        <div id="round-target-help" className={`text-sm leading-6 break-words ${secondaryText}`}>{amount !== null && <><p className="text-lg leading-7 font-semibold tabular-nums text-stone-900 dark:text-stone-50">{formatMoney(amount, 'USD')}</p><p className="tabular-nums">{formatMoney(convertMinor({ currency: 'USD', amountMinor: amount }, 'INR', snapshot.config.inrPerUsd).toString(), 'INR')}</p></>}<p className={amount !== null ? 'mt-3' : ''}>{snapshot.config.rateIsTemporary ? 'Temporary rate' : 'Conversion rate'}: US$1 = ₹{snapshot.config.inrPerUsd}</p></div>
+      </div>
+      <div className={actions}><button type="submit" disabled={locked} className={primaryButton}>{busy ? 'Saving…' : 'Save target'}</button><button type="button" disabled={busy || !!command} onClick={cancel} className={quietButton}>Cancel</button></div>
     </form>}
   </section>
 }
